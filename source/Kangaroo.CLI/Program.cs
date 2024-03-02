@@ -1,66 +1,25 @@
-﻿
-using Kangaroo;
-using System.Diagnostics;
+﻿using Kangaroo;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 var ips = CreateIpAddresses();
 
-using var scanner1 = Scanner
+using var parallelScanner = ScannerBuilder
     .Configure()
     .WithAddresses(ips)
-    .WithConcurrency(concurrent: true)
+    .WithParallelism(numberOfBatches: 10)
     .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
     .WithLogging(
-        exception =>
+        LoggerFactory.Create(builder =>
         {
-            Console.WriteLine($"SCANNER 1: {exception.Message}");
-        },
-        message =>
-        {
-            Console.WriteLine($"SCANNER 1: {message}");
-        })
+            builder.AddConsole();
+        }))
     .Build();
-
-using var scanner2 = Scanner
-    .Configure()
-    .WithAddresses(ips)
-    .WithConcurrency()
-    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    .WithLogging(
-        exception =>
-        {
-            Console.WriteLine($"SCANNER 2: {exception.Message}");
-        },
-        message =>
-        {
-            Console.WriteLine($"SCANNER 2: {message}");
-        })
-    .Build();
-
-
-var stopwatch = new Stopwatch();
-stopwatch.Start();
-
 
 Console.WriteLine("Starting Scanner 1");
-var nodes1 = await scanner1.QueryAddresses();
-
-foreach (var node in nodes1)
-{
-    Console.WriteLine(node.ToString());
-}
-
-Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
-
-Console.WriteLine("Starting Scanner 2");
-var nodes2 = await scanner2.QueryAddresses();
-
-foreach (var node in nodes2)
-{
-    Console.WriteLine(node.ToString());
-}
-
-Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
+var nodes1 = await parallelScanner.QueryAddresses();
+Console.WriteLine(nodes1.Dump());
+Console.WriteLine(nodes1.Dump(true));
 
 Console.Read();
 

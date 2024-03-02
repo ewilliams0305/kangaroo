@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Kangaroo;
+namespace Kangaroo.Platforms;
 
 public sealed class LinuxArp
 {

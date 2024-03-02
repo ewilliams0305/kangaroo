@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Kangaroo;
 
@@ -16,11 +17,13 @@ internal sealed class ScannerOptions
 
     public bool Concurrent { get; set; } = false;
 
+    public int ItemsPerBatch { get; set; } = 10;
+
     public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(500);
 
-    public Action<Exception> ExceptionHandler { get; set; } = Console.WriteLine;
+    public int TimeToLive { get; set; } = 64;
 
-    public Action<string> MessageHandler { get; set; } = Console.WriteLine;
+    public ILogger Logger { get; set; } = new DefaultLogger();
 
     public ScannerOptions()
     {

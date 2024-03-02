@@ -1,13 +1,23 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kangaroo;
 
-internal sealed class ScannerBuilder : IScannerBuilder, IScannerConcurrent, IScannerIpConfiguration, IScannerOptions
+public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
 {
-    private readonly ScannerOptions _options = new();
+    /// <summary>
+    /// Starts the scanner configuration process.
+    /// </summary>
+    /// <returns>Returns a new scanner builder and begins the build pipeline</returns>
+    public static IScannerIpConfiguration Configure()
+    {
+        return new ScannerBuilder();
+    }
 
+    private readonly ScannerOptions _options = new();
 
     /// <inheritdoc />
     public IScannerOptions WithSubnet(byte subnet, IPAddress? address = null)
@@ -70,44 +80,58 @@ internal sealed class ScannerBuilder : IScannerBuilder, IScannerConcurrent, ISca
         return this;
     }
 
-    /// <inheritdoc />
-    public IScannerTimeoutOptions WithConcurrency(bool concurrent = false)
+    public IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10)
     {
-        _options.Concurrent = concurrent;
+        if (numberOfBatches == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(numberOfBatches));
+        }
+        _options.Concurrent = true;
+        _options.ItemsPerBatch = numberOfBatches;
         return this;
     }
-
-
 
     /// <inheritdoc />
     public IScanner Build()
     {
+        var addresses = CreateIpAddress();
+
+        if (!_options.Concurrent)
+        {
+            return CreateOrderlyScanner(addresses);
+        }
+
+        var ipAddresses = addresses as IPAddress[] ?? addresses.ToArray();
+        //var batchSize= ipAddresses.Count() / _options.ItemsPerBatch;
+        return CreateParallelScanner(ipAddresses, _options.ItemsPerBatch);
+    }
+
+    private IScanner CreateParallelScanner(IEnumerable<IPAddress> addresses, int batchSize) =>
+        ParallelScanner.CreateScanner(
+            _options.Logger,
+            addresses,
+            batchSize,
+            (int)_options.Timeout.TotalMilliseconds);
+
+    private IScanner CreateOrderlyScanner(IEnumerable<IPAddress> addresses)=>
+        OrderlyScanner.CreateScanner(
+            _options.Logger,
+            addresses,
+            (int)_options.Timeout.TotalMilliseconds);
+
+    private IEnumerable<IPAddress> CreateIpAddress()
+    {
         if (_options.IpAddresses.Any())
         {
-            return Scanner.CreateScanner(
-                _options.IpAddresses,
-                _options.Concurrent, 
-                (int)_options.Timeout.TotalMilliseconds,
-                exception: _options.ExceptionHandler,
-                message: _options.MessageHandler);
+            return _options.IpAddresses;
         }
 
         if (_options is { RangeStart: not null, RangeStop: not null })
         {
-            return Scanner.CreateScanner(
-                CreateRange(),
-                _options.Concurrent, 
-                (int)_options.Timeout.TotalMilliseconds,
-                exception: _options.ExceptionHandler,
-                message: _options.MessageHandler);
+            return CreateRange();
         }
 
-        return Scanner.CreateScanner(
-            new List<IPAddress>(1) { _options.IpAddress! }, 
-            _options.Concurrent, 
-            (int)_options.Timeout.TotalMilliseconds,
-            exception: _options.ExceptionHandler,
-            message: _options.MessageHandler);
+        return new List<IPAddress>(1) { _options.IpAddress! };
     }
 
     private IEnumerable<IPAddress> CreateRange()
@@ -140,34 +164,39 @@ internal sealed class ScannerBuilder : IScannerBuilder, IScannerConcurrent, ISca
         }
     }
 
-    #region Implementation of IScannerTimeout
-
     /// <inheritdoc />
-    public IScannerConcurrentOptions WithNodeTimeout(TimeSpan timeout)
+    public IScannerParallelismOptions WithNodeTimeout(TimeSpan timeout)
     {
         _options.Timeout = timeout;
         return this;
     }
 
-    #endregion
-
-    #region Implementation of IScannerLogging
-
-    /// <inheritdoc />
-    public IScannerBuilder WithLogging(Action<Exception>? exception, Action<string>? message)
+    public IScannerBuilder WithLogging(ILogger logger)
     {
-        if (exception != null)
-        {
-            _options.ExceptionHandler = exception;
-        }
-
-        if (message != null)
-        {
-            _options.MessageHandler = message;
-        }
-
+        _options.Logger = logger;
         return this;
     }
 
-    #endregion
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(Func<ILogger> loggerFactory)
+    {
+        _options.Logger = loggerFactory.Invoke();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerProvider loggerProvider)
+    {
+        ILoggerFactory fac = new NullLoggerFactory();
+        fac.AddProvider(provider:loggerProvider);
+        _options.Logger = fac.CreateLogger<IScanner>();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerFactory loggerFactory)
+    {
+        _options.Logger = loggerFactory.CreateLogger<IScanner>();
+        return this;
+    }
 }

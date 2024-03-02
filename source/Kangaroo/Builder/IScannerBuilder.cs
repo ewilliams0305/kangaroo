@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
+using Microsoft.Extensions.Logging;
 
 namespace Kangaroo;
 
@@ -8,7 +9,7 @@ public interface IScannerIpConfiguration : IScannerSubnet, IScannerRange, IScann
 
 }
 
-public interface IScannerOptions : IScannerTimeoutOptions, IScannerConcurrentOptions
+public interface IScannerOptions : IScannerTimeoutOptions, IScannerParallelismOptions
 {
 
 }
@@ -23,24 +24,35 @@ public interface IScannerTimeoutOptions : IScannerTimeout, IScannerLoggingOption
 
 }
 
-public interface IScannerConcurrentOptions : IScannerConcurrent, IScannerLoggingOptions
+public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggingOptions
 {
 
 }
 
 public interface IScannerLogging
 {
-    IScannerBuilder WithLogging(Action<Exception>? exception = null, Action<string>? message = null);
+    IScannerBuilder WithLogging(ILogger logger);
+    IScannerBuilder WithLogging(Func<ILogger> loggerFactory);
+    IScannerBuilder WithLogging(ILoggerProvider loggerProvider);
+    IScannerBuilder WithLogging(ILoggerFactory loggerFactory);
+
+
 }
 
-public interface IScannerConcurrent
+public interface IScannerParallelism
 {
-    IScannerTimeoutOptions WithConcurrency(bool concurrent = false);
+    /// <summary>
+    /// Add parallel task execution query each endpoint.
+    /// When parallelism configures the scanner to query endpoints in parallel.
+    /// </summary>
+    /// <param name="numberOfBatches">The number of batches.  example the default value or 10 would process 254 address in 25 concurrent processes</param>
+    /// <returns>the next step in the pipeline</returns>
+    IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10);
 }
 
 public interface IScannerTimeout
 {
-    IScannerConcurrentOptions WithNodeTimeout(TimeSpan timeout);
+    IScannerParallelismOptions WithNodeTimeout(TimeSpan timeout);
 
 }
 
