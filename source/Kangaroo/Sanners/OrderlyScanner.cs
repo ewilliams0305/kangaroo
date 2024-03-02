@@ -61,7 +61,7 @@ namespace Kangaroo
             }
 
             _stopWatch.Stop();
-            return new ScanResults(nodes, _stopWatch.Elapsed);
+            return new ScanResults(nodes, _stopWatch.Elapsed, 0, IPAddress.Any, IPAddress.Any);
         }
 
         public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
@@ -74,19 +74,17 @@ namespace Kangaroo
 
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
             try
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
                 var reply = await PingNode(ipAddress, token);
 
                 if (reply is not { Status: IPStatus.Success })
                 {
                     stopwatch.Stop();
-                    var badNode = new NetworkNode(ipAddress)
-                    {
-                        QueryTime = _stopWatch.Elapsed
-                    };
+                    var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
                     _logger.LogInformation("{node}", badNode);
                     return badNode;
                 }
@@ -95,14 +93,14 @@ namespace Kangaroo
                 var host = await GetHostname(ipAddress, token);
 
                 stopwatch.Stop();
-                var node = new NetworkNode(ipAddress)
-                {
-                    QueryTime = stopwatch.Elapsed,
-                    IsConnected = true,
-                    Latency = TimeSpan.FromMilliseconds(reply.RoundtripTime),
-                    Mac = mac ?? "00:00:00:00:00",
-                    Hostname = host != null ? host.HostName : "N/A",
-                };
+                
+                var node = new NetworkNode(
+                    ipAddress,
+                    mac ?? "00:00:00:00:00",
+                    host != null ? host.HostName : "N/A",
+                    TimeSpan.FromMilliseconds(reply.RoundtripTime),
+                    stopwatch.Elapsed, 
+                    true);
 
                 _logger.LogInformation("{node}", node);
                 return node;
@@ -110,7 +108,7 @@ namespace Kangaroo
             catch (Exception e)
             {
                 _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
-                return new NetworkNode(ipAddress);
+                return new NetworkNode(ipAddress, null, null, null, stopwatch.Elapsed, false);
             }
         }
 

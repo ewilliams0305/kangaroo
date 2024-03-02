@@ -46,59 +46,8 @@ namespace Kangaroo
             _pingOptions = new PingOptions(ttl: 5, false);
         }
 
-        //public async Task<IEnumerable<NetworkNode>> QueryAddresses(CancellationToken token = default)
-        //{
-        //    try
-        //    {
-        //        var batchOfTask = BatchedTaskFactory();
-        //        var results = new List<NetworkNode>();
-        //        var counter = 0;
-                
-        //        foreach(var batch in batchOfTask)
-        //        {
-        //            counter++;
-        //            var batchedResult = await ProcessBatchOfNodes(batch, counter);
-        //            results.AddRange(batchedResult);
-        //        }
-        //        return results;
-        //    }
-        //    catch (ArgumentNullException nullException)
-        //    {
-        //        _logger.LogCritical(nullException,"Failed testing batch of nodes");
-        //        return Array.Empty<NetworkNode>();
-        //    }
-        //    catch (ArgumentException argException)
-        //    {
-        //        _logger.LogCritical(argException, "Failed testing batch of nodes");
-        //        return Array.Empty<NetworkNode>();
-        //    }
-        //}
-        
-        //private async Task<IEnumerable<NetworkNode>> ProcessBatchOfNodes(IEnumerable<Task<NetworkNode>> batchOfTasks, int counter)
-        //{
-        //    var ofTasks = batchOfTasks as Task<NetworkNode>[] ?? batchOfTasks.ToArray();
-        //    try
-        //    {
-        //        var results = await Task.WhenAll(ofTasks).ConfigureAwait(false);
-        //        _logger.LogDebug("Batch #{counter} completed {numberOfItems} items on thread {threadId}", counter, results.Length, Thread.CurrentThread.ManagedThreadId);
-        //        return results;
-        //    }
-        //    catch
-        //    {
-        //        var exceptions = ofTasks
-        //            .Where(t => t.Exception != null)
-        //            .Select(t => t.Exception)
-        //            .ToList();
+        int counter = 0;
 
-        //        if (exceptions != null)
-        //        {
-        //            throw new AggregateException(exceptions!);
-        //        }
-
-        //        throw new Exception("Something horribly impossibly when wrong");
-        //    }
-        //}
-        
         public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
         {
             try
@@ -107,39 +56,29 @@ namespace Kangaroo
 
                 var batchOfTask = BatchedTaskFactoryIAsync();
                 var results = new List<NetworkNode>();
-                var counter = 0;
-                
+
                 foreach(var batch in batchOfTask)
                 {
                     counter++;
-                    //var batchedResult = await ProcessBatchOfNodes(batch, counter);
-
                     var batchedResult = await batch;
-
-                   results.AddRange(batchedResult);
+                    results.AddRange(batchedResult);
                 }
 
                 _stopWatch.Stop();
 
-                return new ScanResults(results, elapsedTime: _stopWatch.Elapsed);
+                return new ScanResults(results, _stopWatch.Elapsed, 0, IPAddress.Any, IPAddress.Any);
             }
             catch (ArgumentNullException nullException)
             {
                 _logger.LogCritical(nullException,"Failed testing batch of nodes");
-                return new ScanResults(Array.Empty<NetworkNode>(), TimeSpan.MinValue);
+                return ScanResults.Empty;
             }
             catch (ArgumentException argException)
             {
                 _logger.LogCritical(argException, "Failed testing batch of nodes");
-                return new ScanResults(Array.Empty<NetworkNode>(), TimeSpan.MinValue);
+                return ScanResults.Empty;
             }
         }
-          private IEnumerable<IEnumerable<Task<NetworkNode>>> BatchedTaskFactory(CancellationToken token = default) =>
-            _addresses
-                .Select((ip, index) => new { Value = CheckNetworkNode(ip, token), Index = index })
-                .GroupBy(x => x.Index / _batchSize)
-                .Select(group => group.Select(x => x.Value));
-
 
         private async Task<IEnumerable<NetworkNode>> ProcessBatchOfNodes(IEnumerable<IPAddress> nodesToQuery, CancellationToken token = default)
         {
@@ -173,20 +112,17 @@ namespace Kangaroo
         
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
             try
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-
                 var reply = await PingNode(ipAddress, token);
 
                 if (reply is not { Status: IPStatus.Success })
                 {
                     stopwatch.Stop();
-                    var badNode = new NetworkNode(ipAddress)
-                    {
-                        QueryTime = stopwatch.Elapsed
-                    };
+                    var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
                     _logger.LogInformation("{node}", badNode);
                     return badNode;
                 }
@@ -195,14 +131,13 @@ namespace Kangaroo
                 var host = await GetHostname(ipAddress, token);
 
                 stopwatch.Stop();
-                var node = new NetworkNode(ipAddress)
-                {
-                    QueryTime = stopwatch.Elapsed,
-                    IsConnected = true,
-                    Latency = TimeSpan.FromMilliseconds(reply.RoundtripTime),
-                    Mac = mac ?? "00:00:00:00:00",
-                    Hostname = host != null ? host.HostName : "N/A",
-                };
+                var node = new NetworkNode(
+                    ipAddress,
+                    mac ?? "00:00:00:00:00",
+                    host != null ? host.HostName : "N/A",
+                    TimeSpan.FromMilliseconds(reply.RoundtripTime),
+                    stopwatch.Elapsed,
+                    true);
 
                 _logger.LogInformation("{node}", node);
                 return node;
@@ -210,7 +145,7 @@ namespace Kangaroo
             catch (Exception e)
             {
                 _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
-                return new NetworkNode(ipAddress);
+                return new NetworkNode(ipAddress, null, null, null, stopwatch.Elapsed, false);
             }
         }
 

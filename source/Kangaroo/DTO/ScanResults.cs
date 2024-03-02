@@ -1,13 +1,14 @@
-﻿namespace Kangaroo;
+﻿using System.Net;
 
-public sealed class ScanResults
+namespace Kangaroo;
+
+public record ScanResults(
+    IEnumerable<NetworkNode> Nodes,
+    TimeSpan ElapsedTime,
+    int NumberOfAddressesScanned,
+    IPAddress EndAddress,
+    IPAddress StartAddress)
 {
-    public TimeSpan ElapsedTime { get; }
-    public IEnumerable<NetworkNode> Nodes { get; }
-
-    public ScanResults(IEnumerable<NetworkNode> nodes, TimeSpan elapsedTime)
-    {
-        Nodes = nodes;
-        ElapsedTime = elapsedTime;
-    }
-}
+    internal static ScanResults Empty => new(Array.Empty<NetworkNode>(), TimeSpan.MinValue, 0, IPAddress.Any, IPAddress.Any);
+    
+};

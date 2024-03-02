@@ -1,35 +1,28 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 
 namespace Kangaroo;
 
-public sealed class NetworkNode
+public record NetworkNode(
+    IPAddress IpAddress, 
+    string? MacAddress, 
+    string? HostName, 
+    TimeSpan? Latency, 
+    TimeSpan QueryTime, 
+    bool Alive)
 {
-    public IPAddress Address { get; internal set; }
-    public string? Mac { get; internal set; }
-    public string? Hostname { get; internal set; }
-    public TimeSpan? Latency { get; internal set; }
-
-    public TimeSpan QueryTime { get; internal set; }
-
-    public bool IsConnected { get; internal set; } = false;
-
-    public NetworkNode(IPAddress address)
-    {
-        Address = address;
-    }
-
+    internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => new(ipAddress, null, null, null, elapsedTime, false);
 
     /// <inheritdoc />
     public override string ToString()
     {
         return new StringBuilder()
-            .Append("NODE: ").Append(Address).Append(" | ")
-            .Append("IN: ").Append(QueryTime).Append(" | ")
-            .Append("MAC: ").Append(Mac).Append(" | ")
-            .Append("CONNECTED: ").Append(IsConnected).Append(" | ")
+            .Append("IP: ").Append(IpAddress).Append(" | ")
+            .Append("ALIVE: ").Append(Alive).Append(" | ")
+            .Append("ELAPSED: ").Append(QueryTime).Append(" | ")
+            .Append("MAC ADDRESS: ").Append(MacAddress).Append(" | ")
             .Append("LATENCY: ").Append(Latency).Append(" | ")
             .ToString();
     }
-
 }

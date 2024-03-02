@@ -8,7 +8,7 @@ var ips = CreateIpAddresses();
 using var parallelScanner = ScannerBuilder
     .Configure()
     .WithAddresses(ips)
-    .WithParallelism(numberOfBatches: 120)
+    .WithParallelism(numberOfBatches: 20)
     .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
     //.WithLogging()
     .Build();
@@ -24,13 +24,8 @@ using var parallelScanner = ScannerBuilder
 
 Console.WriteLine("Starting Scanner 1");
 var nodes1 = await parallelScanner.QueryAddresses();
-
-foreach (var node in nodes1.Nodes)
-{
-    Console.WriteLine(node.ToString());
-}
-
-Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {nodes1.ElapsedTime}");
+Console.WriteLine(nodes1.Dump());
+Console.WriteLine(nodes1.Dump(true));
 
 //Console.WriteLine("Starting Scanner 2");
 //var nodes2 = await orderlyScanner.QueryAddresses();

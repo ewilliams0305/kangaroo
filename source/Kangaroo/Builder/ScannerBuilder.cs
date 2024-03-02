@@ -79,14 +79,14 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         return this;
     }
 
-    public IScannerTimeoutOptions WithParallelism(int ipAddressPerBatch = 10)
+    public IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10)
     {
-        if (ipAddressPerBatch == 0)
+        if (numberOfBatches == 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(ipAddressPerBatch));
+            throw new ArgumentOutOfRangeException(nameof(numberOfBatches));
         }
         _options.Concurrent = true;
-        _options.ItemsPerBatch = ipAddressPerBatch;
+        _options.ItemsPerBatch = numberOfBatches;
         return this;
     }
 
