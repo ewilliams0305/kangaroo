@@ -10,7 +10,7 @@ public sealed class NetworkNode
     public string? Hostname { get; internal set; }
     public TimeSpan? Latency { get; internal set; }
 
-    public TimeSpan? QueryTime { get; internal set; }
+    public TimeSpan QueryTime { get; internal set; }
 
     public bool IsConnected { get; internal set; } = false;
 

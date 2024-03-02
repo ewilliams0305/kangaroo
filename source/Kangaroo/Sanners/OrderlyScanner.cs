@@ -49,8 +49,10 @@ namespace Kangaroo
             _timeout = timeout;
         }
 
-        public async Task<IEnumerable<NetworkNode>> QueryAddresses(CancellationToken token = default)
+        public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
         {
+            _stopWatch.Restart();
+
             var nodes = new List<NetworkNode>();
 
             await foreach (var node in NetworkQueryAsync(token))
@@ -58,7 +60,8 @@ namespace Kangaroo
                 nodes.Add(node);
             }
 
-            return nodes;
+            _stopWatch.Stop();
+            return new ScanResults(nodes, _stopWatch.Elapsed);
         }
 
         public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
@@ -73,11 +76,13 @@ namespace Kangaroo
         {
             try
             {
-                _stopWatch.Restart();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
                 var reply = await PingNode(ipAddress, token);
 
                 if (reply is not { Status: IPStatus.Success })
                 {
+                    stopwatch.Stop();
                     var badNode = new NetworkNode(ipAddress)
                     {
                         QueryTime = _stopWatch.Elapsed
@@ -89,10 +94,10 @@ namespace Kangaroo
                 var mac = await GetMacAddressAsync(ipAddress, token);
                 var host = await GetHostname(ipAddress, token);
 
-
+                stopwatch.Stop();
                 var node = new NetworkNode(ipAddress)
                 {
-                    QueryTime = _stopWatch.Elapsed,
+                    QueryTime = stopwatch.Elapsed,
                     IsConnected = true,
                     Latency = TimeSpan.FromMilliseconds(reply.RoundtripTime),
                     Mac = mac ?? "00:00:00:00:00",

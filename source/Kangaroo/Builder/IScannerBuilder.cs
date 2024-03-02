@@ -32,7 +32,6 @@ public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggi
 public interface IScannerLogging
 {
     IScannerBuilder WithLogging(ILogger logger);
-    //IScannerBuilder WithLogging(Action<Exception>? exception = null, Action<string>? message = null);
 }
 
 public interface IScannerParallelism
@@ -41,9 +40,9 @@ public interface IScannerParallelism
     /// Add parallel task execution query each endpoint.
     /// When parallelism configures the scanner to query endpoints in parallel.
     /// </summary>
-    /// <param name="ipAddressPerBatch">Max number of async Task used to query the provided IPs.</param>
+    /// <param name="numberOfBatches">The number of batches.  example the default value or 10 would process 254 address in 25 concurrent processes</param>
     /// <returns>the next step in the pipeline</returns>
-    IScannerTimeoutOptions WithParallelism(int ipAddressPerBatch = 10);
+    IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10);
 }
 
 public interface IScannerTimeout

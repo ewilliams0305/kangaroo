@@ -1,5 +1,6 @@
 ﻿using Kangaroo.Platforms;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -98,10 +99,12 @@ namespace Kangaroo
         //    }
         //}
         
-        public async Task<IEnumerable<NetworkNode>> QueryAddresses(CancellationToken token = default)
+        public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
         {
             try
             {
+                _stopWatch.Restart();
+
                 var batchOfTask = BatchedTaskFactoryIAsync();
                 var results = new List<NetworkNode>();
                 var counter = 0;
@@ -116,17 +119,19 @@ namespace Kangaroo
                    results.AddRange(batchedResult);
                 }
 
-                return results;
+                _stopWatch.Stop();
+
+                return new ScanResults(results, elapsedTime: _stopWatch.Elapsed);
             }
             catch (ArgumentNullException nullException)
             {
                 _logger.LogCritical(nullException,"Failed testing batch of nodes");
-                return Array.Empty<NetworkNode>();
+                return new ScanResults(Array.Empty<NetworkNode>(), TimeSpan.MinValue);
             }
             catch (ArgumentException argException)
             {
                 _logger.LogCritical(argException, "Failed testing batch of nodes");
-                return Array.Empty<NetworkNode>();
+                return new ScanResults(Array.Empty<NetworkNode>(), TimeSpan.MinValue);
             }
         }
           private IEnumerable<IEnumerable<Task<NetworkNode>>> BatchedTaskFactory(CancellationToken token = default) =>
@@ -170,14 +175,17 @@ namespace Kangaroo
         {
             try
             {
-                _stopWatch.Restart();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 var reply = await PingNode(ipAddress, token);
 
                 if (reply is not { Status: IPStatus.Success })
                 {
+                    stopwatch.Stop();
                     var badNode = new NetworkNode(ipAddress)
                     {
-                        QueryTime = _stopWatch.Elapsed
+                        QueryTime = stopwatch.Elapsed
                     };
                     _logger.LogInformation("{node}", badNode);
                     return badNode;
@@ -186,9 +194,10 @@ namespace Kangaroo
                 var mac = await GetMacAddressAsync(ipAddress, token);
                 var host = await GetHostname(ipAddress, token);
 
+                stopwatch.Stop();
                 var node = new NetworkNode(ipAddress)
                 {
-                    QueryTime = _stopWatch.Elapsed,
+                    QueryTime = stopwatch.Elapsed,
                     IsConnected = true,
                     Latency = TimeSpan.FromMilliseconds(reply.RoundtripTime),
                     Mac = mac ?? "00:00:00:00:00",
@@ -287,7 +296,7 @@ namespace Kangaroo
 
             if (disposing)
             {
-                
+                _stopWatch.Stop();
             }
             _disposed = true;
         }
