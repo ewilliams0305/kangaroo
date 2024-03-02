@@ -1,41 +1,25 @@
-﻿using System.Diagnostics;
+﻿using Kangaroo;
+using Microsoft.Extensions.Logging;
 using System.Net;
-using Kangaroo;
 
 var ips = CreateIpAddresses();
-
 
 using var parallelScanner = ScannerBuilder
     .Configure()
     .WithAddresses(ips)
-    .WithParallelism(numberOfBatches: 20)
+    .WithParallelism(numberOfBatches: 10)
     .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    //.WithLogging()
+    .WithLogging(
+        LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+        }))
     .Build();
-
-//using var orderlyScanner = ScannerBuilder
-//    .Configure()
-//    .WithAddresses(ips)
-//    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-//    //.WithLogging()
-//    .Build();
-
-
 
 Console.WriteLine("Starting Scanner 1");
 var nodes1 = await parallelScanner.QueryAddresses();
 Console.WriteLine(nodes1.Dump());
 Console.WriteLine(nodes1.Dump(true));
-
-//Console.WriteLine("Starting Scanner 2");
-//var nodes2 = await orderlyScanner.QueryAddresses();
-
-//foreach (var node in nodes2)
-//{
-//    Console.WriteLine(node.ToString());
-//}
-
-//Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
 
 Console.Read();
 

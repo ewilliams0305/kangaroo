@@ -1,6 +1,5 @@
 ﻿using Kangaroo.Platforms;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -46,27 +45,32 @@ namespace Kangaroo
             _pingOptions = new PingOptions(ttl: 5, false);
         }
 
-        int counter = 0;
+        
 
         public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
         {
+            _stopWatch.Restart();
+            
+            var counter = 0;
+            var results = new List<NetworkNode>();
+            
             try
             {
-                _stopWatch.Restart();
-
-                var batchOfTask = BatchedTaskFactoryIAsync();
-                var results = new List<NetworkNode>();
+                var batchOfTask = BatchedTaskFactoryIAsync(token);
 
                 foreach(var batch in batchOfTask)
                 {
                     counter++;
                     var batchedResult = await batch;
-                    results.AddRange(batchedResult);
+
+                    var networkNodes = batchedResult as NetworkNode[] ?? batchedResult.ToArray();
+                    results.AddRange(networkNodes);
+                    _logger.LogDebug("Processed Batch #{counter} with #{itemsCount} items on Thread {threadId}", counter, networkNodes.Count(), Thread.CurrentThread.ManagedThreadId);
                 }
 
                 _stopWatch.Stop();
 
-                return new ScanResults(results, _stopWatch.Elapsed, 0, IPAddress.Any, IPAddress.Any);
+                return new ScanResults(results, _stopWatch.Elapsed, _addresses.Count(), _addresses.First(), _addresses.Last());
             }
             catch (ArgumentNullException nullException)
             {
@@ -80,36 +84,33 @@ namespace Kangaroo
             }
         }
 
-        private async Task<IEnumerable<NetworkNode>> ProcessBatchOfNodes(IEnumerable<IPAddress> nodesToQuery, CancellationToken token = default)
-        {
-            var results = new List<NetworkNode>();
-            await foreach (var node in NetworkQueryAsync(nodesToQuery, token))
-            {
-                results.Add(node);
-            }
-            return results;
-        }
-
         public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync(IEnumerable<IPAddress> address, [EnumeratorCancellation] CancellationToken token = default)
         {
             foreach (var ip in address)
             {
+                _logger.LogDebug("Processed Batch on Thread {threadId}", Thread.CurrentThread.ManagedThreadId);
                 yield return await CheckNetworkNode(ip, token);
             }
         }
 
-      
-        
         private IEnumerable<Task<IEnumerable<NetworkNode>>> BatchedTaskFactoryIAsync(CancellationToken token = default) =>
             _addresses
                 .Select((x, index) => new { Address = x, Index = index })
                 .GroupBy(x => x.Index / _batchSize)
                 .Select(g => ProcessBatchOfNodes(g.Select(a => a.Address), token))
                 .ToList();
-                //.Select((ip, index) => new { Value = NetworkQueryAsync(ip, token), Index = index })
-                //.GroupBy(x => x.Index / _batchSize)
-                //.Select(group => group.Select(x => x.Value));
-        
+
+        private async Task<IEnumerable<NetworkNode>> ProcessBatchOfNodes(IEnumerable<IPAddress> nodesToQuery, CancellationToken token = default)
+        {
+            var results = new List<NetworkNode>();
+            await foreach (var node in NetworkQueryAsync(nodesToQuery, token))
+            {
+                _logger.LogDebug("Processed Batch item {address} on Thread {threadId}",node.IpAddress, Thread.CurrentThread.ManagedThreadId);
+                results.Add(node);
+            }
+            return results;
+        }
+
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
             var stopwatch = new Stopwatch();
@@ -139,6 +140,7 @@ namespace Kangaroo
                     stopwatch.Elapsed,
                     true);
 
+                _logger.LogDebug("Processed Batch item {address} on Thread {threadId}", node.IpAddress, Thread.CurrentThread.ManagedThreadId);
                 _logger.LogInformation("{node}", node);
                 return node;
             }

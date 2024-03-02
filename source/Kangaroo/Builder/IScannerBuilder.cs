@@ -32,6 +32,11 @@ public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggi
 public interface IScannerLogging
 {
     IScannerBuilder WithLogging(ILogger logger);
+    IScannerBuilder WithLogging(Func<ILogger> loggerFactory);
+    IScannerBuilder WithLogging(ILoggerProvider loggerProvider);
+    IScannerBuilder WithLogging(ILoggerFactory loggerFactory);
+
+
 }
 
 public interface IScannerParallelism

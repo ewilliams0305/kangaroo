@@ -1,12 +1,11 @@
 ﻿using Kangaroo.Platforms;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Microsoft.Extensions.Logging;
 
 namespace Kangaroo
 {
@@ -61,7 +60,7 @@ namespace Kangaroo
             }
 
             _stopWatch.Stop();
-            return new ScanResults(nodes, _stopWatch.Elapsed, 0, IPAddress.Any, IPAddress.Any);
+            return new ScanResults(nodes, _stopWatch.Elapsed, _addresses.Count(), _addresses.First(), _addresses.Last());
         }
 
         public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)

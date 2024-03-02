@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kangaroo;
 
@@ -170,27 +171,32 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         return this;
     }
 
-    ///// <inheritdoc />
-    //public IScannerBuilder WithLogging(Action<Exception>? exception, Action<string>? message)
-    //{
-    //    if (exception != null)
-    //    {
-    //        _options.ExceptionHandler = exception;
-    //    }
-
-    //    if (message != null)
-    //    {
-    //        _options.MessageHandler = message;
-    //    }
-
-    //    return this;
-    //}
-    
-    /// <inheritdoc />
     public IScannerBuilder WithLogging(ILogger logger)
     {
         _options.Logger = logger;
         return this;
     }
 
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(Func<ILogger> loggerFactory)
+    {
+        _options.Logger = loggerFactory.Invoke();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerProvider loggerProvider)
+    {
+        ILoggerFactory fac = new NullLoggerFactory();
+        fac.AddProvider(provider:loggerProvider);
+        _options.Logger = fac.CreateLogger<IScanner>();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerFactory loggerFactory)
+    {
+        _options.Logger = loggerFactory.CreateLogger<IScanner>();
+        return this;
+    }
 }
