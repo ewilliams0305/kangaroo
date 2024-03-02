@@ -18,6 +18,8 @@ internal sealed class ScannerOptions
 
     public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(500);
 
+    public int TimeToLive { get; set; } = 64;
+
     public Action<Exception> ExceptionHandler { get; set; } = Console.WriteLine;
 
     public Action<string> MessageHandler { get; set; } = Console.WriteLine;

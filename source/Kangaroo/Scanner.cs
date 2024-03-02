@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -109,26 +110,35 @@ namespace Kangaroo
             }
         }
 
+
+        Stopwatch stopWatch = new Stopwatch();
+        
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
             try
             {
+                stopWatch.Start();
                 var reply = _concurrent
                     ? await ConcurrentPing(ipAddress, token)
                     : await RecycledPing(ipAddress, token);
 
                 if (reply is not { Status: IPStatus.Success})
                 {
-                    var badNode = new NetworkNode(ipAddress);
+                    var badNode = new NetworkNode(ipAddress)
+                    {
+                        QueryTime = stopWatch.Elapsed
+                    }; 
                     _message?.Invoke(badNode.ToString());
-                    return new NetworkNode(ipAddress);
+                    return badNode;
                 }
-                
+
+                var mac = await GetMacAddressAsync(ipAddress, token);
                 var host = await GetHostname(ipAddress, token);
-                var mac = GetMacAddress(ipAddress, token);
+                
 
                 var node =  new NetworkNode(ipAddress)
                 {
+                    QueryTime = stopWatch.Elapsed,
                     IsConnected = true,
                     Latency = TimeSpan.FromMilliseconds(reply.RoundtripTime),
                     Mac = mac ?? "00:00:00:00:00",
@@ -151,7 +161,10 @@ namespace Kangaroo
 
             try
             {
-                PingOptions options = new PingOptions(ttl: 5, false);
+                var options = new PingOptions(ttl: 5, false)
+                {
+
+                };
 
                 using var ping = new Ping();
                 var result = await ping.SendPingAsync(ipAddress, _timeout, _buffer, options);
@@ -206,6 +219,41 @@ namespace Kangaroo
             return null;
         }
 
+        public async Task<string?> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
+        {
+            try
+            {
+                return await Task.Run(() =>
+                {
+                    var macAddr = new byte[6];
+                    var macAddrLen = macAddr.Length;
+                    var macAddrLenUlong = (uint)macAddrLen;
+
+                    if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
+                    {
+                        // Failed to obtain MAC address
+                        return null;
+                    }
+
+                    var macAddress = new StringBuilder();
+                    for (int i = 0; i < macAddrLen; i++)
+                    {
+                        macAddress.Append(macAddr[i].ToString("X2"));
+                        if (i != macAddrLen - 1)
+                            macAddress.Append(':');
+                    }
+
+                    return macAddress.ToString();
+                }, token);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                Console.WriteLine($"Error: {ex.Message}");
+                return null;
+            }
+        }
+
         private string? GetMacAddress(IPAddress ipAddress, CancellationToken token = default)
         {
             try
@@ -214,10 +262,10 @@ namespace Kangaroo
                 var macAddrLen = macAddr.Length;
                 var macAddrLenUlong = (uint)macAddrLen;
 
-                if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
+                if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr,
+                        ref macAddrLenUlong) != 0)
                 {
                     _message?.Invoke($"Failed to obtain the MAC address for {ipAddress}");
-                    Console.WriteLine("Failed MAC");
                     return null;
                 }
 
@@ -237,7 +285,6 @@ namespace Kangaroo
                 return null;
             }
         }
-
 
         #region IDisposable
 

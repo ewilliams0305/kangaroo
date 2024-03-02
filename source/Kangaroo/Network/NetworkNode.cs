@@ -10,6 +10,8 @@ public sealed class NetworkNode
     public string? Hostname { get; internal set; }
     public TimeSpan? Latency { get; internal set; }
 
+    public TimeSpan? QueryTime { get; internal set; }
+
     public bool IsConnected { get; internal set; } = false;
 
     public NetworkNode(IPAddress address)
@@ -23,6 +25,7 @@ public sealed class NetworkNode
     {
         return new StringBuilder()
             .Append("NODE: ").Append(Address).Append(" | ")
+            .Append("IN: ").Append(QueryTime).Append(" | ")
             .Append("MAC: ").Append(Mac).Append(" | ")
             .Append("CONNECTED: ").Append(IsConnected).Append(" | ")
             .Append("LATENCY: ").Append(Latency).Append(" | ")
