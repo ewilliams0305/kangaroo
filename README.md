@@ -12,4 +12,29 @@
 
 The kangaroo network scanner supports (or will support) the following features. 
 
+## Table of Contents
+1. [Building Scanners](#Building)
+2. [Scanning Networks](#Scanning-Networks)
+
+# Building
+
+## IP Configuration
+
+## Parellel Configuration
+
+## Ping Configuration
+
+## Logging Configuration
+
+
+# Scanning Networks
+
+## IP Scanning
+
+## Port Scanner
+
+## Nodes
+
+## Scan Results
+
 
