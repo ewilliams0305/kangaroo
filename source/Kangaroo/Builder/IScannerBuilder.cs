@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
+using Microsoft.Extensions.Logging;
 
 namespace Kangaroo;
 
@@ -8,7 +9,7 @@ public interface IScannerIpConfiguration : IScannerSubnet, IScannerRange, IScann
 
 }
 
-public interface IScannerOptions : IScannerTimeoutOptions, IScannerConcurrentOptions
+public interface IScannerOptions : IScannerTimeoutOptions, IScannerParallelismOptions
 {
 
 }
@@ -23,24 +24,31 @@ public interface IScannerTimeoutOptions : IScannerTimeout, IScannerLoggingOption
 
 }
 
-public interface IScannerConcurrentOptions : IScannerConcurrent, IScannerLoggingOptions
+public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggingOptions
 {
 
 }
 
 public interface IScannerLogging
 {
-    IScannerBuilder WithLogging(Action<Exception>? exception = null, Action<string>? message = null);
+    IScannerBuilder WithLogging(ILogger logger);
+    //IScannerBuilder WithLogging(Action<Exception>? exception = null, Action<string>? message = null);
 }
 
-public interface IScannerConcurrent
+public interface IScannerParallelism
 {
-    IScannerTimeoutOptions WithConcurrency(bool concurrent = false);
+    /// <summary>
+    /// Add parallel task execution query each endpoint.
+    /// When parallelism configures the scanner to query endpoints in parallel.
+    /// </summary>
+    /// <param name="ipAddressPerBatch">Max number of async Task used to query the provided IPs.</param>
+    /// <returns>the next step in the pipeline</returns>
+    IScannerTimeoutOptions WithParallelism(int ipAddressPerBatch = 10);
 }
 
 public interface IScannerTimeout
 {
-    IScannerConcurrentOptions WithNodeTimeout(TimeSpan timeout);
+    IScannerParallelismOptions WithNodeTimeout(TimeSpan timeout);
 
 }
 

@@ -1,41 +1,24 @@
-﻿
-using Kangaroo;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
+using Kangaroo;
 
 var ips = CreateIpAddresses();
 
-using var scanner1 = Scanner
+
+using var parallelScanner = ScannerBuilder
     .Configure()
     .WithAddresses(ips)
-    .WithConcurrency(concurrent: true)
+    .WithParallelism(ipAddressPerBatch: 10)
     .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    .WithLogging(
-        exception =>
-        {
-            Console.WriteLine($"SCANNER 1: {exception.Message}");
-        },
-        message =>
-        {
-            Console.WriteLine($"SCANNER 1: {message}");
-        })
+    //.WithLogging()
     .Build();
 
-using var scanner2 = Scanner
-    .Configure()
-    .WithAddresses(ips)
-    .WithConcurrency()
-    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    .WithLogging(
-        exception =>
-        {
-            Console.WriteLine($"SCANNER 2: {exception.Message}");
-        },
-        message =>
-        {
-            Console.WriteLine($"SCANNER 2: {message}");
-        })
-    .Build();
+//using var orderlyScanner = ScannerBuilder
+//    .Configure()
+//    .WithAddresses(ips)
+//    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
+//    //.WithLogging()
+//    .Build();
 
 
 var stopwatch = new Stopwatch();
@@ -43,7 +26,7 @@ stopwatch.Start();
 
 
 Console.WriteLine("Starting Scanner 1");
-var nodes1 = await scanner1.QueryAddresses();
+var nodes1 = await parallelScanner.QueryAddresses();
 
 foreach (var node in nodes1)
 {
@@ -52,15 +35,15 @@ foreach (var node in nodes1)
 
 Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
 
-Console.WriteLine("Starting Scanner 2");
-var nodes2 = await scanner2.QueryAddresses();
+//Console.WriteLine("Starting Scanner 2");
+//var nodes2 = await orderlyScanner.QueryAddresses();
 
-foreach (var node in nodes2)
-{
-    Console.WriteLine(node.ToString());
-}
+//foreach (var node in nodes2)
+//{
+//    Console.WriteLine(node.ToString());
+//}
 
-Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
+//Console.WriteLine($"\n\nTOTAL ELAPSED TIME: {stopwatch.Elapsed}");
 
 Console.Read();
 

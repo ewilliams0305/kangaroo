@@ -1,4 +1,4 @@
-﻿namespace Kangaroo
+﻿namespace Kangaroo.Platforms
 {
     internal class WindowsArp
     {
