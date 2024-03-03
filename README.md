@@ -22,6 +22,24 @@ The kangaroo network scanner supports (or will support) the following features.
 2. [Scanning Networks](#Scanning-Networks)
 
 # Building
+Kangaroo leverages the builder patter to ensure its always configured correctly before usage. 
+
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithAddresses(ips)
+    .WithParallelism(numberOfBatches: 10)
+    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
+    .WithLogging(
+        LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+        }))
+    .Build();
+
+var nodes = await scanner.QueryAddresses();
+Console.WriteLine(nodes.Dump());
+```
 
 ## IP Configuration
 
