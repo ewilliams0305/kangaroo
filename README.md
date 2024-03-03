@@ -24,6 +24,15 @@ The kangaroo network scanner supports (or will support) the following features.
 # Building
 Kangaroo leverages the builder patter to ensure its always configured correctly before usage. 
 
+*begin with a ScannerBuilder.Configure() method*
+``` csharp
+// IScanner implements IDisposable so optionally use a usiing statement
+using var scanner = ScannerBuilder.Configure()
+```
+If no additional options are provided the kangaroo will grab your first network interface that is up and use that subnet for scans. **(lies, not yet)**
+
+Begin chaining addition options together as depicted. 
+
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
