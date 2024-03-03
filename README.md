@@ -13,7 +13,7 @@
 The kangaroo network scanner supports (or will support) the following features. 
 
 ![Static Badge](https://img.shields.io/badge/IP-SCAN-blue)  
-![Static Badge](https://img.shields.io/badge/PORT-SCAN-green) *FUTURE* 
+![Static Badge](https://img.shields.io/badge/PORT-SCAN-green)
 ![Static Badge](https://img.shields.io/badge/NODE-SCAN-blue)   
 ![Static Badge](https://img.shields.io/badge/PARELLEL-SCAN-blue)   
 
