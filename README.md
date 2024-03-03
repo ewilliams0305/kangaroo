@@ -22,11 +22,11 @@ The kangaroo network scanner supports (or will support) the following features.
 2. [Scanning Networks](#Scanning-Networks)
 
 # Building
-Kangaroo leverages the builder patter to ensure its always configured correctly before usage. 
+Kangaroo leverages the builder pattern to ensure its always configured correctly before usage. 
 
 *begin with a ScannerBuilder.Configure() method*
 ``` csharp
-// IScanner implements IDisposable so optionally use a usiing statement
+// IScanner implements IDisposable so optionally use a using statement
 using var scanner = ScannerBuilder.Configure()
 ```
 If no additional options are provided the kangaroo will grab your first network interface that is up and use that subnet for scans. **(lies, not yet)**
@@ -51,8 +51,50 @@ Console.WriteLine(nodes.Dump());
 ```
 
 ## IP Configuration
+Optionally kangaroo can use specific IPs, a range of IPs, or scan an entire subnet
+
+*ip address collection*
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithAddresses(ips) // provide an IEnerable of IPS
+    .Build();
+```
+*subnetmask*
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithSubnet(ipAddress, 0x24) // provide a ip subnet
+    .Build();
+```
+
+*network interface*
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .withInterface(ethernet2) // provide an adapter to determin a subnet
+    .Build();
+```
+
+*range of ips*
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithIpAddressRange(startIpAddress, endIpAddress) // provide an IEnerable of IPS
+    .Build();
+```
 
 ## Parellel Configuration
+
+After the ips are determined you can optionally execute the scans using the TPL, add the WithParallelism 
+method and provide a number of IPs per concurrent batch. 
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithAddresses(ips)
+    .WithParallelism(numberOfBatches: 10) // of 254 addresses 25 batches or 
+    .Build();
+```
 
 ## Ping Configuration
 
