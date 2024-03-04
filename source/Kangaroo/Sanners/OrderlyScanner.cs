@@ -1,4 +1,5 @@
 ﻿using Kangaroo.Platforms;
+using Kangaroo.Queries;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
@@ -24,28 +25,27 @@ namespace Kangaroo
         /// Factory used to create a new instance of the scanner.
         /// </summary>
         /// <param name="logger"></param>
+        /// <param name="querier"></param>
         /// <param name="addresses"></param>
-        /// <param name="timeout"></param>
         /// <returns></returns>
         internal static OrderlyScanner CreateScanner(
             ILogger logger,
-            IEnumerable<IPAddress> addresses,
-            int timeout)
+            IQueryNetworkNode querier,
+            IEnumerable<IPAddress> addresses)
         {
-            return new OrderlyScanner(logger, addresses, timeout);
+            return new OrderlyScanner(logger, querier, addresses);
         }
 
         private readonly ILogger _logger;
+        private readonly IQueryNetworkNode _querier;
         private readonly IEnumerable<IPAddress> _addresses;
-        private readonly Ping _ping = new();
         private readonly Stopwatch _stopWatch = new();
-        private readonly int _timeout;
 
-        private OrderlyScanner(ILogger logger, IEnumerable<IPAddress> addresses, int timeout)
+        private OrderlyScanner(ILogger logger, IQueryNetworkNode querier, IEnumerable<IPAddress> addresses)
         {
             _logger = logger;
+            _querier = querier;
             _addresses = addresses;
-            _timeout = timeout;
         }
 
         public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
@@ -60,7 +60,7 @@ namespace Kangaroo
             }
 
             _stopWatch.Stop();
-            return new ScanResults(nodes, _stopWatch.Elapsed, _addresses.Count(), _addresses.First(), _addresses.Last());
+            return new ScanResults(nodes, _stopWatch.Elapsed, _addresses.Count(), nodes.Count(n => n.Alive), _addresses.First(), _addresses.Last());
         }
 
         public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
@@ -73,115 +73,151 @@ namespace Kangaroo
 
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            
-            try
-            {
-                var reply = await PingNode(ipAddress, token);
+            return await _querier.Query(ipAddress, token);
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
-                if (reply is not { Status: IPStatus.Success })
-                {
-                    stopwatch.Stop();
-                    var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
-                    _logger.LogInformation("{node}", badNode);
-                    return badNode;
-                }
+            //try
+            //{
+            //    var reply = await PingNode(ipAddress, token);
 
-                var mac = await GetMacAddressAsync(ipAddress, token);
-                var host = await GetHostname(ipAddress, token);
+            //    if (reply is not { Status: IPStatus.Success })
+            //    {
+            //        stopwatch.Stop();
+            //        var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
+            //        _logger.LogInformation("{node}", badNode);
+            //        return badNode;
+            //    }
 
-                stopwatch.Stop();
-                
-                var node = new NetworkNode(
-                    ipAddress,
-                    mac ?? "00:00:00:00:00",
-                    host != null ? host.HostName : "N/A",
-                    TimeSpan.FromMilliseconds(reply.RoundtripTime),
-                    stopwatch.Elapsed, 
-                    true);
+            //    var mac = await GetMacAddressAsync(ipAddress, token);
+            //    var host = await GetHostname(ipAddress, token);
 
-                _logger.LogInformation("{node}", node);
-                return node;
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
-                return new NetworkNode(ipAddress, null, null, null, stopwatch.Elapsed, false);
-            }
+            //    stopwatch.Stop();
+
+            //    var node = new NetworkNode(
+            //        ipAddress,
+            //        mac,
+            //        host != null ? host.HostName : "N/A",
+            //        TimeSpan.FromMilliseconds(reply.RoundtripTime),
+            //        stopwatch.Elapsed, 
+            //        true);
+
+            //    _logger.LogInformation("{node}", node);
+            //    return node;
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
+            //    return NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
+            //}
         }
 
-        private async Task<PingReply?> PingNode(IPAddress ipAddress, CancellationToken token = default)
-        {
-            try
-            {
-                var options = new PingOptions(ttl: 5, false);
-                var result = await _ping.SendPingAsync(ipAddress, _timeout, new byte[32], options);
-                return result;
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(e, "Ping failed for {ipAddress}", ipAddress);
-                return null;
-            }
-        }
+        //private async Task<PingReply?> PingNode(IPAddress ipAddress, CancellationToken token = default)
+        //{
+        //    try
+        //    {
+        //        var options = new PingOptions(ttl: 5, false);
+        //        var result = await _ping.SendPingAsync(ipAddress, _timeout, new byte[32], options);
+        //        return result;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogCritical(e, "Ping failed for {ipAddress}", ipAddress);
+        //        return null;
+        //    }
+        //}
 
-        private async Task<IPHostEntry?> GetHostname(IPAddress ipAddress, CancellationToken token = default)
-        {
-            try
-            {
-                var ipHostEntry = await Dns.GetHostEntryAsync(ipAddress);
-                return ipHostEntry;
-            }
-            catch (ArgumentException argumentException)
-            {
-                _logger.LogCritical(argumentException, "Failed obtaining the DNS name {ipAddress}", ipAddress);
-            }
-            catch (SocketException socketError)
-            {
-                _logger.LogCritical(socketError, "Failed obtaining the DNS name {ipAddress}", ipAddress);
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(e, "Failed obtaining the DNS name {ipAddress}", ipAddress);
-            }
+        //private async Task<IPHostEntry?> GetHostname(IPAddress ipAddress, CancellationToken token = default)
+        //{
+        //    try
+        //    {
+        //        var ipHostEntry = await Dns.GetHostEntryAsync(ipAddress);
+        //        return ipHostEntry;
+        //    }
+        //    catch (ArgumentException argumentException)
+        //    {
+        //        _logger.LogCritical(argumentException, "Failed obtaining the DNS name {ipAddress}", ipAddress);
+        //    }
+        //    catch (SocketException socketError)
+        //    {
+        //        _logger.LogCritical(socketError, "Failed obtaining the DNS name {ipAddress}", ipAddress);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogCritical(e, "Failed obtaining the DNS name {ipAddress}", ipAddress);
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
-        public async Task<string?> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
-        {
-            try
-            {
-                return await Task.Run(() =>
-                {
-                    var macAddr = new byte[6];
-                    var macAddrLen = macAddr.Length;
-                    var macAddrLenUlong = (uint)macAddrLen;
+        //public Task<MacAddress> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
+        //{
+        //    try
+        //    {
+        //        //return await Task.Run(() =>
+        //        //{
+        //        var macAddr = new byte[6];
+        //        var macAddrLen = macAddr.Length;
+        //        var macAddrLenUlong = (uint)macAddrLen;
 
-                    if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
-                    {
-                        _logger.LogDebug("Failed obtaining the MAC address for {ipAddress}", ipAddress);
-                        return null;
-                    }
+        //        if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
+        //        {
+        //            _logger.LogDebug("Failed obtaining the MAC address for {ipAddress}", ipAddress);
+        //            return Task.FromResult(MacAddress.Empty);
+        //        }
 
-                    var macAddress = new StringBuilder();
-                    for (var i = 0; i < macAddrLen; i++)
-                    {
-                        macAddress.Append(macAddr[i].ToString("X2"));
-                        if (i != macAddrLen - 1)
-                            macAddress.Append(':');
-                    }
+        //        return Task.FromResult(new MacAddress(macAddr));
 
-                    return macAddress.ToString();
-                }, token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogCritical(ex, "Failed to obtaining the MAC address for node {ipAddress}", ipAddress);
-                return null;
-            }
-        }
+        //        //var macAddress = new StringBuilder();
+        //        //for (var i = 0; i < macAddrLen; i++)
+        //        //{
+        //        //    macAddress.Append(macAddr[i].ToString("X2"));
+        //        //    if (i != macAddrLen - 1)
+        //        //        macAddress.Append(':');
+        //        //}
+
+        //        //return macAddress.ToString();
+        //        //}, token);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogCritical(ex, "Failed to obtaining the MAC address for node {ipAddress}", ipAddress);
+        //        return Task.FromResult(MacAddress.Empty);
+        //    }
+        //}
+        ////public async Task<string?> Query(IPAddress ipAddress, CancellationToken token)
+        //{
+        //    try
+        //    {
+        //        return await Task.Run(() =>
+        //        {
+        //            var macAddr = new byte[6];
+        //            var macAddrLen = macAddr.Length;
+        //            var macAddrLenUlong = (uint)macAddrLen;
+
+        //            if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
+        //            {
+        //                _logger.LogDebug("Failed obtaining the MAC address for {ipAddress}", ipAddress);
+        //                return null;
+        //            }
+
+        //            var macAddress = new StringBuilder();
+        //            for (var i = 0; i < macAddrLen; i++)
+        //            {
+        //                macAddress.Append(macAddr[i].ToString("X2"));
+        //                if (i != macAddrLen - 1)
+        //                    macAddress.Append(':');
+        //            }
+
+        //            return macAddress.ToString();
+        //        }, token);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogCritical(ex, "Failed to obtaining the MAC address for node {ipAddress}", ipAddress);
+        //        return null;
+        //    }
+        //}
 
         #region IDisposable
 
@@ -193,7 +229,7 @@ namespace Kangaroo
 
             if (disposing)
             {
-                _ping?.Dispose();
+                _querier.Dispose();
             }
             _disposed = true;
         }

@@ -1,35 +1,38 @@
-﻿using Kangaroo;
+﻿using Cocona;
+using Kangaroo;
+using Kangaroo.CLI.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
-var ips = CreateIpAddresses();
 
-using var parallelScanner = ScannerBuilder
-    .Configure()
-    .WithAddresses(ips)
-    .WithParallelism(numberOfBatches: 10)
-    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    .WithLogging(
-        LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-        }))
-    .Build();
+var builder = CoconaApp.CreateBuilder();
 
-Console.WriteLine("Starting Scanner 1");
-var nodes1 = await parallelScanner.QueryAddresses();
-Console.WriteLine(nodes1.Dump());
-Console.WriteLine(nodes1.Dump(true));
+builder.Services.AddSingleton<ILogger>(x =>
+{
+    return LoggerFactory.Create(ops =>
+    {
+        ops.AddConsole();
+    }).CreateLogger<Program>();
+});
 
-Console.Read();
+builder.Services.AddTransient<IScannerIpConfiguration>(sp => ScannerBuilder.Configure());
+builder.Services.AddTransient<IEnumerable<IPAddress>>(sp => CreateIpAddresses());
 
-List<IPAddress> CreateIpAddresses()
+var app = builder.Build();
+
+app.AddCommands<IpScanCommand>();
+
+app.Run();
+return;
+
+IEnumerable<IPAddress> CreateIpAddresses()
 {
     var ipAddresses = new List<IPAddress>(254);
 
     for (var i = 1; i < 255; i++)
     {
-        if (!IPAddress.TryParse($"10.0.0.{i}", out IPAddress? address))
+        if (!IPAddress.TryParse($"172.26.6.{i}", out IPAddress? address))
         {
             continue;
         }

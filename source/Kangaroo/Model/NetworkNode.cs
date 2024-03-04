@@ -6,13 +6,13 @@ namespace Kangaroo;
 
 public record NetworkNode(
     IPAddress IpAddress, 
-    string? MacAddress, 
+    MacAddress MacAddress, 
     string? HostName, 
     TimeSpan? Latency, 
     TimeSpan QueryTime, 
     bool Alive)
 {
-    internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => new(ipAddress, null, null, null, elapsedTime, false);
+    internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => new(ipAddress, MacAddress.Empty, null, null, elapsedTime, false);
 
     /// <inheritdoc />
     public override string ToString()

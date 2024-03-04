@@ -13,20 +13,15 @@ internal sealed class ScannerOptions
 
     public IPAddress? IpAddress { get; set; }
 
-    public byte NetMask { get; set; } = 0x24;
-
+    public IPAddress SubnetMask { get; set; } = IPAddress.Parse("255.255.255.0");
+    
     public bool Concurrent { get; set; } = false;
 
     public int ItemsPerBatch { get; set; } = 10;
 
-    public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(500);
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(5);
 
     public int TimeToLive { get; set; } = 64;
 
     public ILogger Logger { get; set; } = new DefaultLogger();
-
-    public ScannerOptions()
-    {
-
-    }
 }
