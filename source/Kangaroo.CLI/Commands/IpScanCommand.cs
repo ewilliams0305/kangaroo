@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Cocona;
+﻿using Cocona;
 using Dumpify;
-using Dumpify.Descriptors;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Kangaroo.CLI.Commands
 {
@@ -28,9 +22,10 @@ namespace Kangaroo.CLI.Commands
         public async Task ScanNetwork()
         {
             var scanner = _config
-                .WithAddresses(_addresses)
-                .WithParallelism(10)
+                .WithSubnet("10.0.0.0", "255.255.255.0")
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(250))
+                .WithMaxHops(4)
+                .WithParallelism(10)
                 .WithLogging(_logger)
                 .Build();
 
@@ -49,12 +44,13 @@ namespace Kangaroo.CLI.Commands
 
             new
             {
-                Scanned = $"{results.NumberOfAliveNodes} of {results.NumberOfAddressesScanned}" ,
+                Scanned = $"{results.NumberOfAliveNodes} UP / {results.NumberOfAddressesScanned}" ,
                 ElapsedTime = results.ElapsedTime.ToString(),
                 StartAddress = results.StartAddress.ToString(), 
                 EndAddress = results.EndAddress.ToString()
 
             }.Dump("SCANNER RESULTS", typeNames: new TypeNamingConfig { ShowTypeNames = false });
+
             output.Dump("NETWORK NODES LOCATED", typeNames: new TypeNamingConfig { ShowTypeNames = false });
         }
     }

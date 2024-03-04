@@ -13,8 +13,8 @@ internal sealed class ScannerOptions
 
     public IPAddress? IpAddress { get; set; }
 
-    public byte NetMask { get; set; } = 0x24;
-
+    public IPAddress SubnetMask { get; set; } = IPAddress.Parse("255.255.255.0");
+    
     public bool Concurrent { get; set; } = false;
 
     public int ItemsPerBatch { get; set; } = 10;

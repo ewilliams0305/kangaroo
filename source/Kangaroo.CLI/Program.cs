@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
+
 var builder = CoconaApp.CreateBuilder();
 
 builder.Services.AddSingleton<ILogger>(x =>
