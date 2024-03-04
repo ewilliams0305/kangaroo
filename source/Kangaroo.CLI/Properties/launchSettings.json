@@ -2,7 +2,7 @@
   "profiles": {
     "Kangaroo.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "scan"
+      "commandLineArgs": "scan -s 10.0.0.1 -e 10.0.1.254 -t 50"
     }
   }
 }

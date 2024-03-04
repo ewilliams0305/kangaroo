@@ -35,14 +35,14 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions, I
     /// <inheritdoc />
     public IScannerOptions WithRange(IPAddress begin, IPAddress end)
     {
-        _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(begin, end);
+        _options.IpAddresses = AddressFactory.CreateAddressesFromRange(begin, end);
         return this;
     }
     
     /// <inheritdoc />
     public IScannerOptions WithRange(string begin, string end)
     {
-        _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(IPAddress.Parse(begin), IPAddress.Parse(end));
+        _options.IpAddresses = AddressFactory.CreateAddressesFromRange(IPAddress.Parse(begin), IPAddress.Parse(end));
         return this;
     }
 

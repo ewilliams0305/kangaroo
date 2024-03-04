@@ -9,21 +9,19 @@ namespace Kangaroo.CLI.Commands
     {
         private readonly ILogger _logger;
         private readonly IScannerIpConfiguration _config;
-        private readonly IEnumerable<IPAddress> _addresses;
 
-        public IpScanCommand(ILogger logger, IScannerIpConfiguration config, IEnumerable<IPAddress> addresses)
+        public IpScanCommand(ILogger logger, IScannerIpConfiguration config)
         {
             _logger = logger;
             _config = config;
-            _addresses = addresses;
         }
 
         [Command("scan", Description = "Scans the configured range of IP addresses")]
-        public async Task ScanNetwork()
+        public async Task<int> ScanNetwork([Option(shortName: 's')] string start, [Option(shortName: 'e')] string end, [Option(shortName: 't')] int? timeout)
         {
             var scanner = _config
-                .WithSubnet("10.0.0.0", "255.255.255.0")
-                .WithMaxTimeout(TimeSpan.FromMilliseconds(250))
+                .WithRange(start, end)
+                .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
                 .WithLogging(_logger)
@@ -52,6 +50,8 @@ namespace Kangaroo.CLI.Commands
             }.Dump("SCANNER RESULTS", typeNames: new TypeNamingConfig { ShowTypeNames = false });
 
             output.Dump("NETWORK NODES LOCATED", typeNames: new TypeNamingConfig { ShowTypeNames = false });
+
+            return 0;
         }
     }
 }
