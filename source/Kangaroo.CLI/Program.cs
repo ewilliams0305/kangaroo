@@ -31,7 +31,7 @@ IEnumerable<IPAddress> CreateIpAddresses()
 
     for (var i = 1; i < 255; i++)
     {
-        if (!IPAddress.TryParse($"10.0.0.{i}", out IPAddress? address))
+        if (!IPAddress.TryParse($"172.26.6.{i}", out IPAddress? address))
         {
             continue;
         }

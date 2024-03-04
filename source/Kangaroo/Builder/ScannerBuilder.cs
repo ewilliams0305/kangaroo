@@ -4,6 +4,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using Kangaroo.Queries;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Threading;
 
 namespace Kangaroo;
 
@@ -44,11 +45,7 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         return this;
     }
 
-    private IPAddress GetIpAddress()
-    {
-        return IPAddress.Any;
-    }
-
+   
     /// <inheritdoc />
     public IScannerOptions WithRange(IPAddress begin, IPAddress end)
     {
@@ -81,7 +78,7 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         return this;
     }
 
-    public IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10)
+    public IScannerQueryOptions WithParallelism(int numberOfBatches = 10)
     {
         if (numberOfBatches == 0)
         {
@@ -93,14 +90,60 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
     }
 
     /// <inheritdoc />
+    public IScannerParallelismOptions WithMaxTimeout(TimeSpan timeout)
+    {
+        _options.Timeout = timeout;
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerParallelismOptions WithMaxHops(int ttl = 10)
+    {
+        _options.TimeToLive = ttl;
+        return this;
+    }
+
+    public IScannerBuilder WithLogging(ILogger logger)
+    {
+        _options.Logger = logger;
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(Func<ILogger> loggerFactory)
+    {
+        _options.Logger = loggerFactory.Invoke();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerProvider loggerProvider)
+    {
+        ILoggerFactory fac = new NullLoggerFactory();
+        fac.AddProvider(provider: loggerProvider);
+        _options.Logger = fac.CreateLogger<IScanner>();
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerBuilder WithLogging(ILoggerFactory loggerFactory)
+    {
+        _options.Logger = loggerFactory.CreateLogger<IScanner>();
+        return this;
+    }
+
+    /// <inheritdoc />
     public IScanner Build()
     {
         var addresses = CreateIpAddress();
+        var queryOptions = new QueryOptions(_options.TimeToLive, _options.Timeout);
         
         var querier = new NetworkQuerierFactory(
-            _options.Logger,
-            new QueryPingResultsParallel(_options.Logger, _options.Timeout, new PingOptions(5, true))
-            ).CreateQuerier(_options);
+            logger: _options.Logger,
+            ping: _options.Concurrent
+                ? new QueryPingResultsParallel(_options.Logger, queryOptions)
+                : new QueryPingResultsOrderly(_options.Logger, new Ping(), queryOptions))
+            .CreateQuerier();
 
         if (!_options.Concurrent)
         {
@@ -119,8 +162,7 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
             _options.Logger,
             querier,
             addresses,
-            batchSize,
-            (int)_options.Timeout.TotalMilliseconds);
+            batchSize);
 
     private IScanner CreateOrderlyScanner(
         IQueryNetworkNode querier,
@@ -128,8 +170,7 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         OrderlyScanner.CreateScanner(
             _options.Logger,
             querier,
-            addresses,
-            (int)_options.Timeout.TotalMilliseconds);
+            addresses);
 
     private IEnumerable<IPAddress> CreateIpAddress()
     {
@@ -176,39 +217,9 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
         }
     }
 
-    /// <inheritdoc />
-    public IScannerParallelismOptions WithNodeTimeout(TimeSpan timeout)
+    private IPAddress GetIpAddress()
     {
-        _options.Timeout = timeout;
-        return this;
+        return IPAddress.Any;
     }
-
-    public IScannerBuilder WithLogging(ILogger logger)
-    {
-        _options.Logger = logger;
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IScannerBuilder WithLogging(Func<ILogger> loggerFactory)
-    {
-        _options.Logger = loggerFactory.Invoke();
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IScannerBuilder WithLogging(ILoggerProvider loggerProvider)
-    {
-        ILoggerFactory fac = new NullLoggerFactory();
-        fac.AddProvider(provider:loggerProvider);
-        _options.Logger = fac.CreateLogger<IScanner>();
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IScannerBuilder WithLogging(ILoggerFactory loggerFactory)
-    {
-        _options.Logger = loggerFactory.CreateLogger<IScanner>();
-        return this;
-    }
+    
 }

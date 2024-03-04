@@ -2,5 +2,5 @@
 
 internal interface IQueryFactory
 {
-    IQueryNetworkNode CreateQuerier(ScannerOptions? options = null);
+    IQueryNetworkNode CreateQuerier();
 }

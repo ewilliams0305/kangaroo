@@ -16,7 +16,7 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
     }
 
     /// <inheritdoc />
-    public IQueryNetworkNode CreateQuerier(ScannerOptions? options = null)
+    public IQueryNetworkNode CreateQuerier()
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.Linux) 
                 ? new QueryNetworkNode(

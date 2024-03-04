@@ -7,14 +7,14 @@ namespace Kangaroo.Queries;
 internal sealed class QueryPingResultsParallel : IQueryPingResults
 {
     private readonly ILogger _logger;
-    private readonly int _timeout;
     private readonly PingOptions _options;
+    private readonly int _timeout;
 
-    public QueryPingResultsParallel(ILogger logger, TimeSpan timeout, PingOptions options)
+    public QueryPingResultsParallel(ILogger logger, QueryOptions options)
     {
         _logger = logger;
-        _timeout = timeout.Milliseconds;
-        _options = options;
+        _options = options.ToPingOptions();
+        _timeout = options.ToTimeout();
     }
 
     public async Task<PingReply?> Query(IPAddress ipAddress, CancellationToken token = default)
@@ -31,4 +31,14 @@ internal sealed class QueryPingResultsParallel : IQueryPingResults
             return null;
         }
     }
+
+    #region IDisposable
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // TODO Determine if this interface even needs to be disposable or just the orderly scanner
+    }
+
+    #endregion
 }

@@ -25,12 +25,12 @@ namespace Kangaroo.CLI.Commands
         }
 
         [Command("scan", Description = "Scans the configured range of IP addresses")]
-        public async Task Scan()
+        public async Task ScanNetwork()
         {
             var scanner = _config
                 .WithAddresses(_addresses)
-                .WithParallelism()
-                .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
+                .WithParallelism(10)
+                .WithMaxTimeout(TimeSpan.FromMilliseconds(250))
                 .WithLogging(_logger)
                 .Build();
 
@@ -49,7 +49,7 @@ namespace Kangaroo.CLI.Commands
 
             new
             {
-                Nodes = results.NumberOfAddressesScanned,
+                Scanned = $"{results.NumberOfAliveNodes} of {results.NumberOfAddressesScanned}" ,
                 ElapsedTime = results.ElapsedTime.ToString(),
                 StartAddress = results.StartAddress.ToString(), 
                 EndAddress = results.EndAddress.ToString()

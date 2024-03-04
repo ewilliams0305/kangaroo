@@ -9,7 +9,7 @@ public interface IScannerIpConfiguration : IScannerSubnet, IScannerRange, IScann
 
 }
 
-public interface IScannerOptions : IScannerTimeoutOptions, IScannerParallelismOptions
+public interface IScannerOptions : IScannerQueryOptions, IScannerParallelismOptions
 {
 
 }
@@ -19,23 +19,14 @@ public interface IScannerLoggingOptions : IScannerLogging, IScannerBuilder
 
 }
 
-public interface IScannerTimeoutOptions : IScannerTimeout, IScannerLoggingOptions
+public interface IScannerQueryOptions : IScannerQueryTimeout, IScannerQueryTtl, IScannerLoggingOptions
 {
 
 }
+
 
 public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggingOptions
 {
-
-}
-
-public interface IScannerLogging
-{
-    IScannerBuilder WithLogging(ILogger logger);
-    IScannerBuilder WithLogging(Func<ILogger> loggerFactory);
-    IScannerBuilder WithLogging(ILoggerProvider loggerProvider);
-    IScannerBuilder WithLogging(ILoggerFactory loggerFactory);
-
 
 }
 
@@ -47,13 +38,16 @@ public interface IScannerParallelism
     /// </summary>
     /// <param name="numberOfBatches">The number of batches.  example the default value or 10 would process 254 address in 25 concurrent processes</param>
     /// <returns>the next step in the pipeline</returns>
-    IScannerTimeoutOptions WithParallelism(int numberOfBatches = 10);
+    IScannerQueryOptions WithParallelism(int numberOfBatches = 10);
 }
 
-public interface IScannerTimeout
+public interface IScannerQueryTimeout
 {
-    IScannerParallelismOptions WithNodeTimeout(TimeSpan timeout);
-
+    IScannerParallelismOptions WithMaxTimeout(TimeSpan timeout);
+}
+public interface IScannerQueryTtl
+{
+    IScannerParallelismOptions WithMaxHops(int ttl = 10);
 }
 
 public interface IScannerRange
@@ -76,6 +70,15 @@ public interface IScannerSpecific
     IScannerOptions WithAddresses(IEnumerable<IPAddress> addresses);
 }
 
+
+
+public interface IScannerLogging
+{
+    IScannerBuilder WithLogging(ILogger logger);
+    IScannerBuilder WithLogging(Func<ILogger> loggerFactory);
+    IScannerBuilder WithLogging(ILoggerProvider loggerProvider);
+    IScannerBuilder WithLogging(ILoggerFactory loggerFactory);
+}
 
 public interface IScannerBuilder
 {

@@ -60,4 +60,13 @@ internal sealed class QueryNetworkNode: IQueryNetworkNode
         }
     }
 
+    #region IDisposable
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _ping.Dispose();
+    }
+
+    #endregion
 }

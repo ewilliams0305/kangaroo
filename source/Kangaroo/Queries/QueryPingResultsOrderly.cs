@@ -11,12 +11,12 @@ internal sealed class QueryPingResultsOrderly : IQueryPingResults
     private readonly Ping _ping;
     private readonly PingOptions _options;
 
-    public QueryPingResultsOrderly(ILogger logger, int timeout, Ping ping, PingOptions options)
+    public QueryPingResultsOrderly(ILogger logger,Ping ping, QueryOptions options)
     {
         _logger = logger;
-        _timeout = timeout;
+        _timeout = options.ToTimeout();
         _ping = ping;
-        _options = options;
+        _options = options.ToPingOptions();
     }
 
     public async Task<PingReply?> Query(IPAddress ipAddress, CancellationToken token = default)
@@ -32,4 +32,14 @@ internal sealed class QueryPingResultsOrderly : IQueryPingResults
             return null;
         }
     }
+
+    #region IDisposable
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _ping.Dispose();
+    }
+
+    #endregion
 }
