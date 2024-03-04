@@ -134,7 +134,7 @@ namespace Kangaroo
                 stopwatch.Stop();
                 var node = new NetworkNode(
                     ipAddress,
-                    mac ?? "00:00:00:00:00",
+                    mac, 
                     host != null ? host.HostName : "N/A",
                     TimeSpan.FromMilliseconds(reply.RoundtripTime),
                     stopwatch.Elapsed,
@@ -147,7 +147,7 @@ namespace Kangaroo
             catch (Exception e)
             {
                 _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
-                return new NetworkNode(ipAddress, null, null, null, stopwatch.Elapsed, false);
+                return NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
             }
         }
 
@@ -189,12 +189,12 @@ namespace Kangaroo
             return null;
         }
 
-        public async Task<string?> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
+        public Task<MacAddress> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
         {
             try
             {
-                return await Task.Run(() =>
-                {
+                //return await Task.Run(() =>
+                //{
                     var macAddr = new byte[6];
                     var macAddrLen = macAddr.Length;
                     var macAddrLenUlong = (uint)macAddrLen;
@@ -202,24 +202,26 @@ namespace Kangaroo
                     if (WindowsArp.SendARP(BitConverter.ToInt32(ipAddress.GetAddressBytes(), 0), 0, macAddr, ref macAddrLenUlong) != 0)
                     {
                         _logger.LogDebug("Failed obtaining the MAC address for {ipAddress}", ipAddress);
-                        return null;
+                        return Task.FromResult(MacAddress.Empty);
                     }
 
-                    var macAddress = new StringBuilder();
-                    for (var i = 0; i < macAddrLen; i++)
-                    {
-                        macAddress.Append(macAddr[i].ToString("X2"));
-                        if (i != macAddrLen - 1)
-                            macAddress.Append(':');
-                    }
+                    return Task.FromResult(new MacAddress(macAddr));
 
-                    return macAddress.ToString();
-                }, token);
+                    //var macAddress = new StringBuilder();
+                    //for (var i = 0; i < macAddrLen; i++)
+                    //{
+                    //    macAddress.Append(macAddr[i].ToString("X2"));
+                    //    if (i != macAddrLen - 1)
+                    //        macAddress.Append(':');
+                    //}
+
+                    //return macAddress.ToString();
+                //}, token);
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Failed to obtaining the MAC address for node {ipAddress}", ipAddress);
-                return null;
+                return Task.FromResult(MacAddress.Empty);
             }
         }
 

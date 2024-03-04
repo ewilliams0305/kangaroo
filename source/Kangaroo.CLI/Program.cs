@@ -1,27 +1,28 @@
-﻿using Kangaroo;
+﻿using Cocona;
+using Kangaroo;
+using Kangaroo.CLI.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
-var ips = CreateIpAddresses();
+var builder = CoconaApp.CreateBuilder();
 
-using var parallelScanner = ScannerBuilder
-    .Configure()
-    .WithAddresses(ips)
-    .WithParallelism(numberOfBatches: 10)
-    .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
-    .WithLogging(
-        LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-        }))
-    .Build();
+builder.Services.AddSingleton<ILogger>(x =>
+{
+    return LoggerFactory.Create(ops =>
+    {
+        ops.AddConsole();
+    }).CreateLogger<Program>();
+});
 
-Console.WriteLine("Starting Scanner 1");
-var nodes1 = await parallelScanner.QueryAddresses();
-Console.WriteLine(nodes1.Dump());
-Console.WriteLine(nodes1.Dump(true));
+builder.Services.AddTransient<IScannerIpConfiguration>(sp => ScannerBuilder.Configure());
+builder.Services.AddTransient<IEnumerable<IPAddress>>(sp => CreateIpAddresses());
 
-Console.Read();
+var app = builder.Build();
+
+app.AddCommands<IpScanCommand>();
+
+app.Run();
 
 List<IPAddress> CreateIpAddresses()
 {

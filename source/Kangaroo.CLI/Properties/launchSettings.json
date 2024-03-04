@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Kangaroo.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "scan"
+    }
+  }
+}
