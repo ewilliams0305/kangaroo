@@ -23,8 +23,9 @@ var app = builder.Build();
 app.AddCommands<IpScanCommand>();
 
 app.Run();
+return;
 
-List<IPAddress> CreateIpAddresses()
+IEnumerable<IPAddress> CreateIpAddresses()
 {
     var ipAddresses = new List<IPAddress>(254);
 

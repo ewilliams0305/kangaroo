@@ -2,14 +2,14 @@
 
 namespace Kangaroo.Platforms;
 
-public sealed class LinuxArp
+public sealed class WindowsCommand
 {
     public static async Task<string> RunCommandAsync(string command, CancellationToken token = default)
     {
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = "/bin/bash",
+            FileName = "powershell.exe",
             Arguments = $"-c \"{command}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,

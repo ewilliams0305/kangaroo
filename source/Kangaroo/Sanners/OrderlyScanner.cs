@@ -1,4 +1,5 @@
 ﻿using Kangaroo.Platforms;
+using Kangaroo.Queries;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
@@ -24,26 +25,30 @@ namespace Kangaroo
         /// Factory used to create a new instance of the scanner.
         /// </summary>
         /// <param name="logger"></param>
+        /// <param name="querier"></param>
         /// <param name="addresses"></param>
         /// <param name="timeout"></param>
         /// <returns></returns>
         internal static OrderlyScanner CreateScanner(
             ILogger logger,
+            IQueryNetworkNode querier,
             IEnumerable<IPAddress> addresses,
             int timeout)
         {
-            return new OrderlyScanner(logger, addresses, timeout);
+            return new OrderlyScanner(logger, querier, addresses, timeout);
         }
 
         private readonly ILogger _logger;
+        private readonly IQueryNetworkNode _querier;
         private readonly IEnumerable<IPAddress> _addresses;
         private readonly Ping _ping = new();
         private readonly Stopwatch _stopWatch = new();
         private readonly int _timeout;
 
-        private OrderlyScanner(ILogger logger, IEnumerable<IPAddress> addresses, int timeout)
+        private OrderlyScanner(ILogger logger, IQueryNetworkNode querier, IEnumerable<IPAddress> addresses, int timeout)
         {
             _logger = logger;
+            _querier = querier;
             _addresses = addresses;
             _timeout = timeout;
         }
@@ -73,42 +78,43 @@ namespace Kangaroo
 
         public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            
-            try
-            {
-                var reply = await PingNode(ipAddress, token);
+            return await _querier.Query(ipAddress, token);
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
-                if (reply is not { Status: IPStatus.Success })
-                {
-                    stopwatch.Stop();
-                    var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
-                    _logger.LogInformation("{node}", badNode);
-                    return badNode;
-                }
+            //try
+            //{
+            //    var reply = await PingNode(ipAddress, token);
 
-                var mac = await GetMacAddressAsync(ipAddress, token);
-                var host = await GetHostname(ipAddress, token);
+            //    if (reply is not { Status: IPStatus.Success })
+            //    {
+            //        stopwatch.Stop();
+            //        var badNode = NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
+            //        _logger.LogInformation("{node}", badNode);
+            //        return badNode;
+            //    }
 
-                stopwatch.Stop();
-                
-                var node = new NetworkNode(
-                    ipAddress,
-                    mac,
-                    host != null ? host.HostName : "N/A",
-                    TimeSpan.FromMilliseconds(reply.RoundtripTime),
-                    stopwatch.Elapsed, 
-                    true);
+            //    var mac = await GetMacAddressAsync(ipAddress, token);
+            //    var host = await GetHostname(ipAddress, token);
 
-                _logger.LogInformation("{node}", node);
-                return node;
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
-                return NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
-            }
+            //    stopwatch.Stop();
+
+            //    var node = new NetworkNode(
+            //        ipAddress,
+            //        mac,
+            //        host != null ? host.HostName : "N/A",
+            //        TimeSpan.FromMilliseconds(reply.RoundtripTime),
+            //        stopwatch.Elapsed, 
+            //        true);
+
+            //    _logger.LogInformation("{node}", node);
+            //    return node;
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogCritical(e, "Failed testing node {ipAddress}", ipAddress);
+            //    return NetworkNode.BadNode(ipAddress, stopwatch.Elapsed);
+            //}
         }
 
         private async Task<PingReply?> PingNode(IPAddress ipAddress, CancellationToken token = default)
@@ -184,7 +190,7 @@ namespace Kangaroo
                 return Task.FromResult(MacAddress.Empty);
             }
         }
-        //public async Task<string?> GetMacAddressAsync(IPAddress ipAddress, CancellationToken token)
+        //public async Task<string?> Query(IPAddress ipAddress, CancellationToken token)
         //{
         //    try
         //    {

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using Kangaroo.Queries;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Kangaroo;
@@ -95,27 +96,38 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions
     public IScanner Build()
     {
         var addresses = CreateIpAddress();
+        
+        var querier = new NetworkQuerierFactory(
+            _options.Logger,
+            new QueryPingResultsParallel(_options.Logger, _options.Timeout, new PingOptions(5, true))
+            ).CreateQuerier(_options);
 
         if (!_options.Concurrent)
         {
-            return CreateOrderlyScanner(addresses);
+            return CreateOrderlyScanner(querier, addresses);
         }
 
         var ipAddresses = addresses as IPAddress[] ?? addresses.ToArray();
-        //var batchSize= ipAddresses.Count() / _options.ItemsPerBatch;
-        return CreateParallelScanner(ipAddresses, _options.ItemsPerBatch);
+        return CreateParallelScanner(querier, ipAddresses, _options.ItemsPerBatch);
     }
 
-    private IScanner CreateParallelScanner(IEnumerable<IPAddress> addresses, int batchSize) =>
+    private IScanner CreateParallelScanner(
+        IQueryNetworkNode querier,
+        IEnumerable<IPAddress> addresses, 
+        int batchSize) =>
         ParallelScanner.CreateScanner(
             _options.Logger,
+            querier,
             addresses,
             batchSize,
             (int)_options.Timeout.TotalMilliseconds);
 
-    private IScanner CreateOrderlyScanner(IEnumerable<IPAddress> addresses)=>
+    private IScanner CreateOrderlyScanner(
+        IQueryNetworkNode querier,
+        IEnumerable<IPAddress> addresses) =>
         OrderlyScanner.CreateScanner(
             _options.Logger,
+            querier,
             addresses,
             (int)_options.Timeout.TotalMilliseconds);
 
