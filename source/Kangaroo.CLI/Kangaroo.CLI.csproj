@@ -1,11 +1,40 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>$(AssemblyName)</AssemblyName>
+    <ApplicationIcon>kangaroo.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>kangaroo</ToolCommandName>
+    <PackageOutputPath>..\..\release</PackageOutputPath>
+    <VersionPrefix>0.0.2</VersionPrefix>
+    <Title>Kangaroo CLI Tool</Title>
+    <Description>A command line IP scanner</Description>
+    <Copyright></Copyright>
+    <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
+    <PackageIcon>kangaroo-logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/ewilliams0305/kangaroo</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="kangaroo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docs\kangaroo-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Cocona" Version="2.2.0" />

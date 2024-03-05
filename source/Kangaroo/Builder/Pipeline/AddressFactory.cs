@@ -3,7 +3,7 @@ using System.Net.NetworkInformation;
 
 namespace Kangaroo;
 
-public sealed class AddressFactory
+internal sealed class AddressFactory
 {
 
     internal static IEnumerable<IPAddress> CreateAddressesFromRange(IPAddress begin, IPAddress end)

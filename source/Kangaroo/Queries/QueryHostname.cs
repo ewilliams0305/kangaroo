@@ -26,6 +26,10 @@ internal sealed class QueryHostname : IQueryHostname
         {
             _logger.LogCritical(argumentException, "Failed obtaining the DNS name {ipAddress}", ipAddress);
         }
+        catch (SocketException socketError) when (socketError.NativeErrorCode == 11001)
+        {
+            _logger.LogInformation("Failed obtaining the DNS name {ipAddress} reason {message}", ipAddress, socketError.Message);
+        }
         catch (SocketException socketError)
         {
             _logger.LogCritical(socketError, "Failed obtaining the DNS name {ipAddress}", ipAddress);

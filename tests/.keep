@@ -37,7 +37,7 @@ Begin chaining addition options together as depicted.
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
-    .WithAddresses([ip1, ip2, ip3...])
+    .WithAddresses(ips)
     .WithParallelism(numberOfBatches: 10)
     .WithNodeTimeout(TimeSpan.FromMilliseconds(250))
     .WithLogging(
@@ -58,14 +58,14 @@ Optionally kangaroo can use specific IPs, a range of IPs, or scan an entire subn
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
-    .WithAddresses([ip1, ip2, ip3...]) // provide an IEnerable of IP addresses
+    .WithAddresses(ips) // provide an IEnerable of IP addresses
     .Build();
 ```
 *subnetmask*
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
-    .WithSubnet("10.0.0.0", "255.255.255.0") // provide an ip subnet to scan
+    .WithSubnet(ipAddress, 0x24) // provide an ip subnet to scan
     .Build();
 ```
 
@@ -73,7 +73,7 @@ using var scanner = ScannerBuilder
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
-    .withInterface(ethernet2) // provide an adapter to determine a subnet (optinal string name)
+    .withInterface(ethernet2) // provide an adapter to determine a subnet
     .Build();
 ```
 
@@ -81,7 +81,7 @@ using var scanner = ScannerBuilder
 ``` csharp
 using var scanner = ScannerBuilder
     .Configure()
-    .WithRange(startIpAddress, endIpAddress) // provide a start and end address to scan a range of IPs 
+    .WithIpAddressRange(startIpAddress, endIpAddress) // provide a start and end address to scan a range of IPs 
     .Build();
 ```
 
@@ -103,33 +103,11 @@ The ping can be configured as well. optional timeout and TTL can be provided to 
 ``` csharp
 using var scanner = ScannerBuilder.Configure()
   .WithIpAddresses(ips)
-  .WithMaxTimeout(TimeSpan.FromSeconds(1))
+  .WithTimeout(TimeSpan.FromSeconds(1))
 .Build();
 ```
-
-``` csharp
-using var scanner = ScannerBuilder.Configure()
-  .WithIpAddresses(ips)
-  .WithMaxHops(2)
-.Build();
-```
-
 ## Logging Configuration
-BYOL(Logger) 
-
-``` csharp
-using var scanner = ScannerBuilder.Configure()
-  .WithIpAddresses(ips)
-  .WithLogging(_logger)  //Provide a logger
-.Build();
-```
-
-``` csharp
-using var scanner = ScannerBuilder.Configure()
-  .WithIpAddresses(ips)
-  .WithLogging(() => ILogger)  //Provide a logger func
-.Build();
-```
+BYO(Logger) 
 
 # Scanning Networks
 So now you have a new Kangaroo Scanner. lets scan, await a call to `QueryAddresses(optionalCtx)` to return a `ScanResult` containing a list of network nodes, and scan results. 
@@ -140,17 +118,11 @@ Console.WriteLine(nodes.Dump());
 ```
 
 ## IP Scanning
-Await a call to the QueryAddresses to query all the IP addresses provided.  Depending on the ocnfiguration each query could take anywhere from 5 seconds to several minutes.
-
-## Nodes
-Individual nodes can be queried as well.
-``` csharp
-var node = await scanner.CheckNetworkNode();
-Console.WriteLine(node.Dump());
-```
-
-## Scan Results
-The results of each scan will include the elapsed time and other properties.
 
 ## Port Scanner
-(Future!)
+
+## Nodes
+
+## Scan Results
+
+

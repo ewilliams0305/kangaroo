@@ -2,7 +2,7 @@
 
 namespace Kangaroo.Platforms;
 
-public sealed class WindowsCommand
+internal sealed class WindowsCommand
 {
     public static async Task<string> RunCommandAsync(string command, CancellationToken token = default)
     {

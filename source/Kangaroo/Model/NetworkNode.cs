@@ -1,9 +1,17 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 namespace Kangaroo;
 
+/// <summary>
+/// Represents a device or node on a network.
+/// </summary>
+/// <param name="IpAddress"></param>
+/// <param name="MacAddress"></param>
+/// <param name="HostName"></param>
+/// <param name="Latency">The latency report during ping responses.</param>
+/// <param name="QueryTime">The elapsed time the entire query took.</param>
+/// <param name="Alive">True when the node is alive.</param>
 public record NetworkNode(
     IPAddress IpAddress, 
     MacAddress MacAddress, 
