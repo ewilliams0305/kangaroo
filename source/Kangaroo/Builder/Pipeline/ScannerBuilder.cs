@@ -6,6 +6,10 @@ using System.Net.NetworkInformation;
 
 namespace Kangaroo;
 
+/// <summary>
+/// The scanner builder creates scanners by walking the users through the build pipeline.
+/// This is the entry point for the kangaroo scanner
+/// </summary>
 public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions, IScannerTimeoutNext, IScannerTtlNext, IScannerParallelNext
 {
     /// <summary>
@@ -25,7 +29,8 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions, I
         _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(address, subnetMask);
         return this;
     }
-    
+
+    /// <inheritdoc />
     public IScannerOptions WithSubnet(string address, string subnetMask)
     {
         _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(IPAddress.Parse(address), IPAddress.Parse(subnetMask));

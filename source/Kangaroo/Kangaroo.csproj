@@ -1,10 +1,41 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile></DocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Kangaroo network scanner</Title>
+    <VersionPrefix>0.0.2</VersionPrefix>
+    <Description>The kangaroo scanner is a network scanner designed to operate within a C# dotnet application.  The kangaroo scanner allows you to query network endpoints and operate common tasks against them.</Description>
+    <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
+    <PackageIcon>kangaroo-logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/ewilliams0305/kangaroo</RepositoryUrl>
+    <PackageTags>network;ip;scanner;tool</PackageTags>
+    <PackAsTool>False</PackAsTool>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageOutputPath>..\..\release\</PackageOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\docs\kangaroo-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />

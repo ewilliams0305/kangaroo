@@ -89,9 +89,21 @@ public interface IScannerSpecific
 
 #region STEP 2 OPTION CONFIGURATION
 
+/// <summary>
+/// Optional steps
+/// </summary>
 public interface IScannerOptions : IScannerQueryTimeout, IScannerQueryTtl, IScannerParallelism, IScannerLogging, IScannerBuilder { }
+/// <summary>
+/// From timeout to...
+/// </summary>
 public interface IScannerTimeoutNext : IScannerQueryTtl, IScannerParallelism, IScannerLogging, IScannerBuilder { }
+/// <summary>
+/// from ttl to...
+/// </summary>
 public interface IScannerTtlNext : IScannerParallelism, IScannerLogging, IScannerBuilder { }
+/// <summary>
+/// from parallel to...
+/// </summary>
 public interface IScannerParallelNext : IScannerLogging, IScannerBuilder { }
 
 /// <summary>
@@ -107,6 +119,10 @@ public interface IScannerQueryTimeout
     /// <returns>Next step in the pipeline</returns>
     IScannerTimeoutNext WithMaxTimeout(TimeSpan timeout);
 }
+
+/// <summary>
+/// Optionally provide a max number of network hops.
+/// </summary>
 public interface IScannerQueryTtl
 {
     /// <summary>
@@ -122,6 +138,10 @@ public interface IScannerQueryTtl
 
 #region STEP 3 THREADING
 
+/// <summary>
+/// Add parallel task execution query each endpoint.
+/// When parallelism configures the scanner to query endpoints in parallel.
+/// </summary>
 public interface IScannerParallelism
 {
     /// <summary>
@@ -139,11 +159,37 @@ public interface IScannerParallelism
 
 public interface IScannerLoggingOptions : IScannerLogging, IScannerBuilder { }
 
+/// <summary>
+/// Logging configuration options
+/// </summary>
 public interface IScannerLogging
 {
+    /// <summary>
+    /// Provide a logger instance to output logs
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <returns></returns>
     IScannerBuilder WithLogging(ILogger logger);
+
+    /// <summary>
+    /// Provide a logger factory to output logs
+    /// </summary>
+    /// <param name="loggerFactory"></param>
+    /// <returns></returns>
     IScannerBuilder WithLogging(Func<ILogger> loggerFactory);
+
+    /// <summary>
+    /// Provide a logger provider to output logs
+    /// </summary>
+    /// <param name="loggerProvider"></param>
+    /// <returns></returns>
     IScannerBuilder WithLogging(ILoggerProvider loggerProvider);
+
+    /// <summary>
+    /// Provide a logger factory to output logs
+    /// </summary>
+    /// <param name="loggerFactory"></param>
+    /// <returns></returns>
     IScannerBuilder WithLogging(ILoggerFactory loggerFactory);
 }
 
@@ -151,8 +197,15 @@ public interface IScannerLogging
 
 #region BUILD SCANNER
 
+/// <summary>
+/// The file step in the pipeline builds a new scanner
+/// </summary>
 public interface IScannerBuilder
 {
+    /// <summary>
+    /// Returns the configured instance of an IScanner
+    /// </summary>
+    /// <returns>the new scanner</returns>
     IScanner Build();
 }
 

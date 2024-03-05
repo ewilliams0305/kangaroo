@@ -4,7 +4,6 @@ using Kangaroo.CLI.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-
 var builder = CoconaApp.CreateBuilder();
 
 builder.Services.AddSingleton<ILogger>(x =>

@@ -2,7 +2,7 @@
 
 namespace Kangaroo.Platforms;
 
-public sealed class LinuxCommand
+internal sealed class LinuxCommand
 {
     public static async Task<string> RunCommandAsync(string command, CancellationToken token = default)
     {

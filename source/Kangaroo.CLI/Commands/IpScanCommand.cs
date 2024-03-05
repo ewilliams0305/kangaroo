@@ -20,6 +20,7 @@ namespace Kangaroo.CLI.Commands
         public async Task<int> ScanNetwork([Option(shortName: 's')] string start, [Option(shortName: 'e')] string end, [Option(shortName: 't')] int? timeout)
         {
             var scanner = _config
+    
                 .WithRange(start, end)
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)

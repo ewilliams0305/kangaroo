@@ -6,14 +6,6 @@ namespace Kangaroo;
 internal sealed class ScannerOptions
 {
     public IEnumerable<IPAddress> IpAddresses { get; set; } = Enumerable.Empty<IPAddress>();
-
-    public IPAddress? RangeStart { get; set; }
-
-    public IPAddress? RangeStop { get; set; }
-
-    public IPAddress? IpAddress { get; set; }
-
-    public IPAddress SubnetMask { get; set; } = IPAddress.Parse("255.255.255.0");
     
     public bool Concurrent { get; set; } = false;
 
