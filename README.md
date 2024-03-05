@@ -1,4 +1,4 @@
-![Readme Image](../../docs/kangaroo-header.png)
+![Readme Image](./../docs/kangaroo-header.png)
 
 # kangaroo Network Scanner
 ![GitHub](https://img.shields.io/github/license/ewilliams0305/kangaroo) 
