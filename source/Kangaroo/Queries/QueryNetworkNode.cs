@@ -11,13 +11,15 @@ internal sealed class QueryNetworkNode: IQueryNetworkNode
     private readonly IQueryPingResults _ping;
     private readonly IQueryMacAddress _mac;
     private readonly IQueryHostname _host;
+    private readonly IQueryWebServer? _http;
 
-    public QueryNetworkNode(ILogger logger, IQueryPingResults ping, IQueryMacAddress mac, IQueryHostname host)
+    public QueryNetworkNode(ILogger logger, IQueryPingResults ping, IQueryMacAddress mac, IQueryHostname host, IQueryWebServer? http = null)
     {
         _logger = logger;
         _ping = ping;
         _mac = mac;
         _host = host;
+        _http = http;
     }
 
     /// <inheritdoc />
@@ -41,11 +43,16 @@ internal sealed class QueryNetworkNode: IQueryNetworkNode
             var mac = await _mac.Query(ipAddress, token);
             var host = await _host.Query(ipAddress, token);
 
+            var server = _http != null
+                ? await _http.Query(ipAddress, token)
+                : "N/A";
+
             stopwatch.Stop();
             var node = new NetworkNode(
                 ipAddress,
                 mac,
                 host != null ? host.HostName : "N/A",
+                server,
                 TimeSpan.FromMilliseconds(reply.RoundtripTime),
                 stopwatch.Elapsed,
                 true);
@@ -66,6 +73,7 @@ internal sealed class QueryNetworkNode: IQueryNetworkNode
     public void Dispose()
     {
         _ping.Dispose();
+        _http?.Dispose();
     }
 
     #endregion

@@ -87,8 +87,6 @@ public readonly record struct MacAddress
         {
             throw new ArgumentOutOfRangeException(nameof(macAddress));
         }
-        var b = new byte();
-
         _bytes = bytes;
     }
 
