@@ -1,58 +1,47 @@
 ﻿using Cocona;
 using Dumpify;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
-namespace Kangaroo.CLI.Commands
+namespace Kangaroo.CLI.Commands;
+
+public sealed class IpScanCommand(ILogger logger, IScannerIpConfiguration config)
 {
-    public sealed class IpScanCommand
+    [Command("scan", Description = "Scans the configured range of IP addresses")]
+    public async Task<int> ScanNetwork([Option(shortName: 's')] string start, [Option(shortName: 'e')] string end, [Option(shortName: 't')] int? timeout)
     {
-        private readonly ILogger _logger;
-        private readonly IScannerIpConfiguration _config;
+        var scanner = config
 
-        public IpScanCommand(ILogger logger, IScannerIpConfiguration config)
-        {
-            _logger = logger;
-            _config = config;
-        }
+            .WithRange(start, end)
+            .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
+            .WithMaxHops(4)
+            .WithParallelism(10)
+            .WithLogging(logger)
+            .Build();
 
-        [Command("scan", Description = "Scans the configured range of IP addresses")]
-        public async Task<int> ScanNetwork([Option(shortName: 's')] string start, [Option(shortName: 'e')] string end, [Option(shortName: 't')] int? timeout)
-        {
-            var scanner = _config
-    
-                .WithRange(start, end)
-                .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
-                .WithMaxHops(4)
-                .WithParallelism(10)
-                .WithLogging(_logger)
-                .Build();
-
-            var results = await scanner.QueryAddresses();
-            var output = results.Nodes
-                .Where(n => n.Alive)
-                .Select(n => new
-                {
-                    IPAddress = n.IpAddress.ToString(),
-                    MacAddress = n.MacAddress.ToString(),
-                    Hostname = n.HostName,
-                    Latency = n.Latency.ToString(),
-                    QueryTime = n.QueryTime.ToString(),
-                })
-                .ToList();
-
-            new
+        var results = await scanner.QueryAddresses();
+        var output = results.Nodes
+            .Where(n => n.Alive)
+            .Select(n => new
             {
-                Scanned = $"{results.NumberOfAliveNodes} UP / {results.NumberOfAddressesScanned}" ,
-                ElapsedTime = results.ElapsedTime.ToString(),
-                StartAddress = results.StartAddress.ToString(), 
-                EndAddress = results.EndAddress.ToString()
+                IPAddress = n.IpAddress.ToString(),
+                MacAddress = n.MacAddress.ToString(),
+                Hostname = n.HostName,
+                Latency = n.Latency.ToString(),
+                QueryTime = n.QueryTime.ToString(),
+            })
+            .ToList();
 
-            }.Dump("SCANNER RESULTS", typeNames: new TypeNamingConfig { ShowTypeNames = false });
+        new
+        {
+            Scanned = $"{results.NumberOfAliveNodes} UP / {results.NumberOfAddressesScanned}" ,
+            ElapsedTime = results.ElapsedTime.ToString(),
+            StartAddress = results.StartAddress.ToString(), 
+            EndAddress = results.EndAddress.ToString()
 
-            output.Dump("NETWORK NODES LOCATED", typeNames: new TypeNamingConfig { ShowTypeNames = false });
+        }.Dump("SCANNER RESULTS", typeNames: new TypeNamingConfig { ShowTypeNames = false });
 
-            return 0;
-        }
+        output.Dump("NETWORK NODES LOCATED", typeNames: new TypeNamingConfig { ShowTypeNames = false });
+
+        return 0;
     }
 }
