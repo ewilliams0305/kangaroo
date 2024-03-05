@@ -57,7 +57,7 @@ public static class OutputExtensions
         new
         {
             Adapter = adapter.Name,
-            Description = adapter.Description,
+            adapter.Description,
             Address = ip.Address.ToString(),
             NetMask = ip.IPv4Mask.ToString()
         }.Dump("ADAPTERS", typeNames: new TypeNamingConfig { ShowTypeNames = false });

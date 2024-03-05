@@ -22,7 +22,7 @@ public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration c
             ? QueryAdapters() 
             : await ScanAdapter(adapter, timeout);
 
-    private int QueryAdapters()
+    private static int QueryAdapters()
     {
         var interfaces = NetworkInterface.GetAllNetworkInterfaces();
 
@@ -73,7 +73,7 @@ public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration c
                 .WithLogging(logger)
                 .Build();
 
-            var results = await scanner.QueryAddresses();
+            var results = await scanner.QueryNetwork();
             results.DumpResults();
             return 0;
         }

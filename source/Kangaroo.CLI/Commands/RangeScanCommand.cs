@@ -33,7 +33,7 @@ public sealed class RangeScanCommand(ILogger logger, IScannerIpConfiguration con
                 .WithLogging(logger)
                 .Build();
 
-            var results = await scanner.QueryAddresses();
+            var results = await scanner.QueryNetwork();
             results.DumpResults();
             return 0;
         }

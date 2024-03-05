@@ -34,7 +34,7 @@ public sealed class SubnetScanCommand(ILogger logger, IScannerIpConfiguration co
                 .WithLogging(logger)
                 .Build();
 
-            var results = await scanner.QueryAddresses();
+            var results = await scanner.QueryNetwork();
             results.DumpResults();
             return 0;
         }
