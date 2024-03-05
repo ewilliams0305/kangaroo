@@ -18,6 +18,8 @@ builder.Services.AddTransient(sp => ScannerBuilder.Configure());
 
 var app = builder.Build();
 
-app.AddCommands<IpScanCommand>();
+app.AddCommands<RangeScanCommand>();
+app.AddCommands<AdapterScanCommand>();
+app.AddCommands<SubnetScanCommand>();
 
 app.Run();

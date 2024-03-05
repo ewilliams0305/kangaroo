@@ -16,11 +16,12 @@ public record NetworkNode(
     IPAddress IpAddress, 
     MacAddress MacAddress, 
     string? HostName, 
+    string? WebServer,
     TimeSpan? Latency, 
     TimeSpan QueryTime, 
     bool Alive)
 {
-    internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => new(ipAddress, MacAddress.Empty, null, null, elapsedTime, false);
+    internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => new(ipAddress, MacAddress.Empty, null, null, null, elapsedTime, false);
 
     /// <inheritdoc />
     public override string ToString()

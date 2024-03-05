@@ -10,7 +10,7 @@ namespace Kangaroo;
 /// The scanner builder creates scanners by walking the users through the build pipeline.
 /// This is the entry point for the kangaroo scanner
 /// </summary>
-public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions, IScannerTimeoutNext, IScannerTtlNext, IScannerParallelNext
+public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, IScannerOptions, IScannerTimeoutNext, IScannerTtlNext, IScannerParallelNext
 {
     /// <summary>
     /// Starts the scanner configuration process.
@@ -24,46 +24,58 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerOptions, I
     private readonly ScannerOptions _options = new();
 
     /// <inheritdoc />
-    public IScannerOptions WithSubnet(IPAddress address, IPAddress subnetMask)
+    public IScannerTasks WithSubnet(IPAddress address, IPAddress subnetMask)
     {
         _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(address, subnetMask);
         return this;
     }
 
     /// <inheritdoc />
-    public IScannerOptions WithSubnet(string address, string subnetMask)
+    public IScannerTasks WithSubnet(string address, string subnetMask)
     {
         _options.IpAddresses = AddressFactory.CreateAddressesFromSubnet(IPAddress.Parse(address), IPAddress.Parse(subnetMask));
         return this;
     }
 
     /// <inheritdoc />
-    public IScannerOptions WithRange(IPAddress begin, IPAddress end)
+    public IScannerTasks WithRange(IPAddress begin, IPAddress end)
     {
         _options.IpAddresses = AddressFactory.CreateAddressesFromRange(begin, end);
         return this;
     }
     
     /// <inheritdoc />
-    public IScannerOptions WithRange(string begin, string end)
+    public IScannerTasks WithRange(string begin, string end)
     {
         _options.IpAddresses = AddressFactory.CreateAddressesFromRange(IPAddress.Parse(begin), IPAddress.Parse(end));
         return this;
     }
 
     /// <inheritdoc />
-    public IScannerOptions WithAddresses(IEnumerable<IPAddress> addresses)
+    public IScannerTasks WithAddresses(IEnumerable<IPAddress> addresses)
     {
         _options.IpAddresses = addresses;
         return this;
     }
 
     /// <inheritdoc />
-    public IScannerOptions WithInterface(NetworkInterface? @interface = null)
+    public IScannerTasks WithInterface(NetworkInterface? @interface = null)
     {
         _options.IpAddresses = @interface != null
             ? AddressFactory.CreateAddressesFromInterface(@interface)
             : AddressFactory.CreateAddressesFromInterfaces();
+
+        return this;
+    }
+
+    public IScannerOptions WithHttpScan(Func<HttpClient>? httpClientFactory = null)
+    {
+        _options.ScanHttpServers = true;
+
+        if (httpClientFactory != null)
+        {
+            _options.HttpFactory = httpClientFactory;
+        } 
 
         return this;
     }

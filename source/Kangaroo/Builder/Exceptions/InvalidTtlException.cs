@@ -3,5 +3,5 @@
 public sealed class InvalidTtlException : ArgumentOutOfRangeException
 {
     public InvalidTtlException(int ttl)
-        : base($"{ttl} is out of range") { }
+        : base($"Invalid {ttl} is out of range") { }
 }

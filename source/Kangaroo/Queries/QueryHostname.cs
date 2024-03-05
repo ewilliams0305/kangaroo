@@ -1,6 +1,6 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Net.Sockets;
-using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.Queries;
 
@@ -8,11 +8,10 @@ internal sealed class QueryHostname : IQueryHostname
 {
     private readonly ILogger _logger;
 
-    public QueryHostname(ILogger logger)
+    internal QueryHostname(ILogger logger)
     {
         _logger = logger;
     }
-    #region Implementation of IQueryHostname
 
     /// <inheritdoc />
     public async Task<IPHostEntry?> Query(IPAddress ipAddress, CancellationToken token = default)
@@ -41,6 +40,4 @@ internal sealed class QueryHostname : IQueryHostname
 
         return null;
     }
-
-    #endregion
 }

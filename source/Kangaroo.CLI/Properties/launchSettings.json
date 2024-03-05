@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "Kangaroo.CLI": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Kangaroo Range": {
       "commandName": "Project",
-      "commandLineArgs": "scan -s 10.0.0.1 -e 10.0.1.254 -t 50"
+      "commandLineArgs": "scan -s 172.26.6.100 -e 172.26.6.200 -t 50"
+    },
+    "Kangaroo Adapter": {
+      "commandName": "Project",
+      "commandLineArgs": "adapter -a Wi-Fi"
     }
   }
 }

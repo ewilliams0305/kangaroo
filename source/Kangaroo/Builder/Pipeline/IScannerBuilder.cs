@@ -24,7 +24,7 @@ public interface IScannerRange
     /// <param name="begin">IP Address to start scan from</param>
     /// <param name="end">IP Address to stop scans at</param>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithRange(IPAddress begin, IPAddress end);
+    IScannerTasks WithRange(IPAddress begin, IPAddress end);
 
     /// <summary>
     /// Configures the scanner to use a range of IP addresses.
@@ -33,7 +33,7 @@ public interface IScannerRange
     /// <param name="begin">IP Address to start scan from</param>
     /// <param name="end">IP Address to stop scans at</param>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithRange(string begin, string end);
+    IScannerTasks WithRange(string begin, string end);
 }
 
 /// <summary>
@@ -49,7 +49,7 @@ public interface IScannerSubnet
     /// <param name="address">IP address <example>"192.168.254.0"</example></param>
     /// <param name="subnetMask">The subnet of the ip address <remarks>Cannot be less than \16 255.255.0.0</remarks></param>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithSubnet(IPAddress address, IPAddress subnetMask);
+    IScannerTasks WithSubnet(IPAddress address, IPAddress subnetMask);
 
     /// <summary>
     /// Configures the scanner to use the provided subnet.
@@ -58,7 +58,7 @@ public interface IScannerSubnet
     /// <param name="address">IP address <example>"192.168.254.0"</example></param>
     /// <param name="subnetMask">The subnet of the ip address <remarks>Cannot be less than \16 255.255.0.0</remarks></param>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithSubnet(string address, string subnetMask);
+    IScannerTasks WithSubnet(string address, string subnetMask);
 }
 
 /// <summary>
@@ -70,7 +70,7 @@ public interface IScannerInterface
     /// Configures the scanner to use the subnet attached to a specific adapter.
     /// </summary>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithInterface(NetworkInterface? @interface = null);
+    IScannerTasks WithInterface(NetworkInterface? @interface = null);
 }
 
 /// <summary>
@@ -82,12 +82,19 @@ public interface IScannerSpecific
     /// Configures the scanner to use the provided IP addresses.
     /// </summary>
     /// <returns>Next step in the pipeline</returns>
-    IScannerOptions WithAddresses(IEnumerable<IPAddress> addresses);
+    IScannerTasks WithAddresses(IEnumerable<IPAddress> addresses);
 }
 
 #endregion
 
 #region STEP 2 OPTION CONFIGURATION
+
+public interface IScannerTasks : IScannerWebServer, IScannerOptions { }
+
+public interface IScannerWebServer
+{
+    IScannerOptions WithHttpScan(Func<HttpClient>? httpClientFactory = null);
+}
 
 /// <summary>
 /// Optional steps
