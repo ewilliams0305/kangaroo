@@ -22,4 +22,6 @@ app.AddCommands<RangeScanCommand>();
 app.AddCommands<AdapterScanCommand>();
 app.AddCommands<SubnetScanCommand>();
 
+
+
 app.Run();

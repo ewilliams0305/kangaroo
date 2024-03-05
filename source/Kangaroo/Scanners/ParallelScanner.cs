@@ -32,7 +32,7 @@ internal sealed class ParallelScanner : IScanner
         _batchSize = batchSize;
     }
 
-    public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
+    public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
         _stopWatch.Restart();
         
@@ -50,7 +50,7 @@ internal sealed class ParallelScanner : IScanner
 
                 var networkNodes = batchedResult as NetworkNode[] ?? batchedResult.ToArray();
                 nodes.AddRange(networkNodes);
-                _logger.LogDebug("Processed Batch #{counter} with #{itemsCount} items on Thread {threadId}", counter, networkNodes.Count(), Thread.CurrentThread.ManagedThreadId);
+                _logger.LogDebug("Processed Batch #{counter} with #{itemsCount} items on Thread {threadId}", counter, networkNodes.Length, Environment.CurrentManagedThreadId);
             }
             _stopWatch.Stop();
 
@@ -68,11 +68,26 @@ internal sealed class ParallelScanner : IScanner
         }
     }
 
+    /// <inheritdoc />
+    public async IAsyncEnumerable<NetworkNode> QueryNetworkNodes([EnumeratorCancellation] CancellationToken token = default)
+    {
+        var batchOfTask = BatchedTaskFactoryIAsync(token);
+
+        foreach (var task in batchOfTask)
+        {
+            var nodes = await task;
+            foreach (var networkNode in nodes)
+            {
+                yield return networkNode;
+            }
+        }
+    }
+
     public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync(IEnumerable<IPAddress> address, [EnumeratorCancellation] CancellationToken token = default)
     {
         foreach (var ip in address)
         {
-            _logger.LogDebug("Processed Batch on Thread {threadId}", Thread.CurrentThread.ManagedThreadId);
+            _logger.LogDebug("Processed Batch on Thread {threadId}", Environment.CurrentManagedThreadId);
             yield return await CheckNetworkNode(ip, token);
         }
     }
@@ -89,7 +104,7 @@ internal sealed class ParallelScanner : IScanner
         var results = new List<NetworkNode>();
         await foreach (var node in NetworkQueryAsync(nodesToQuery, token))
         {
-            _logger.LogDebug("Processed Batch item {address} on Thread {threadId}",node.IpAddress, Thread.CurrentThread.ManagedThreadId);
+            _logger.LogDebug("Processed Batch item {address} on Thread {threadId}",node.IpAddress, Environment.CurrentManagedThreadId);
             results.Add(node);
         }
         return results;

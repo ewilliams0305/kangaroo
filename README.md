@@ -47,7 +47,7 @@ using var scanner = ScannerBuilder
         }))
     .Build();
 
-var nodes = await scanner.QueryAddresses();
+var nodes = await scanner.QueryNetwork();
 Console.WriteLine(nodes.Dump());
 ```
 
@@ -135,7 +135,7 @@ using var scanner = ScannerBuilder.Configure()
 So now you have a new Kangaroo Scanner. lets scan, await a call to `QueryAddresses(optionalCtx)` to return a `ScanResult` containing a list of network nodes, and scan results. 
 
 ``` csharp
-var nodes = await scanner.QueryAddresses();
+var nodes = await scanner.QueryNetwork();
 Console.WriteLine(nodes.Dump());
 ```
 

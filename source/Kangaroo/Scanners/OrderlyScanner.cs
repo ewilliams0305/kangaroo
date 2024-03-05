@@ -33,7 +33,7 @@ internal sealed class OrderlyScanner : IScanner
         _addresses = addresses;
     }
 
-    public async Task<ScanResults> QueryAddresses(CancellationToken token = default)
+    public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
         _stopWatch.Restart();
 
@@ -49,17 +49,22 @@ internal sealed class OrderlyScanner : IScanner
         return new ScanResults(nodes, _stopWatch.Elapsed, _addresses.Count(), nodes.Count(n => n.Alive), _addresses.First(), _addresses.Last());
     }
 
-    public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
+    /// <inheritdoc />
+    public IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default)
+    {
+        return NetworkQueryAsync(token);
+    }
+
+    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default) =>
+        await _querier.Query(ipAddress, token);
+
+    private async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
     {
         foreach (var ip in _addresses)
         {
             yield return await CheckNetworkNode(ip, token);
         }
     }
-
-    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default) =>
-        await _querier.Query(ipAddress, token);
-        
 
     #region IDisposable
 

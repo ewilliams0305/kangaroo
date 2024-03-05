@@ -13,7 +13,14 @@ public interface IScanner : IDisposable
     /// </summary>
     /// <param name="token">optional cancellation token.</param>
     /// <returns>The results of the scan.</returns>
-    Task<ScanResults> QueryAddresses(CancellationToken token = default);
+    Task<ScanResults> QueryNetwork(CancellationToken token = default);
+
+    /// <summary>
+    /// A query that provides the ability to range over the results as they come.
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default);
 
     /// <summary>
     /// Queries a single node on the network.
