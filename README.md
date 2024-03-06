@@ -142,7 +142,7 @@ Console.WriteLine(nodes.Dump());
 ```
 
 ## IP Scanning
-Await a call to the QueryAddresses to query all the IP addresses provided.  Depending on the ocnfiguration each query could take anywhere from 5 seconds to several minutes.
+Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.
 
 ## Nodes
 Individual nodes can be queried as well.
