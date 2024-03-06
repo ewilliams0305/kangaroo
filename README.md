@@ -87,7 +87,7 @@ using var scanner = ScannerBuilder
     .Build();
 ```
 
-## Parellel Configuration
+## Parallel Configuration
 
 After the ips are determined you can optionally execute the scans using the TPL, add the WithParallelism 
 method and provide a batch size. Each batch of IP addresses will be scanned in parellel. Each batch will contsin the number of IP addresses divided by the size of the provided addresses. 
