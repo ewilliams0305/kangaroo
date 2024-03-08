@@ -142,7 +142,18 @@ Console.WriteLine(nodes.Dump());
 ```
 
 ## IP Scanning
-Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.
+Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.  The reslts will include an IEnumerable of nodes each containing the following data. Note, the hostname results depend on the network environment and machine running the scanner. 
+
+```csharp
+public record NetworkNode(
+    IPAddress IpAddress,    // IP address that was queried
+    MacAddress MacAddress,  // MAC address return from arp request
+    string? HostName,       // Hostname return from the query
+    string? WebServer,      // HTTP server header information (future) 
+    TimeSpan? Latency,      // Ping response time
+    TimeSpan QueryTime,     // Elapsed time for the duration of thr query
+    bool Alive);            // True if the endpoint replied to ping
+```
 
 ## Nodes
 Individual nodes can be queried as well.
