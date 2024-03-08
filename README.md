@@ -8,14 +8,14 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/ewilliams0305/kangaroo?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ewilliams0305/kangaroo?style=social)
 
-*Kangaroos have large, powerful hind legs, large feet adapted for leaping* and so does the Kangaroo network scanner. 
+*"Kangaroos have large, powerful hind legs, large feet adapted for leaping"*
 
 
 The kangaroo network scanner supports (or will support) the following features. 
 
 ![Static Badge](https://img.shields.io/badge/IP-SCAN-blue)  
 ![Static Badge](https://img.shields.io/badge/PORT-SCAN-green)
-![Static Badge](https://img.shields.io/badge/NODE-SCAN-blue)   
+![Static Badge](https://img.shields.io/badge/NODE-SCAN-blue)
 ![Static Badge](https://img.shields.io/badge/PARELLEL-SCAN-blue)   
 
 ![Readme GIF](./docs/kangaroo-cli.gif)
@@ -25,14 +25,14 @@ The kangaroo network scanner supports (or will support) the following features.
 2. [Scanning Networks](#Scanning-Networks)
 
 # Building
-Kangaroo leverages the builder pattern to ensure its always configured correctly before usage. 
+Kangaroo leverages the builder pattern to ensure its configured correctly before usage. 
 
 *begin with a ScannerBuilder.Configure() method*
 ``` csharp
 // IScanner implements IDisposable so optionally use a using statement
 using var scanner = ScannerBuilder.Configure()
 ```
-If no additional options are provided the kangaroo will grab your first network interface that is up and use that subnet for scans. **(lies, not yet)**
+If no additional options are provided the kangaroo will grab your first up network interface and use that subnet for scans. **(lies, not yet)**
 
 Begin chaining addition options together as depicted. 
 
@@ -63,6 +63,7 @@ using var scanner = ScannerBuilder
     .WithAddresses([ip1, ip2, ip3...]) // provide an IEnerable of IP addresses
     .Build();
 ```
+
 *subnetmask*
 ``` csharp
 using var scanner = ScannerBuilder
@@ -87,7 +88,7 @@ using var scanner = ScannerBuilder
     .Build();
 ```
 
-## Parellel Configuration
+## Parallel Configuration
 
 After the ips are determined you can optionally execute the scans using the TPL, add the WithParallelism 
 method and provide a batch size. Each batch of IP addresses will be scanned in parellel. Each batch will contsin the number of IP addresses divided by the size of the provided addresses. 
@@ -141,8 +142,42 @@ var nodes = await scanner.QueryNetwork();
 Console.WriteLine(nodes.Dump());
 ```
 
+## Network Protocols 
+
+### ICMP
+The first scan kangaroo will execute is a simple ping (or icmp) query. 
+Depending on the ping configuration the kangaroo scanner will send icmp packets 
+to the specified IP addresses and wait for a reply. The ping test is used to determin if the 
+endpoint is currently up, and the latency of the node. When and only when a Ping is replied 
+too, kangaroo will attempt to perform additional tests. 
+
+### ARP
+The next step in the network query involves an arp request. When an endpoint responds the MAC address
+of the network node will be gathered. 
+
+### NETBIOS / Hostname
+After collecting the icmp results and mac address, kangaroo will attempt to gather the netbios information by sending
+and output packet over UDP port 137. Should the endpoint respond with hostname information the data is parsed and
+collected. Results may very...
+
+### WEB Server
+The last and final optional step includes an http query. The goal of this query is simply to determine if an http webserver 
+exist at that endpoint and report the servers headers. For this test an HTTP GET request on port 80 is made to the 
+servers IP address root `GET http://172.22.5.5/`. If any response is return the headers will queried to dertmine the type of webserver. 
+
 ## IP Scanning
-Await a call to the QueryAddresses to query all the IP addresses provided.  Depending on the ocnfiguration each query could take anywhere from 5 seconds to several minutes.
+Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.  The reslts will include an IEnumerable of nodes each containing the following data. Note, the hostname results depend on the network environment and machine running the scanner. 
+
+```csharp
+public record NetworkNode(
+    IPAddress IpAddress,    // IP address that was queried
+    MacAddress MacAddress,  // MAC address return from arp request
+    string? HostName,       // Hostname return from the query
+    string? WebServer,      // HTTP server header information (future) 
+    TimeSpan? Latency,      // Ping response time
+    TimeSpan QueryTime,     // Elapsed time for the duration of thr query
+    bool Alive);            // True if the endpoint replied to ping
+```
 
 ## Nodes
 Individual nodes can be queried as well.
