@@ -2,6 +2,7 @@ using FluentAssertions;
 
 namespace Kangaroo.UnitTests.Model;
 
+// ReSharper disable once InconsistentNaming
 public class MacAddress_Tests
 {
 

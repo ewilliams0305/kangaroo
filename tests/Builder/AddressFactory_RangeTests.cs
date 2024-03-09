@@ -4,6 +4,7 @@ using System.Net;
 namespace Kangaroo.UnitTests.Builder;
 
 
+// ReSharper disable once InconsistentNaming
 public class AddressFactory_RangeTests
 {
 
@@ -109,7 +110,7 @@ public class AddressFactory_RangeTests
         // Assert
 
         var ipAddresses = addresses as IPAddress[] ?? addresses.ToArray();
-        for (var i = 1; i == ipAddresses.Count(); i++)
+        for (var i = 1; i == ipAddresses.Length; i++)
         {
             ipAddresses[i - 1].Should().BeEquivalentTo(IPAddress.Parse($"{part}{i}"));
         }
@@ -190,9 +191,9 @@ public class AddressFactory_RangeTests
         // Assert
 
         var ipAddresses = addresses as IPAddress[] ?? addresses.ToArray();
-        for (var i = 1; i == ipAddresses.Count(); i++)
+        for (var i = 1; i == ipAddresses.Length; i++)
         {
-            for (var j = 1; i == ipAddresses.Count(); i++)
+            for (var j = 1; i == ipAddresses.Length; i++)
             {
                 ipAddresses[i - 1].Should().BeEquivalentTo(IPAddress.Parse($"{part}{i}.{j}"));
             }
