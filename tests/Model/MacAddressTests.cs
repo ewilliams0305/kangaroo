@@ -13,6 +13,7 @@ public class MacAddressTests
     [InlineData(new byte[] { 0x20, 0x02, 0x04, 0x04, 0x05, 0xAB })]
     public void MacAddress_Constructor_CreatesValidMac_FromBytes(byte[] bytes)
     {
+
         // Arrange
         var macAddress = new MacAddress(bytes);
 
