@@ -89,10 +89,21 @@ public interface IScannerSpecific
 
 #region STEP 2 OPTION CONFIGURATION
 
+/// <summary>
+/// Configures the scanners optional scan tasks
+/// </summary>
 public interface IScannerTasks : IScannerWebServer, IScannerOptions { }
 
+/// <summary>
+/// Configures the web server scanner
+/// </summary>
 public interface IScannerWebServer
 {
+    /// <summary>
+    /// Provides an optional http client factory
+    /// </summary>
+    /// <param name="httpClientFactory">function that returns a client</param>
+    /// <returns>options pipeline</returns>
     IScannerOptions WithHttpScan(Func<HttpClient>? httpClientFactory = null);
 }
 
@@ -164,6 +175,9 @@ public interface IScannerParallelism
 
 #region STEP 4 LOGGING
 
+/// <summary>
+/// The logging step in the builder pipeline
+/// </summary>
 public interface IScannerLoggingOptions : IScannerLogging, IScannerBuilder { }
 
 /// <summary>
@@ -217,32 +231,4 @@ public interface IScannerBuilder
 }
 
 #endregion
-
-
-
-
-public interface IScannerLoggingParallel : IScannerLogging, IScannerParallelism
-{
-}
-
-
-
-
-public interface IScannerQueryOptions : IScannerQueryTimeout, IScannerQueryTtl, IScannerParallelismOptions
-{
-
-}
-
-
-public interface IScannerParallelismOptions : IScannerParallelism, IScannerLoggingOptions
-{
-
-}
-
-
-
-
-
-
-
 
