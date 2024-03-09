@@ -5,7 +5,7 @@ namespace Kangaroo;
 /// <summary>
 /// A validated mac address
 /// </summary>
-public readonly record struct MacAddress
+public readonly struct MacAddress
 {
     private const char ColonChar = ':';
     private const string ColonString = ":";
@@ -51,13 +51,11 @@ public readonly record struct MacAddress
             throw new ArgumentNullException(nameof(bytes));
         }
 
-        switch (bytes.Length)
+        if (bytes.Length != 6)
         {
-            case 0:
-                throw new ArgumentOutOfRangeException(nameof(bytes));
-            case > 6:
-                throw new ArgumentOutOfRangeException(nameof(bytes));
+            throw new ArgumentOutOfRangeException(nameof(bytes));
         }
+
         _bytes = bytes;
     }
 
@@ -90,8 +88,6 @@ public readonly record struct MacAddress
         _bytes = bytes;
     }
 
-    
-
     /// <inheritdoc />
     public override string ToString() => 
         new StringBuilder()
@@ -101,6 +97,58 @@ public readonly record struct MacAddress
             .Append(ForthByte.ToString("X2")).Append(ColonChar)
             .Append(FifthByte.ToString("X2")).Append(ColonChar)
             .Append(SixthByte.ToString("X2")).ToString();
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is MacAddress other && Equals(other);
+    }
+
+    /// <summary>
+    /// returns true when equal
+    /// </summary>
+    /// <param name="other">compare to</param>
+    /// <returns>true or false</returns>
+    public bool Equals(MacAddress other)
+    {
+        return _bytes.SequenceEqual(other._bytes);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = 0;
+            foreach (byte b in _bytes)
+            {
+                hashCode = (hashCode * 397) ^ b.GetHashCode();
+            }
+            return hashCode;
+        }
+    }
+
+    /// <summary>
+    /// True when the values used to create the mac address are equal
+    /// </summary>
+    /// <param name="left">mac address</param>
+    /// <param name="right">mac address</param>
+    /// <returns>boolean</returns>
+    public static bool operator ==(MacAddress left, MacAddress right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    /// True when the values used to create the mac address are not equal
+    /// </summary>
+    /// <param name="left">mac address</param>
+    /// <param name="right">mac address</param>
+    /// <returns>boolean</returns>
+    public static bool operator !=(MacAddress left, MacAddress right)
+    {
+        return !left.Equals(right);
+    }
 
     /// <summary>
     /// Creates a default invalid mac address
@@ -112,5 +160,12 @@ public readonly record struct MacAddress
     /// </summary>
     /// <param name="macAddress">the instance of a mac address</param>
     public static implicit operator string(MacAddress macAddress) => macAddress.ToString();
+
+    /// <summary>
+    /// Returns the mac address as a byte array
+    /// </summary>
+    /// <param name="macAddress"></param>
+    /// <returns></returns>
+    public static implicit operator byte[](MacAddress macAddress) => macAddress._bytes;
 
 }

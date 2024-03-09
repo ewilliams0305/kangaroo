@@ -68,6 +68,7 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
         return this;
     }
 
+    /// <inheritdoc />
     public IScannerOptions WithHttpScan(Func<HttpClient>? httpClientFactory = null)
     {
         _options.ScanHttpServers = true;
