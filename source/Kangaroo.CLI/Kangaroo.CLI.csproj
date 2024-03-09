@@ -7,11 +7,11 @@
     <Nullable>enable</Nullable>
     <AssemblyName>$(AssemblyName)</AssemblyName>
     <ApplicationIcon>kangaroo.ico</ApplicationIcon>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>kangaroo</ToolCommandName>
     <PackageOutputPath>..\..\release</PackageOutputPath>
-    <VersionPrefix>0.0.3</VersionPrefix>
+    <VersionPrefix>0.0.4</VersionPrefix>
     <Title>Kangaroo CLI Tool</Title>
     <Description>A command line IP scanner</Description>
     <Copyright></Copyright>
