@@ -2,7 +2,7 @@ using FluentAssertions;
 
 namespace Kangaroo.UnitTests.Model;
 
-public class MacAddressTests
+public class MacAddress_Tests
 {
 
     [Theory]
