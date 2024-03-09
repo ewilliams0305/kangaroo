@@ -22,6 +22,8 @@
     <PackageOutputPath>..\..\release\</PackageOutputPath>
   </PropertyGroup>
 
+  
+
   <ItemGroup>
     <None Include="..\..\docs\kangaroo-logo.png">
       <Pack>True</Pack>

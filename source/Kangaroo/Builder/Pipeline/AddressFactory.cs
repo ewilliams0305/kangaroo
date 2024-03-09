@@ -130,21 +130,32 @@ internal sealed class AddressFactory
     private static IEnumerable<IPAddress> CreateAddresses16(IReadOnlyList<byte> startBytes, IReadOnlyList<byte> endBytes)
     {
         var ips = new List<IPAddress>();
-
+        var first = true; 
+        
         for (var i = startBytes[2]; i <= endBytes[2]; i++)
         {
             if (i < endBytes[2])
             {
-                for (var j = startBytes[3]; j <= 254; j++)
+                if (first)
                 {
-                    ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[2], i, j }));
+                    for (var j = startBytes[3]; j <= 254; j++)
+                    {
+                        ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[1], i, j }));
+                    }
+
+                    first = false;
+                    continue;
+                }
+                
+                for (byte j = 0x01; j <= 254; j++)
+                {
+                    ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[1], i, j }));
                 }
                 continue;
             }
-
-            for (var j = startBytes[3]; j <= endBytes[3]; j++)
+            for (byte j = 0x01; j <= endBytes[3]; j++)
             {
-                ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[2], i, j }));
+                ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[1], i, j }));
             }
         }
 
@@ -153,6 +164,11 @@ internal sealed class AddressFactory
 
     private static IEnumerable<IPAddress> CreateAddresses24(byte[] startBytes, byte[] endBytes)
     {
+        if (startBytes[3] >= endBytes[3])
+        {
+            throw new InvalidIpRangeException(startBytes, endBytes);
+        }
+
         var ips = new List<IPAddress>();
 
         for (var i = startBytes[3]; i <= endBytes[3]; i++)
