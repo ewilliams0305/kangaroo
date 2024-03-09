@@ -26,4 +26,4 @@ jobs:
       run: dotnet build source/Kangaroo.sln --no-restore
 
     - name: Run Unit Tests
-      run: dotnet test tests/Kangaroo.UnitTests/HttpClientBuilder.UnitTests.csproj --no-build --verbosity normal
+      run: dotnet test tests/Kangaroo.UnitTests.csproj --no-build --verbosity normal
