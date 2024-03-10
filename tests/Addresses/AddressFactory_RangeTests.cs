@@ -1,8 +1,7 @@
-﻿using FluentAssertions;
-using System.Net;
+﻿using System.Net;
+using FluentAssertions;
 
-namespace Kangaroo.UnitTests.Builder;
-
+namespace Kangaroo.UnitTests.Addresses;
 
 // ReSharper disable once InconsistentNaming
 public class AddressFactory_RangeTests

@@ -51,4 +51,21 @@ public class IpAddress_ExtensionTests
         Assert.Throws<InvalidIpAddressException>(() => ip.ThrowIfAddressIsNotEndpoint());
     }
 
+    [Theory]
+    [InlineData("255.225.0.0")]
+    [InlineData("255.248.0.0")]
+    [InlineData("0.0.0.0")]
+
+    public void IpAddress_Throws_WhenLessThen16(string ipValue)
+    {
+        // Arrange
+        var ip = IPAddress.Parse(ipValue);
+
+        // Act
+
+        // Assert
+
+        Assert.Throws<InvalidIpAddressException>(() => ip.ThrowIfAddressLessThen16());
+    }
+
 }

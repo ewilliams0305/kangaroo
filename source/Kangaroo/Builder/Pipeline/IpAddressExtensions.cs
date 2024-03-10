@@ -28,4 +28,20 @@ internal static class IpAddressExtensions
             throw new InvalidIpAddressException(address);
         }
     }
+    
+    public static byte[] ThrowIfAddressLessThen16(this IPAddress address)
+    {
+        var bytes = address.GetAddressBytes();
+        if (bytes[0] != 255)
+        {
+            throw new InvalidIpAddressException(address);
+        }
+
+        if (bytes[1] != 255)
+        {
+            throw new InvalidIpAddressException(address);
+        }
+
+        return bytes;
+    }
 }
