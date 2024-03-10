@@ -7,6 +7,8 @@
 [![GitHub issues](https://img.shields.io/github/issues/ewilliams0305/kangaroo)](https://github.com/ewilliams0305/kangaroo/issues)
 ![GitHub Repo stars](https://img.shields.io/github/stars/ewilliams0305/kangaroo?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ewilliams0305/kangaroo?style=social)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ewilliams0305/kangaroo/library.yml)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ewilliams0305/kangaroo/main)
 
 *"Kangaroos have large, powerful hind legs, large feet adapted for leaping"*
 
