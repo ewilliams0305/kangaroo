@@ -8,6 +8,8 @@ internal sealed class AddressFactory
 
     internal static IEnumerable<IPAddress> CreateAddressesFromRange(IPAddress begin, IPAddress end)
     {
+        begin.ThrowIfAddressIsNotEndpoint();
+        end.ThrowIfAddressIsNotEndpoint();
 
         var startBytes = begin.GetAddressBytes();
         var endBytes = end.GetAddressBytes();
@@ -32,20 +34,7 @@ internal sealed class AddressFactory
 
     internal static IEnumerable<IPAddress> CreateAddressesFromSubnet(IPAddress ipAddress, IPAddress subnetMask)
     {
-        if (Equals(ipAddress, IPAddress.Any))
-        {
-            throw new InvalidSubnetException(ipAddress, subnetMask);
-        }
-
-        if (Equals(ipAddress, IPAddress.Broadcast))
-        {
-            throw new InvalidSubnetException(ipAddress, subnetMask);
-        }
-
-        if (Equals(ipAddress, IPAddress.Loopback))
-        {
-            throw new InvalidSubnetException(ipAddress, subnetMask);
-        }
+        ipAddress.ThrowIfAddressIsNotEndpoint();
 
         var maskBytes = subnetMask.GetAddressBytes();
 
