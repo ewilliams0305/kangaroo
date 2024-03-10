@@ -39,15 +39,16 @@ public sealed class SubnetScanCommand()
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
-                .WithLogging(LoggerFactory.Create(ops =>
-                {
-                    ops.AddConsole();
-                }))
+                .WithLogging(LoggerFactory.Create(ops => { ops.AddConsole(); }))
                 .Build();
 
             var results = await scanner.QueryNetwork();
             results.DumpResults();
             return 0;
+        }
+        catch (InvalidIpAddressException e)
+        {
+            e.Message.Dump();
         }
         catch (InvalidSubnetException e)
         {

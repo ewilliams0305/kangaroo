@@ -246,7 +246,7 @@ internal sealed class AddressFactory
     {
         if (@interface.OperationalStatus != OperationalStatus.Up)
         {
-            throw new InvalidNetworkAdapterException(@interface);
+            throw new InvalidNetworkAdapterException(@interface, AdapterFailureCode.LinkDown);
         }
 
         var ipProps = @interface.GetIPProperties();
@@ -259,7 +259,7 @@ internal sealed class AddressFactory
             return ip;
         }
 
-        throw new InvalidNetworkAdapterException(@interface);
+        throw new InvalidNetworkAdapterException(@interface, AdapterFailureCode.NoIpAddress);
     }
 
     internal static int GetBitCount(uint value)

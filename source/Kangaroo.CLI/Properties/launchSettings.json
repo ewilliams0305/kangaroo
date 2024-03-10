@@ -6,11 +6,11 @@
     },
     "Kangaroo Range": {
       "commandName": "Project",
-      "commandLineArgs": "scan -s 172.26.6.100 -e 172.26.6.200 -t 50"
+      "commandLineArgs": "range -s 10.0.0.1 -e 10.0.0.254 -t 250"
     },
     "Kangaroo Adapter": {
       "commandName": "Project",
-      "commandLineArgs": "adapter -a Wi-Fi"
+      "commandLineArgs": "adapter -a unknown"
     },
     "No Args": {
       "commandName": "Project"

@@ -8,7 +8,7 @@ namespace Kangaroo.CLI.Commands;
 public sealed class AdapterScanCommand()
 {
 
-    [Command("adapter", Aliases = ["a"],Description = "Scans IP address using the subnet on the provided adapter")]
+    [Command("adapter", Aliases = ["a"], Description = "Scans IP address using the subnet on the provided adapter")]
     public static async ValueTask<int> QueryAdapter(
         [Option(
             shortName: 'a', 
@@ -61,9 +61,11 @@ public sealed class AdapterScanCommand()
 
             if (adapter == null)
             {
-                Console.WriteLine($"Invalid Network Adapter Specified {adapterName}");
+                var exception = new InvalidNetworkAdapterException(adapterName, AdapterFailureCode.Unknown);
+                exception.Dump();
                 return -1;
             }
+
             var scanner = ScannerBuilder
                 .Configure()
                 .WithInterface(adapter)
@@ -79,19 +81,20 @@ public sealed class AdapterScanCommand()
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
-                .WithLogging(LoggerFactory.Create(ops =>
-                {
-                    ops.AddConsole();
-                }))
+                .WithLogging(LoggerFactory.Create(ops => { ops.AddConsole(); }))
                 .Build();
 
             var results = await scanner.QueryNetwork();
             results.DumpResults();
             return 0;
         }
-        catch (InvalidSubnetException e)
+        catch (InvalidNetworkAdapterException adapterException)
         {
-            e.Message.Dump();
+            adapterException.Dump();
+        }
+        catch (InvalidSubnetException subnetException)
+        {
+            subnetException.Dump();
         }
 
         return -1;
