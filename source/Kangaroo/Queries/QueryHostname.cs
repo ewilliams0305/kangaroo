@@ -29,6 +29,11 @@ internal sealed class QueryHostname : IQueryHostname
         {
             _logger.LogInformation("Failed obtaining the DNS name {ipAddress} reason {message}", ipAddress, socketError.Message);
         }
+        
+        catch (SocketException socketError) when (socketError.Message.Contains("Name or service not known"))
+        {
+            _logger.LogInformation("Failed obtaining the DNS name {ipAddress} reason {message}", ipAddress, socketError.Message);
+        }
         catch (SocketException socketError)
         {
             _logger.LogCritical(socketError, "Failed obtaining the DNS name {ipAddress}", ipAddress);
