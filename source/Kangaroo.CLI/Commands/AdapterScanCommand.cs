@@ -1,15 +1,15 @@
-﻿using System.Net.NetworkInformation;
-using Cocona;
+﻿using Cocona;
 using Dumpify;
 using Microsoft.Extensions.Logging;
+using System.Net.NetworkInformation;
 
 namespace Kangaroo.CLI.Commands;
 
-public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration config)
+public sealed class AdapterScanCommand()
 {
 
     [Command("adapter", Aliases = ["a"],Description = "Scans IP address using the subnet on the provided adapter")]
-    public async ValueTask<int> QueryAdapter(
+    public static async ValueTask<int> QueryAdapter(
         [Option(
             shortName: 'a', 
             Description = "The network adapter to scan",
@@ -49,7 +49,7 @@ public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration c
         return 0;
     }
 
-    public async Task<int> ScanAdapter(string adapterName, int? timeout)
+    public static async Task<int> ScanAdapter(string adapterName, int? timeout)
     {
         try
         {
@@ -64,13 +64,25 @@ public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration c
                 Console.WriteLine($"Invalid Network Adapter Specified {adapterName}");
                 return -1;
             }
-            var scanner = config
+            var scanner = ScannerBuilder
+                .Configure()
                 .WithInterface(adapter)
-                .WithHttpScan(() => new HttpClient())
+                .WithHttpScan(() =>
+                {
+                    return new HttpClient(new HttpClientHandler()
+                    {
+                        ClientCertificateOptions = ClientCertificateOption.Manual,
+                        ServerCertificateCustomValidationCallback =
+                            (httpRequestMessage, cert, cetChain, policyErrors) => true
+                    });
+                })
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
-                .WithLogging(logger)
+                .WithLogging(LoggerFactory.Create(ops =>
+                {
+                    ops.AddConsole();
+                }))
                 .Build();
 
             var results = await scanner.QueryNetwork();

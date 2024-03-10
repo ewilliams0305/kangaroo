@@ -1,8 +1,6 @@
-﻿using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using Dumpify;
+﻿using Dumpify;
 using Kangaroo;
+using System.Net.NetworkInformation;
 
 namespace Kangaroo.CLI;
 
@@ -17,6 +15,7 @@ public static class OutputExtensions
                 IPAddress = n.IpAddress.ToString(),
                 MacAddress = n.MacAddress.ToString(),
                 Hostname = n.HostName,
+                n.WebServer,
                 Latency = n.Latency.ToString(),
                 QueryTime = n.QueryTime.ToString(),
             })
@@ -34,6 +33,7 @@ public static class OutputExtensions
                 IPAddress = n.IpAddress.ToString(),
                 MacAddress = n.MacAddress.ToString(),
                 Hostname = n.HostName,
+                n.WebServer,
                 Latency = n.Latency.ToString(),
                 QueryTime = n.QueryTime.ToString(),
             })

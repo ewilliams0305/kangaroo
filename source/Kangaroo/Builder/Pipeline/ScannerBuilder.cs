@@ -57,6 +57,13 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
         _options.IpAddresses = addresses;
         return this;
     }
+    
+    /// <inheritdoc />
+    public IScannerTasks WithAddress(IPAddress address)
+    {
+        _options.IpAddresses = new []{ address };
+        return this;
+    }
 
     /// <inheritdoc />
     public IScannerTasks WithInterface(NetworkInterface? @interface = null)
@@ -154,8 +161,14 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
             logger: _options.Logger,
             ping: _options.Concurrent
                 ? new QueryPingResultsParallel(_options.Logger, queryOptions)
-                : new QueryPingResultsOrderly(_options.Logger, new Ping(), queryOptions))
+                : new QueryPingResultsOrderly(_options.Logger, new Ping(), queryOptions),
+            clientFactory: _options.ScanHttpServers ? _options.HttpFactory : null)
             .CreateQuerier();
+
+        if (_options.IpAddresses.Count() == 1)
+        {
+            return CreateSingleScanner(querier, _options.IpAddresses);
+        }
 
         return !_options.Concurrent 
             ? CreateOrderlyScanner(querier, _options.IpAddresses)
@@ -179,4 +192,12 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
             _options.Logger,
             querier,
             addresses);
+    
+    private IScanner CreateSingleScanner(
+        IQueryNetworkNode querier,
+        IEnumerable<IPAddress> addresses) =>
+        SingleScanner.CreateScanner(
+            _options.Logger,
+            querier,
+            addresses.First());
 }

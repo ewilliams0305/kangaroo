@@ -8,6 +8,7 @@ internal sealed class ScannerOptions
     public IEnumerable<IPAddress> IpAddresses { get; set; } = Enumerable.Empty<IPAddress>();
     
     public bool Concurrent { get; set; } = false;
+
     public bool ScanHttpServers { get; set; } = false;
 
     public int ItemsPerBatch { get; set; } = 10;

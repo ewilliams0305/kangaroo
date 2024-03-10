@@ -11,6 +11,9 @@
     "Kangaroo Adapter": {
       "commandName": "Project",
       "commandLineArgs": "adapter -a Wi-Fi"
+    },
+    "No Args": {
+      "commandName": "Project"
     }
   }
 }
