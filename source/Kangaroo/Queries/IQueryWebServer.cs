@@ -2,7 +2,7 @@
 
 namespace Kangaroo.Queries;
 
-internal interface IQueryWebServer : IDisposable
+internal interface IQueryWebServer
 {
     Task<string> Query(IPAddress ipAddress, CancellationToken token = default);
 }

@@ -23,11 +23,13 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
                     logger: _logger,
                     ping: _ping,
                     mac: new LinuxQueryMacAddress(_logger),
-                    host: new QueryHostname(_logger))
+                    host: new QueryHostname(_logger),
+                    http: new QueryWebServer())
                 : new QueryNetworkNode(
                     logger: _logger,
                     ping: _ping,
                     mac: new WindowsQueryMacAddress(_logger),
-                    host: new QueryHostname(_logger));
+                    host: new QueryHostname(_logger),
+                    http: new QueryWebServer());
     }
 }

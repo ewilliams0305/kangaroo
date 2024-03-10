@@ -4,11 +4,11 @@ namespace Kangaroo.Queries;
 
 internal sealed class QueryWebServer: IQueryWebServer
 {
-    private readonly HttpClient _client;
+    private readonly Func<HttpClient> _clientFactory;
 
-    public QueryWebServer(HttpClient? client = null)
+    public QueryWebServer(Func<HttpClient> clientFactory)
     {
-        _client = client ?? new HttpClient();
+        _clientFactory = clientFactory;
     }
 
     /// <inheritdoc />
@@ -16,10 +16,12 @@ internal sealed class QueryWebServer: IQueryWebServer
     {
         try
         {
-            _client.BaseAddress = new Uri($"http://{ipAddress}");
-            _client.Timeout = TimeSpan.FromMilliseconds(500);
+            using var client = _clientFactory.Invoke();
 
-            var response = await _client.GetAsync("/", token);
+            client.BaseAddress = new Uri($"http://{ipAddress}");
+            client.Timeout = TimeSpan.FromMilliseconds(500);
+
+            var response = await client.GetAsync("/", token);
             return response.Headers.Server.ToString();
         }
         catch (Exception e)
@@ -27,13 +29,5 @@ internal sealed class QueryWebServer: IQueryWebServer
             Console.WriteLine(e);
             return string.Empty;
         }
-        
     }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        _client.Dispose();
-    }
-
 }
