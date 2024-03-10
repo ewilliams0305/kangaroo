@@ -154,7 +154,8 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
             logger: _options.Logger,
             ping: _options.Concurrent
                 ? new QueryPingResultsParallel(_options.Logger, queryOptions)
-                : new QueryPingResultsOrderly(_options.Logger, new Ping(), queryOptions))
+                : new QueryPingResultsOrderly(_options.Logger, new Ping(), queryOptions),
+            clientFactory: _options.ScanHttpServers ? _options.HttpFactory : null)
             .CreateQuerier();
 
         return !_options.Concurrent 

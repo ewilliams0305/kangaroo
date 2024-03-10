@@ -17,6 +17,7 @@ public static class OutputExtensions
                 IPAddress = n.IpAddress.ToString(),
                 MacAddress = n.MacAddress.ToString(),
                 Hostname = n.HostName,
+                WebServer = n.WebServer,
                 Latency = n.Latency.ToString(),
                 QueryTime = n.QueryTime.ToString(),
             })
@@ -34,6 +35,7 @@ public static class OutputExtensions
                 IPAddress = n.IpAddress.ToString(),
                 MacAddress = n.MacAddress.ToString(),
                 Hostname = n.HostName,
+                WebServer = n.WebServer,
                 Latency = n.Latency.ToString(),
                 QueryTime = n.QueryTime.ToString(),
             })

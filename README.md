@@ -90,15 +90,17 @@ using var scanner = ScannerBuilder
     .Build();
 ```
 
-## Parallel Configuration
+## Web Server Query
+An optional web server query can be enabled.  Use the `WithHttpScan` option after configuring the addresses.
+In order to prevent port or dns exhaustion the scan depends on a `Func<HttpClient>`.  You can use this function to create an http client pool,
+leverage the http client factory, or simply return a new client.  Each query will request a client and dispose of the client afterwards.
 
-After the ips are determined you can optionally execute the scans using the TPL, add the WithParallelism 
-method and provide a batch size. Each batch of IP addresses will be scanned in parellel. Each batch will contsin the number of IP addresses divided by the size of the provided addresses. 
-``` csharp
-using var scanner = ScannerBuilder
-    .Configure()
-    .WithAddresses(ips)
-    .WithParallelism(numberOfBatches: 10) // of 254 addresses 25 batches of 10 addresses will be scanned.  
+A default factory is provided in the library if no function is provided.
+
+```csharp
+ var scanner = config
+    .WithInterface(adapter)
+    .WithHttpScan(() => new HttpClient())
     .Build();
 ```
 
@@ -117,6 +119,18 @@ using var scanner = ScannerBuilder.Configure()
   .WithIpAddresses(ips)
   .WithMaxHops(2)
 .Build();
+```
+
+## Parallel Configuration
+
+After the ips are determined you can optionally execute the scans using the TPL, add the WithParallelism 
+method and provide a batch size. Each batch of IP addresses will be scanned in parellel. Each batch will contsin the number of IP addresses divided by the size of the provided addresses. 
+``` csharp
+using var scanner = ScannerBuilder
+    .Configure()
+    .WithAddresses(ips)
+    .WithParallelism(numberOfBatches: 10) // of 254 addresses 25 batches of 10 addresses will be scanned.  
+    .Build();
 ```
 
 ## Logging Configuration

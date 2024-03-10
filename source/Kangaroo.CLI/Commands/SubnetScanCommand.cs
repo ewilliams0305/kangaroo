@@ -27,7 +27,7 @@ public sealed class SubnetScanCommand(ILogger logger, IScannerIpConfiguration co
             var scanner = config
 
                 .WithSubnet(ip, mask)
-                .WithHttpScan(() => new HttpClient())
+                .WithHttpScan()
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)

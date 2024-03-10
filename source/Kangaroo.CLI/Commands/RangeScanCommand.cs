@@ -26,7 +26,7 @@ public sealed class RangeScanCommand(ILogger logger, IScannerIpConfiguration con
             var scanner = config
 
                 .WithRange(start, end)
-                .WithHttpScan(() => new HttpClient())
+                .WithHttpScan()
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
