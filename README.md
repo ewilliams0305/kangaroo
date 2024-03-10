@@ -95,6 +95,8 @@ An optional web server query can be enabled.  Use the `WithHttpScan` option afte
 In order to prevent port or dns exhaustion the scan depends on a `Func<HttpClient>`.  You can use this function to create an http client pool,
 leverage the http client factory, or simply return a new client.  Each query will request a client and dispose of the client afterwards.
 
+A default factory is provided in the library if no function is provided.
+
 ```csharp
  var scanner = config
     .WithInterface(adapter)
