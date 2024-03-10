@@ -1,6 +1,5 @@
 ![Readme Image](./docs/kangaroo-header.png)
 
-# kangaroo Network Scanner
 ![GitHub](https://img.shields.io/github/license/ewilliams0305/kangaroo) 
 ![GitHub all releases](https://img.shields.io/github/downloads/ewilliams0305/kangaroo/total) 
 ![Nuget](https://img.shields.io/nuget/dt/kangaroo)

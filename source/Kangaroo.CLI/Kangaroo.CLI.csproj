@@ -11,7 +11,7 @@
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>kangaroo</ToolCommandName>
     <PackageOutputPath>..\..\release</PackageOutputPath>
-    <VersionPrefix>0.0.4</VersionPrefix>
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Title>Kangaroo CLI Tool</Title>
     <Description>A command line IP scanner</Description>
     <Copyright></Copyright>
