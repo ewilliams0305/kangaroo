@@ -66,7 +66,7 @@ public sealed class AdapterScanCommand(ILogger logger, IScannerIpConfiguration c
             }
             var scanner = config
                 .WithInterface(adapter)
-                .WithHttpScan(() => new HttpClient())
+                .WithHttpScan()
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)

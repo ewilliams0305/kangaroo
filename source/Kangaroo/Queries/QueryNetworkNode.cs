@@ -73,7 +73,6 @@ internal sealed class QueryNetworkNode: IQueryNetworkNode
     public void Dispose()
     {
         _ping.Dispose();
-        _http?.Dispose();
     }
 
     #endregion

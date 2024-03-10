@@ -8,11 +8,13 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
 {
     private readonly ILogger _logger;
     private readonly IQueryPingResults _ping;
+    private readonly Func<HttpClient>? _clientFactory;
 
-    public NetworkQuerierFactory(ILogger logger, IQueryPingResults ping)
+    public NetworkQuerierFactory(ILogger logger, IQueryPingResults ping, Func<HttpClient>? clientFactory = null)
     {
         _logger = logger;
         _ping = ping;
+        _clientFactory = clientFactory;
     }
 
     /// <inheritdoc />
@@ -24,12 +26,16 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
                     ping: _ping,
                     mac: new LinuxQueryMacAddress(_logger),
                     host: new QueryHostname(_logger),
-                    http: new QueryWebServer())
+                    http: _clientFactory != null 
+                        ? new QueryWebServer(_clientFactory)
+                        : null)
                 : new QueryNetworkNode(
                     logger: _logger,
                     ping: _ping,
                     mac: new WindowsQueryMacAddress(_logger),
                     host: new QueryHostname(_logger),
-                    http: new QueryWebServer());
+                    http: _clientFactory != null 
+                        ? new QueryWebServer(_clientFactory) 
+                        : null);
     }
 }
