@@ -8,6 +8,12 @@ namespace Kangaroo;
 
 /// <summary>
 /// The first step in the build pipeline configures the IP addresses used for the scans.
+/// <exception cref="InvalidIpRangeException"></exception>
+/// <exception cref="InvalidIpAddressException"></exception>
+/// <exception cref="InvalidSubnetException"></exception>
+/// <exception cref="InvalidNetworkAdapterException"></exception>
+/// <exception cref="InvalidTimeoutException"></exception>
+/// <exception cref="InvalidTtlException"></exception>
 /// </summary>
 public interface IScannerIpConfiguration : IScannerSubnet, IScannerRange, IScannerSpecific, IScannerInterface { }
 
@@ -83,6 +89,13 @@ public interface IScannerSpecific
     /// </summary>
     /// <returns>Next step in the pipeline</returns>
     IScannerTasks WithAddresses(IEnumerable<IPAddress> addresses);
+
+    /// <summary>
+    /// Creates a new scanner that can only query a single network address.
+    /// </summary>
+    /// <param name="address">IP Address</param>
+    /// <returns>Next step in the pipeline</returns>
+    IScannerTasks WithAddress(IPAddress address);
 }
 
 #endregion
@@ -220,6 +233,12 @@ public interface IScannerLogging
 
 /// <summary>
 /// The file step in the pipeline builds a new scanner
+/// <exception cref="InvalidIpRangeException"></exception>
+/// <exception cref="InvalidIpAddressException"></exception>
+/// <exception cref="InvalidSubnetException"></exception>
+/// <exception cref="InvalidNetworkAdapterException"></exception>
+/// <exception cref="InvalidTimeoutException"></exception>
+/// <exception cref="InvalidTtlException"></exception>
 /// </summary>
 public interface IScannerBuilder
 {

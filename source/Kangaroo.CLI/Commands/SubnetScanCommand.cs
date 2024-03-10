@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.CLI.Commands;
 
-public sealed class SubnetScanCommand(ILogger logger, IScannerIpConfiguration config)
+public sealed class SubnetScanCommand()
 {
     [Command("subnet", Description = "Scans the configured subnet, note only /16 - /24 is currently available")]
-    public async Task<int> ScanNetwork(
+    public static async Task<int> ScanNetwork(
         [Option(
             shortName: 'i',
             Description = "IP Address matching the subnet mask provided",
@@ -24,14 +24,25 @@ public sealed class SubnetScanCommand(ILogger logger, IScannerIpConfiguration co
 
         try
         {
-            var scanner = config
-
+            var scanner = ScannerBuilder
+                .Configure()
                 .WithSubnet(ip, mask)
-                .WithHttpScan()
+                .WithHttpScan(() =>
+                {
+                    return new HttpClient(new HttpClientHandler()
+                    {
+                        ClientCertificateOptions = ClientCertificateOption.Manual,
+                        ServerCertificateCustomValidationCallback =
+                            (httpRequestMessage, cert, cetChain, policyErrors) => true
+                    });
+                })
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
-                .WithLogging(logger)
+                .WithLogging(LoggerFactory.Create(ops =>
+                {
+                    ops.AddConsole();
+                }))
                 .Build();
 
             var results = await scanner.QueryNetwork();
