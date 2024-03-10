@@ -27,7 +27,7 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
                     mac: new LinuxQueryMacAddress(_logger),
                     host: new QueryHostname(_logger),
                     http: _clientFactory != null 
-                        ? new QueryWebServer(_clientFactory)
+                        ? new QueryWebServer(_logger, _clientFactory)
                         : null)
                 : new QueryNetworkNode(
                     logger: _logger,
@@ -35,7 +35,7 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
                     mac: new WindowsQueryMacAddress(_logger),
                     host: new QueryHostname(_logger),
                     http: _clientFactory != null 
-                        ? new QueryWebServer(_clientFactory) 
+                        ? new QueryWebServer(_logger, _clientFactory) 
                         : null);
     }
 }

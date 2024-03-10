@@ -1,13 +1,16 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Kangaroo.Queries;
 
 internal sealed class QueryWebServer: IQueryWebServer
 {
+    private readonly ILogger _logger;
     private readonly Func<HttpClient> _clientFactory;
 
-    public QueryWebServer(Func<HttpClient> clientFactory)
+    public QueryWebServer(ILogger logger, Func<HttpClient> clientFactory)
     {
+        _logger = logger;
         _clientFactory = clientFactory;
     }
 
@@ -19,15 +22,24 @@ internal sealed class QueryWebServer: IQueryWebServer
             using var client = _clientFactory.Invoke();
 
             client.BaseAddress = new Uri($"http://{ipAddress}");
-            client.Timeout = TimeSpan.FromMilliseconds(500);
+            client.Timeout = TimeSpan.FromMilliseconds(1000);
 
             var response = await client.GetAsync("/", token);
             return response.Headers.Server.ToString();
         }
+        catch (TaskCanceledException)
+        {
+            _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
+        }
+        catch (TimeoutException)
+        {
+            _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return string.Empty;
+            _logger.LogError(e, "{IpAddress} failed to query web server", ipAddress);
         }
+        
+        return string.Empty;
     }
 }
