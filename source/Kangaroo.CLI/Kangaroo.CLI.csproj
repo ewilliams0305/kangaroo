@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>$(AssemblyName)</AssemblyName>
     <ApplicationIcon>kangaroo.ico</ApplicationIcon>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>kangaroo</ToolCommandName>
     <PackageOutputPath>..\..\release</PackageOutputPath>

@@ -5,7 +5,7 @@ namespace Kangaroo;
 internal static class IpAddressExtensions
 {
 
-    public static void ThrowIfAddressIsNotEndpoint(this IPAddress address)
+    public static byte[] ThrowIfAddressIsNotEndpoint(this IPAddress address)
     {
         if (Equals(address, IPAddress.Any))
         {
@@ -23,9 +23,28 @@ internal static class IpAddressExtensions
             throw new InvalidIpAddressException(address);
         }
 
-        if (address.GetAddressBytes().Any(b => b == 255))
+        var bytes = address.GetAddressBytes();
+        if (bytes.Any(b => b == 255))
         {
             throw new InvalidIpAddressException(address);
         }
+
+        return bytes;
+    }
+    
+    public static byte[] ThrowIfAddressLessThen16(this IPAddress address)
+    {
+        var bytes = address.GetAddressBytes();
+        if (bytes[0] != 255)
+        {
+            throw new InvalidIpAddressException(address);
+        }
+
+        if (bytes[1] != 255)
+        {
+            throw new InvalidIpAddressException(address);
+        }
+
+        return bytes;
     }
 }
