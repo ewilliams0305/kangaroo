@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Dynamic;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -35,96 +35,20 @@ internal sealed class AddressFactory
 
     internal static IEnumerable<IPAddress> CreateAddressesFromSubnet(IPAddress ipAddress, IPAddress subnetMask)
     {
-        ipAddress.ThrowIfAddressIsNotEndpoint();
+        var ipBytes = ipAddress.ThrowIfAddressIsNotEndpoint();
         var maskBytes = subnetMask.ThrowIfAddressLessThen16();
 
-        var ipList = new List<IPAddress>();
-        var ipBytes = ipAddress.GetAddressBytes();
+        var (networkBytes, numHosts) = DetermineSubnetAddress(ipBytes, maskBytes);
 
-        var networkBytes = new byte[ipBytes.Length];
-        for (var i = 0; i < ipBytes.Length; i++)
-        {
-            networkBytes[i] = (byte)(ipBytes[i] & maskBytes[i]);
-        }
-
-        //networkBytes[3] += 1;
-
-        var bitsToInvert = 32 - GetBitCount(BitConverter.ToUInt32(maskBytes, 0));
-        var numHosts = (int)Math.Pow(2, bitsToInvert) - 2;
-
-        if (numHosts <= 254)
-        {
-            for (var i = 1; i <= numHosts; i++)
-            {
-                var j = networkBytes[3] + i;
-                var nextIpBytes = new byte[] { networkBytes[0], networkBytes[1], networkBytes[2], (byte)j };
-                ipList.Add(new IPAddress(nextIpBytes));
-            }
-            
-            return ipList;
-        }
-
+        var end = DetermineLastAvailableAddress(networkBytes, maskBytes);
         networkBytes[3]++;
-
-        var end = GetLastAvailableAddress(networkBytes, maskBytes);
-
-        ipList.AddRange(CreateAddresses16(networkBytes, end));
-
-        var firstPass = true;
-        for (var i = 1; i <= numHosts; i++)
-        {
-
-            if (firstPass)
-            {
-                for (var j = networkBytes[3]; j <= 254; j++)
-                {
-                    var nextIpBytes = new byte[] { networkBytes[0], networkBytes[1], networkBytes[2], (byte)j };
-                    ipList.Add(new IPAddress(nextIpBytes));
-                }
-
-                firstPass = false;
-                continue;
-            }
-
-            for (byte j = 0x01; j <= 254; j++)
-            {
-                var nextIpBytes = new byte[] { networkBytes[0], networkBytes[1], networkBytes[2], j };
-                ipList.Add(new IPAddress(nextIpBytes));
-            }
-            continue;
-
-        }
         
-        return ipList;
-        
-
-
-
-
-
-        throw new NotSupportedException($"Number or host calculated exceeds the current subnet scan of 254 addresses");
+        return numHosts <= 254 
+            ? CreateAddresses24(networkBytes, end) 
+            : CreateAddresses16(networkBytes, end);
     }
 
-    internal static byte[] GetLastAvailableAddress(IReadOnlyList<byte> networkAddressBytes, IReadOnlyList<byte> subnetMaskBytes)
-    {
-        // Calculate broadcast address by performing bitwise OR operation between inverted subnet mask and network address
-        byte[] invertedSubnetMaskBytes = new byte[4];
-        for (int i = 0; i < 4; i++)
-        {
-            invertedSubnetMaskBytes[i] = (byte)~subnetMaskBytes[i];
-        }
 
-        byte[] broadcastAddressBytes = new byte[4];
-        for (int i = 0; i < 4; i++)
-        {
-            broadcastAddressBytes[i] = (byte)(networkAddressBytes[i] | invertedSubnetMaskBytes[i]);
-        }
-
-        // Subtract 1 from the last octet of the broadcast address to find the last valid IP address
-        broadcastAddressBytes[3] -= 1;
-
-        return broadcastAddressBytes;
-    }
 
     internal static IEnumerable<IPAddress> CreateAddressesFromInterface(NetworkInterface @interface)
     {
@@ -161,6 +85,75 @@ internal sealed class AddressFactory
         return ipList;
     }
 
+    internal static (byte[] networkAddress, int numberOfAddresses) DetermineSubnetAddress(IReadOnlyList<byte> ipAddress, IReadOnlyList<byte> subnetMask)
+    {
+        var networkBytes = new byte[ipAddress.Count];
+        for (var i = 0; i < ipAddress.Count; i++)
+        {
+            networkBytes[i] = (byte)(ipAddress[i] & subnetMask[i]);
+        }
+
+        var bitsToInvert = 32 - GetBitCount(BitConverter.ToUInt32((byte[])subnetMask, 0));
+        var numHosts = (int)Math.Pow(2, bitsToInvert) - 2;
+
+        return (networkBytes, numHosts);
+    }
+
+    internal static byte[] DetermineLastAvailableAddress(IReadOnlyList<byte> networkAddressBytes, IReadOnlyList<byte> subnetMaskBytes)
+    {
+        var invertedSubnetMaskBytes = new byte[4];
+        for (var i = 0; i < 4; i++)
+        {
+            invertedSubnetMaskBytes[i] = (byte)~subnetMaskBytes[i];
+        }
+
+        var broadcastAddressBytes = new byte[4];
+        for (var i = 0; i < 4; i++)
+        {
+            broadcastAddressBytes[i] = (byte)(networkAddressBytes[i] | invertedSubnetMaskBytes[i]);
+        }
+
+        broadcastAddressBytes[3] -= 1;
+
+        //if (broadcastAddressBytes[2] == 255)
+        //{
+        //    broadcastAddressBytes[2] -= 1;
+
+        //}
+
+        //if (broadcastAddressBytes[3] == 255)
+        //{
+        //    broadcastAddressBytes[2] -= 1;
+
+        //}
+
+        return broadcastAddressBytes;
+
+        //var invertedSubnetMaskBytes = new byte[4];
+        //for (var i = 0; i < 4; i++)
+        //{
+        //    invertedSubnetMaskBytes[i] = (byte)~subnetMaskBytes[i];
+        //}
+
+        //var broadcastAddressBytes = new byte[4];
+        //for (var i = 0; i < 4; i++)
+        //{
+        //    broadcastAddressBytes[i] = (byte)(networkAddressBytes[i] | invertedSubnetMaskBytes[i]);
+        //}
+
+        //// Adjust the broadcast address to find the last available address
+        //for (var i = 3; i >= 0; i--)
+        //{
+        //    if (broadcastAddressBytes[i] != 255)
+        //    {
+        //        broadcastAddressBytes[i] -= 1;
+        //        break;
+        //    }
+        //}
+
+        //return broadcastAddressBytes;
+    }
+
     private static IEnumerable<IPAddress> CreateAddresses16(IReadOnlyList<byte> startBytes, IReadOnlyList<byte> endBytes)
     {
         var ips = new List<IPAddress>();
@@ -168,6 +161,16 @@ internal sealed class AddressFactory
         
         for (var i = startBytes[2]; i <= endBytes[2]; i++)
         {
+
+            if (i == 255)
+            {
+                for (byte j = 0x01; j <= endBytes[3]; j++)
+                {
+                    ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[1], i, j }));
+                }
+                break;
+            }
+
             if (i < endBytes[2])
             {
                 if (first)
@@ -181,7 +184,7 @@ internal sealed class AddressFactory
                     continue;
                 }
                 
-                for (byte j = 0x01; j <= 254; j++)
+                for (byte j = 0x01; j < 255; j++)
                 {
                     ips.Add(new IPAddress(new byte[] { startBytes[0], startBytes[1], i, j }));
                 }

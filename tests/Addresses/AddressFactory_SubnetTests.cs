@@ -120,9 +120,10 @@ public class AddressFactory_SubnetTests
     }
     
     [Theory]
-    [InlineData("192.168.1.10", "255.255.248.0", "192.168.1.10")]
-    //[InlineData("10.0.0.17", "255.255.255.0")]
-    //[InlineData("172.26.6.32", "255.255.255.0")]
+    [InlineData("192.168.1.10", "255.255.248.0", "192.168.0.1")]
+    [InlineData("10.0.0.17", "255.255.248.0", "10.0.0.1")]
+    [InlineData("172.26.6.32", "255.255.240.0", "172.26.0.1")]
+    [InlineData("172.26.6.32", "255.255.0.0", "172.26.0.1")]
     public void CreateAddressesFromRange_WhenValid16_CreatesValidStart(string startVal, string subnet, string expected)
     {
         // Arrange
@@ -136,65 +137,39 @@ public class AddressFactory_SubnetTests
 
         addresses.First().Should().BeEquivalentTo(IPAddress.Parse(expected));
     }
-    
+
     [Theory]
-    [InlineData("192.168.1.10", "255.255.255.0")]
-    [InlineData("10.0.0.17", "255.255.255.0")]
-    [InlineData("172.26.6.32", "255.255.255.0")]
-    public void CreateAddressesFromRange_WhenValid16_CreatesValidEnd(string startVal, string subnet)
+    [InlineData("192.168.1.10", "255.255.248.0", "192.168.7.254")]
+    [InlineData("10.0.0.17", "255.255.248.0", "10.0.7.254")]
+    [InlineData("172.26.6.32", "255.255.240.0", "172.26.15.254")]
+    [InlineData("172.26.6.32", "255.255.0.0", "172.26.255.254")]
+    public void CreateAddressesFromRange_WhenValid16_CreatesValidEnd(string startVal, string subnet, string expected)
     {
         // Arrange
         var start = IPAddress.Parse(startVal);
         var mask = IPAddress.Parse(subnet);
-        var octets = startVal.Split('.');
-        var check = new StringBuilder(octets[0]).Append(".").Append(octets[1]).Append(".").Append(octets[2]).Append(".").Append("254").ToString();
 
         // Act
         var addresses = AddressFactory.CreateAddressesFromSubnet(start, mask);
 
         // Assert
 
-        addresses.Last().Should().BeEquivalentTo(IPAddress.Parse(check));
+        addresses.Last().Should().BeEquivalentTo(IPAddress.Parse(expected));
     }
 
     [Theory]
-    [InlineData("192.168.1.10", "255.255.255.0")]
-    [InlineData("10.0.0.17", "255.255.255.0")]
-    [InlineData("172.26.6.32", "255.255.255.0")]
-    public void CreateAddressesFromSubnet_WhenValid16_CreatesValidQuantity(string startVal, string endVal)
+    [InlineData("192.168.1.10", "255.255.248.0", 2032)]
+    public void CreateAddressesFromSubnet_WhenValid16_CreatesValidQuantity(string startVal, string maskVal, int quantity)
     {
         // Arrange
         var start = IPAddress.Parse(startVal);
-        var end = IPAddress.Parse(endVal);
-
-        // Act
-        var addresses = AddressFactory.CreateAddressesFromSubnet(start, end);
-
-        // Assert
-
-        addresses.Count().Should().Be(254);
-    }
-
-
-    [Theory]
-    [InlineData("192.168.1.")]
-    [InlineData("10.0.0.")]
-    [InlineData("172.26.6.")]
-    public void CreateAddressesFromSubnet_WhenValid16_CreatesValidAddresses(string part)
-    {
-        // Arrange
-        var start = IPAddress.Parse($"{part}1");
-        var mask = IPAddress.Parse("255.255.255.0");
+        var mask = IPAddress.Parse(maskVal);
 
         // Act
         var addresses = AddressFactory.CreateAddressesFromSubnet(start, mask);
 
         // Assert
-
-        var ipAddresses = addresses as IPAddress[] ?? addresses.ToArray();
-        for (var i = 1; i == ipAddresses.Length; i++)
-        {
-            ipAddresses[i - 1].Should().BeEquivalentTo(IPAddress.Parse($"{part}{i}"));
-        }
+        addresses.Count().Should().Be(quantity);
     }
+
 }
