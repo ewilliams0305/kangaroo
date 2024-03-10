@@ -66,6 +66,15 @@ using var scanner = ScannerBuilder
     .Build();
 ```
 
+*single ip address*
+``` csharp
+var scanner = ScannerBuilder.Configure()
+    .WithAddress( IPAddress.Parse("10.0.0.111"))
+    .WithHttpScan()
+    .WithMaxTimeout(TimeSpan.FromSeconds(2))
+    .Build();
+```
+
 *subnetmask*
 ``` csharp
 using var scanner = ScannerBuilder

@@ -20,7 +20,7 @@ internal sealed class QueryWebServer: IQueryWebServer
         try
         {
             using var client = _clientFactory.Invoke();
-
+            
             client.BaseAddress = new Uri($"http://{ipAddress}");
             client.Timeout = TimeSpan.FromMilliseconds(1000);
 
@@ -28,6 +28,14 @@ internal sealed class QueryWebServer: IQueryWebServer
             return response.Headers.Server.ToString();
         }
         catch (TaskCanceledException)
+        {
+            _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
+        }
+        catch (HttpRequestException requestException) when(requestException.Message.Contains("Connection refused"))
+        {
+            _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
+        }
+        catch (HttpRequestException requestException) when (requestException.Message.Contains("The SSL connection could not be established"))
         {
             _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
         }

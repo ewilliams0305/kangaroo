@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.CLI.Commands;
 
-public sealed class RangeScanCommand(ILogger logger, IScannerIpConfiguration config)
+public sealed class RangeScanCommand()
 {
     [Command("range", Description = "Scans the configured range of IP addresses")]
-    public async Task<int> ScanNetwork(
+    public static async Task<int> ScanNetwork(
         [Option(
             shortName: 's',
             Description = "Starting IP address to begin scan with",
@@ -23,14 +23,25 @@ public sealed class RangeScanCommand(ILogger logger, IScannerIpConfiguration con
     {
         try
         {
-            var scanner = config
-
+            var scanner = ScannerBuilder
+                .Configure()
                 .WithRange(start, end)
-                .WithHttpScan()
+                .WithHttpScan(() =>
+                {
+                    return new HttpClient(new HttpClientHandler()
+                    {
+                        ClientCertificateOptions = ClientCertificateOption.Manual,
+                        ServerCertificateCustomValidationCallback =
+                            (httpRequestMessage, cert, cetChain, policyErrors) => true
+                    });
+                })
                 .WithMaxTimeout(TimeSpan.FromMilliseconds(timeout ?? 1000))
                 .WithMaxHops(4)
                 .WithParallelism(10)
-                .WithLogging(logger)
+                .WithLogging(LoggerFactory.Create(ops =>
+                {
+                    ops.AddConsole();
+                }))
                 .Build();
 
             var results = await scanner.QueryNetwork();

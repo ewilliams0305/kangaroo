@@ -37,8 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cocona" Version="2.2.0" />
+    <PackageReference Include="Cocona.Lite" Version="2.2.0" />
     <PackageReference Include="Dumpify" Version="0.6.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
