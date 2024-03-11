@@ -37,7 +37,11 @@ internal sealed class QueryWebServer: IQueryWebServer
         }
         catch (HttpRequestException requestException) when (requestException.Message.Contains("The SSL connection could not be established"))
         {
-            _logger.LogInformation("{IpAddress} is not hosting a web server", ipAddress);
+            _logger.LogInformation("{IpAddress} Server is using a self signed CERT, add accept to your HTTP handlers", ipAddress);
+        }
+        catch (HttpRequestException requestException) when (requestException.Message.Contains("Protocol not available"))
+        {
+            _logger.LogInformation("{IpAddress} HTTP is not available", ipAddress);
         }
         catch (TimeoutException)
         {
