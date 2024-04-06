@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             xmlns:local="using:Kangaroo.UI"
+             x:Class="Kangaroo.UI.App"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    <Application.Styles>
+       <styling:FluentAvaloniaTheme PreferUserAccentColor="True"/>
+    </Application.Styles>
+</Application>

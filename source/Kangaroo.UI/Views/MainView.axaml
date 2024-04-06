@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Kangaroo.UI.ViewModels"
+             xmlns:models="clr-namespace:Kangaroo.UI.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Kangaroo.UI.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+    <Grid RowDefinitions="Auto, *">
+        <Border Grid.Row="0"
+                Height="32">
+
+            <TextBlock Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" 
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Center"
+                       Margin="10, 0"/>
+        </Border>
+
+        <SplitView Grid.Row="1" 
+                   IsPaneOpen="{Binding IsPaneOpen}"
+                   OpenPaneLength="300"
+                   CompactPaneLength="58"
+                   DisplayMode="CompactInline"
+                   Background="#1e1e1e"
+                   PaneBackground="#1e1e1e">
+            <SplitView.Pane>
+                <StackPanel Spacing="5"
+                            Margin="5">
+                    <Button Width="36"
+                            Height="36"
+                            Margin="5"
+                            Command="{Binding TogglePaneOpen}">
+                    </Button>
+
+                    <ListBox ItemsSource="{Binding MenuItems}">
+                        <ListBox.ItemTemplate>
+
+                            <DataTemplate DataType="{x:Type models:MenuItemTemplate}">
+             
+                                    <StackPanel Spacing="15" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Label}"/>
+                                    </StackPanel>
+                          
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        
+                    </ListBox>
+                </StackPanel>
+               
+
+            </SplitView.Pane>
+          <SplitView.Content>
+                <Border CornerRadius="12, 0, 0, 0"
+                        Background="#2d2d2d">
+                    <TransitioningContentControl Content="{Binding CurrentPage}"></TransitioningContentControl>
+                </Border>
+          </SplitView.Content>
+        </SplitView>
+    </Grid>
+  
+</UserControl>
