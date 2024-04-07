@@ -18,9 +18,10 @@ public interface IScanner : IDisposable
     /// <summary>
     /// A query that provides the ability to range over the results as they come.
     /// </summary>
+    /// <param name="resultsAction"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default);
+    IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsAction = null, CancellationToken token = default);
 
     /// <summary>
     /// Queries a single node on the network.

@@ -19,6 +19,7 @@
   
   <ItemGroup>
     <None Remove="Assets\circle-loader.gif" />
+    <None Remove="Assets\wave-loader.gif" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +31,7 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="SkiaSharp" Version="2.88.7" />

@@ -50,7 +50,7 @@ internal sealed class SingleScanner : IScanner
     }
 
     /// <inheritdoc />
-    public IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default)
+    public IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsHandler = null, CancellationToken token = default)
     {
         return NetworkQueryAsync(token);
     }

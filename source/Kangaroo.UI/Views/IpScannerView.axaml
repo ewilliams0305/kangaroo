@@ -4,36 +4,71 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.IpScannerView"
              x:DataType="viewModels:IpScannerViewModel">
     <Design.DataContext>
         <viewModels:IpScannerViewModel />
     </Design.DataContext>
-  <StackPanel>
-      <StackPanel Margin="20, 5,0,0" Orientation="Horizontal">
 
-          <TextBox Width="200" Margin="4" Text="{Binding BeginIpAddress}"/>
-          <TextBox Width="200" Margin="4" Text="{Binding EndIpAddress}"/>
-          <Button Command="{Binding StartScan}" IsEnabled="{Binding ScanEnabled}">Start Network Scan</Button>
-        <Image 
-               VerticalAlignment="Bottom"
-               HorizontalAlignment="Left"
-               Width="80"
-               Height="80"
-               IsVisible="{Binding IsScanning}"
-               anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/circle-loader.gif" />
+    <Grid RowDefinitions="Auto, *"
+          ColumnDefinitions="7*, 3*">
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="1"
+                    Margin="20, 5,0,0" Orientation="Horizontal">
+
+            <TextBox Width="200" Margin="4" Text="{Binding BeginIpAddress}"/>
+            <TextBox Width="200" Margin="4" Text="{Binding EndIpAddress}"/>
+            <Button Command="{Binding StartScan}" IsEnabled="{Binding ScanEnabled}">Start Network Scan</Button>
+            <Image
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Left"
+                Width="400"
+                Height="50"
+                IsVisible="{Binding IsScanning}"
+                anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/wave-loader.gif" />
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  Grid.Column="0"
+                  Margin="20"
+                  VerticalAlignment="Stretch"
+                  ItemsSource="{Binding NetworkNodes}"
+                  CornerRadius="12, 0,0,0"
+                  AutoGenerateColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
+        </DataGrid>
+
+      <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Spacing="10">
+
+          <Label>TOTAL DEVICES SCANNED</Label>
+          <Border Background="#1e1e1e"
+                  Padding="10"
+                  Height="300"
+                  CornerRadius="12">
+              <lvc:PieChart 
+                            Series="{Binding ScannedDeviceChart}">
+              </lvc:PieChart>
+            </Border>
+          
+          <Label>DEVICE LATENCY</Label>
+          <Border Background="#1e1e1e"
+                  Padding="10"
+                  Height="300"
+                  CornerRadius="12">
+                <lvc:CartesianChart
+                    Series="{Binding ScannedStatistics}">
+                </lvc:CartesianChart>
+            </Border>
+          
       </StackPanel>
-      
+        
 
-      <DataGrid Margin="20" 
-                ItemsSource="{Binding NetworkNodes}"
-                CornerRadius="12, 0,0,0"
-                AutoGenerateColumns="True" 
-                IsReadOnly="True"
-                GridLinesVisibility="All"
-                BorderThickness="1" 
-                BorderBrush="Gray">
-      </DataGrid>
-  </StackPanel>
+
+    </Grid>
 </UserControl>

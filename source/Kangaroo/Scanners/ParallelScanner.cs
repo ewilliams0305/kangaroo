@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Kangaroo;
 
@@ -69,18 +70,41 @@ internal sealed class ParallelScanner : IScanner
     }
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<NetworkNode> QueryNetworkNodes([EnumeratorCancellation] CancellationToken token = default)
+    public async IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsHandler = null, [EnumeratorCancellation] CancellationToken token = default)
     {
         var batchOfTask = BatchedTaskFactoryIAsync(token);
+
+        var aliveCounter = 0;
+        var totalCounter = 0;
 
         foreach (var task in batchOfTask)
         {
             var nodes = await task;
             foreach (var networkNode in nodes)
             {
+                if (networkNode.Alive)
+                {
+                    aliveCounter++;
+                }
+
+                totalCounter++;
+
+                if (networkNode.Alive)
+                {
+                    resultsHandler?.Invoke(new LiveNodeResult
+                    (
+                        ScannedAddress: networkNode.IpAddress,
+                        QueryTime: networkNode.QueryTime,
+                        Latency: networkNode.Latency ?? TimeSpan.Zero,
+                        NumberOfAddressesScanned: totalCounter,
+                        NumberOfAliveNodes: aliveCounter
+                    ));
+                }
+
                 yield return networkNode;
             }
         }
+
     }
 
     public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync(IEnumerable<IPAddress> address, [EnumeratorCancellation] CancellationToken token = default)
