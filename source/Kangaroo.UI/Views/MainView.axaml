@@ -24,25 +24,29 @@
         <SplitView Grid.Row="1" 
                    IsPaneOpen="{Binding IsPaneOpen}"
                    OpenPaneLength="300"
-                   CompactPaneLength="58"
+                   CompactPaneLength="64"
                    DisplayMode="CompactInline"
                    Background="#1e1e1e"
                    PaneBackground="#1e1e1e">
             <SplitView.Pane>
                 <StackPanel Spacing="5"
                             Margin="5">
-                    <Button Width="36"
-                            Height="36"
-                            Margin="5"
+                    <Button Width="32"
+                            Height="32"
+                            Margin="13, 10"
                             Command="{Binding TogglePaneOpen}">
+                        <PathIcon Data="{StaticResource IconMenu}"></PathIcon>
                     </Button>
 
-                    <ListBox ItemsSource="{Binding MenuItems}">
+                    <ListBox Margin="2, 0, -100, 0"
+                            ItemsSource="{Binding MenuItems}" 
+                            SelectedItem="{Binding SelectedMenuItem}">
                         <ListBox.ItemTemplate>
 
                             <DataTemplate DataType="{x:Type models:MenuItemTemplate}">
              
-                                    <StackPanel Spacing="15" Orientation="Horizontal">
+                                    <StackPanel Spacing="20" Orientation="Horizontal">
+                                        <PathIcon Data="{Binding Icon}"></PathIcon>
                                         <TextBlock Text="{Binding Label}"/>
                                     </StackPanel>
                           
@@ -56,6 +60,8 @@
             </SplitView.Pane>
           <SplitView.Content>
                 <Border CornerRadius="12, 0, 0, 0"
+                        Padding="12"
+                        Margin="0, 10, 0, 0"
                         Background="#2d2d2d">
                     <TransitioningContentControl Content="{Binding CurrentPage}"></TransitioningContentControl>
                 </Border>

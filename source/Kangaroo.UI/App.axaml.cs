@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
@@ -30,6 +31,15 @@ public partial class App : Application
         
         builder.Services.AddTransient<HomePageView>();
         builder.Services.AddTransient<HomePageViewModel>();
+
+        builder.Services.AddTransient<IpScannerView>();
+        builder.Services.AddSingleton<IpScannerViewModel>();
+
+        builder.Services.AddTransient<PortScannerView>();
+        builder.Services.AddTransient<PortScannerViewModel>();
+
+        builder.Services.AddTransient<ConfigurationView>();
+        builder.Services.AddTransient<ConfigurationViewModel>();
 
         builder.Services.AddTransient<IScannerBuilder, ScannerBuilder>();
 

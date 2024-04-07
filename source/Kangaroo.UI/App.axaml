@@ -10,5 +10,6 @@
     </Application.DataTemplates>
     <Application.Styles>
        <styling:FluentAvaloniaTheme PreferUserAccentColor="True"/>
+       <StyleInclude Source="avares://Kangaroo.UI/Assets/Icons.axaml"/>
     </Application.Styles>
 </Application>

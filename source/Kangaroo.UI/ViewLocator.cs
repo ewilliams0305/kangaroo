@@ -24,14 +24,24 @@ public sealed class ViewLocator: IDataTemplate
             return new TextBlock{Text = "Not Found: " +  name};
         }
 
-        var view = App.Services!.GetRequiredService(type);
-
-        if (view is not Control control)
+        try
         {
-            return new TextBlock { Text = "Invalid Control: " + name };
+            var view = App.Services!.GetService(type);
+
+            if (view is not Control control)
+            {
+                return new TextBlock { Text = "Invalid Control: " + name };
+            }
+
+            return control;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
 
-        return control;
+        
 
     }
 

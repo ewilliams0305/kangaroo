@@ -2,7 +2,38 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
+             xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Kangaroo.UI.Views.IpScannerView">
-  Welcome to Avalonia!
+             x:Class="Kangaroo.UI.Views.IpScannerView"
+             x:DataType="viewModels:IpScannerViewModel">
+    <Design.DataContext>
+        <viewModels:IpScannerViewModel />
+    </Design.DataContext>
+  <StackPanel>
+      <StackPanel Margin="20, 5,0,0" Orientation="Horizontal">
+
+          <TextBox Width="200" Margin="4" Text="{Binding BeginIpAddress}"/>
+          <TextBox Width="200" Margin="4" Text="{Binding EndIpAddress}"/>
+          <Button Command="{Binding StartScan}" IsEnabled="{Binding ScanEnabled}">Start Network Scan</Button>
+        <Image 
+               VerticalAlignment="Bottom"
+               HorizontalAlignment="Left"
+               Width="80"
+               Height="80"
+               IsVisible="{Binding IsScanning}"
+               anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/circle-loader.gif" />
+      </StackPanel>
+      
+
+      <DataGrid Margin="20" 
+                ItemsSource="{Binding NetworkNodes}"
+                CornerRadius="12, 0,0,0"
+                AutoGenerateColumns="True" 
+                IsReadOnly="True"
+                GridLinesVisibility="All"
+                BorderThickness="1" 
+                BorderBrush="Gray">
+      </DataGrid>
+  </StackPanel>
 </UserControl>
