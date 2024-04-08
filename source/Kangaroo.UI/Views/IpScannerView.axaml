@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:models="clr-namespace:Kangaroo.UI.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.IpScannerView"
              x:DataType="viewModels:IpScannerViewModel">
@@ -13,7 +14,8 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto, *"
-          ColumnDefinitions="7*, 3*">
+          ColumnDefinitions="7*, 1, 3*">
+        <GridSplitter Grid.Row="1" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
         <StackPanel Grid.Row="0"
                     Grid.Column="0"
                     Grid.ColumnSpan="1"
@@ -25,8 +27,8 @@
             <Image
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Left"
-                Width="400"
-                Height="50"
+                Width="600"
+                Height="40"
                 IsVisible="{Binding IsScanning}"
                 anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/wave-loader.gif" />
         </StackPanel>
@@ -36,39 +38,71 @@
                   Margin="20"
                   VerticalAlignment="Stretch"
                   ItemsSource="{Binding NetworkNodes}"
-                  CornerRadius="12, 0,0,0"
-                  AutoGenerateColumns="True"
+                  AutoGenerateColumns="false"
                   IsReadOnly="True"
                   GridLinesVisibility="All"
                   BorderThickness="1"
                   BorderBrush="Gray">
+          <DataGrid.Columns>
+              
+              <DataGridCheckBoxColumn Header="ONLINE" Binding="{Binding IsAlive}"/>
+              <DataGridTextColumn Header="IP ADDRESS" Binding="{Binding IpAddress}"/>
+              <DataGridTextColumn Header="MAC ADDRESS" Binding="{Binding MacAddress}" />
+              <DataGridTextColumn Header="DNS NAME" Binding="{Binding DnsName}" />
+              <DataGridTextColumn Header="QUERY TIME" Binding="{Binding QueryTime}" />
+              <DataGridTextColumn Header="LATENCY" Binding="{Binding Latency}" />
+              <DataGridTextColumn Header="SERVER INFO" Binding="{Binding WebServer}"/>
+          </DataGrid.Columns>
         </DataGrid>
 
-      <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Spacing="10">
+        <ScrollViewer Grid.Row="1" Grid.Column="2">
+            <StackPanel Spacing="10" Margin="0,0,12,0">
 
-          <Label>TOTAL DEVICES SCANNED</Label>
-          <Border Background="#1e1e1e"
-                  Padding="10"
-                  Height="300"
-                  CornerRadius="12">
-              <lvc:PieChart 
-                            Series="{Binding ScannedDeviceChart}">
-              </lvc:PieChart>
-            </Border>
-          
-          <Label>DEVICE LATENCY</Label>
-          <Border Background="#1e1e1e"
-                  Padding="10"
-                  Height="300"
-                  CornerRadius="12">
-                <lvc:CartesianChart
-                    Series="{Binding ScannedStatistics}">
-                </lvc:CartesianChart>
-            </Border>
-          
-      </StackPanel>
-        
+                <Label Margin="0, 12, 0, 0">TOTAL DEVICES SCANNED</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:PieChart
+                        Series="{Binding ScannedDeviceChart}"
+                        Legend="" >
+                    </lvc:PieChart>
+                </Border>
+
+                <Label>DEVICE LATENCY</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:CartesianChart
+                        Series="{Binding LatencyStatistics}"
+                        ZoomMode="X"
+                        XAxes="{Binding IpAddressAxis}"
+                        YAxes="{Binding LatencyAxis}"
+                        > 
+                        
+                    </lvc:CartesianChart>
+                </Border>
+
+                <Label>QUERY TIME</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:CartesianChart
+                        Series="{Binding QueryStatistics}"
+                        ZoomMode="X"
+                        XAxes="{Binding IpAddressAxis}"
+                        YAxes="{Binding QueryTimeAxis}">
+                    </lvc:CartesianChart>
+                </Border>
+
+            </StackPanel>
+
+        </ScrollViewer>
 
 
-    </Grid>
+
+
+      </Grid>
 </UserControl>

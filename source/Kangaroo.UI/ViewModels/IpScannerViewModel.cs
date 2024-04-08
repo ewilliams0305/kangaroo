@@ -12,6 +12,8 @@ using LiveChartsCore.SkiaSharpView;
 using Avalonia.Controls.Shapes;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -37,25 +39,52 @@ public partial class IpScannerViewModel : ViewModelBase
     private int _progress;
 
     [ObservableProperty]
-    private ObservableCollection<ISeries> _scannedDeviceChart = new ObservableCollection<ISeries>()
+    private ObservableCollection<ISeries> _scannedDeviceChart = new()
     {
-        new PieSeries<double> { Values = new double[] { 254 } },
-        new PieSeries<double> { Values = new double[] { 0 } },
+        new PieSeries<int>
+        {
+            Values = new int[] { 254 },
+            Name = "ADDRESSES SCANNED",
+            DataLabelsFormatter = data => $"{data} NODES",
+            Fill = new SolidColorPaint(new SKColor(180,0, 0, 180))
+        },
+        new PieSeries<int>
+        {
+            Values = new int[] { 0 },
+            Name = "ADDRESSES LOCATED",
+            DataLabelsFormatter = data => $"{data} NODES",
+            Fill = new SolidColorPaint(new SKColor(0,0, 180, 180))
+        },
     };
 
     [ObservableProperty]
-    private ObservableCollection<ISeries> _scannedStatistics = new ObservableCollection<ISeries>()
+    private ObservableCollection<ISeries> _latencyStatistics = new()
         {
-            //Query Time
-            new ColumnSeries<double>
-            {
-                Values = new List<double> { 0 }
-            },
-            //Latency
-            new LineSeries<double>
-            {
-                Values = new List<double> { 0 }
-            }
+            new LineSeries<double> { Values = new List<double> { 0 }}
+        };
+
+    [ObservableProperty]
+    private ObservableCollection<ISeries> _queryStatistics = new()
+        {
+            new ColumnSeries<double> { Values = new List<double> { 0 }},
+        };
+
+    [ObservableProperty]
+    private ObservableCollection<Axis> _ipAddressAxis = new()
+        {
+            new Axis { Name = "IP ADDRESS", LabelsRotation = 45, TextSize = 10, Labels = new string[] { }  }
+        };
+
+    [ObservableProperty]
+    private ObservableCollection<Axis> _latencyAxis = new()
+        {
+            new Axis { Name = "MILLISECONDS", MinStep = 1, TextSize = 10, Labeler = d => $"{d} ms."}
+        };
+
+    [ObservableProperty]
+    private ObservableCollection<Axis> _queryTimeAxis = new()
+        {
+            new Axis { Name = "SECONDS", TextSize = 10, Labeler = d => $"{d / 1000:N2} sec." }
         };
 
     partial void OnBeginIpAddressChanged(string value)
@@ -81,32 +110,30 @@ public partial class IpScannerViewModel : ViewModelBase
         var scanner = new ScannerBuilder()
             .WithRange(IPAddress.Parse(BeginIpAddress), IPAddress.Parse(EndIpAddress))
             .WithHttpScan()
-            .WithMaxTimeout(TimeSpan.FromMilliseconds(250))
+            .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
             .WithMaxHops(10)
             .WithParallelism()
             .Build();
 
-        //var result = await scanner.QueryNetwork();
-
-        //ScannedDeviceChart[0] = new PieSeries<double> { Values = new double[] { result.NumberOfAddressesScanned } };
-        //ScannedDeviceChart[1] = new PieSeries<double> { Values = new double[] { result.NumberOfAliveNodes } };
-
-        // base.OnPropertyChanged(nameof(ScannedDeviceChart));
-
-        //NetworkNodes = new ObservableCollection<NetworkNodeModel>(result.Nodes.Select(n => new NetworkNodeModel(n)));
-
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
+        var axisLabels = new List<string>( );
 
         await foreach (var node in scanner.QueryNetworkNodes(live =>
                        {
                            queryTimes.Add(live.QueryTime.TotalMilliseconds);
-                           latencyTimes.Add(live.Latency.TotalMilliseconds * 100);
-                           
-                           ScannedStatistics[1].Values = latencyTimes;
-                           ScannedStatistics[0].Values = queryTimes;
-                           ScannedDeviceChart[0].Values = new double[] { live.NumberOfAddressesScanned };
-                           ScannedDeviceChart[1].Values = new double[] { live.NumberOfAliveNodes };
+                           latencyTimes.Add(live.Latency.TotalMilliseconds);
+                           axisLabels.Add(live.ScannedAddress.ToString());
+
+                           LatencyStatistics[0].Values = latencyTimes;
+                           QueryStatistics[0].Values = queryTimes;
+
+                           IpAddressAxis[0].Labels = axisLabels;
+
+                           ScannedDeviceChart[0].Values = new int[] { live.NumberOfAddressesScanned };
+                           ScannedDeviceChart[1].Values = new int[] { live.NumberOfAliveNodes };
+
+
                            base.OnPropertyChanged(nameof(ScannedDeviceChart));
 
                        }))
