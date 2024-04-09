@@ -46,14 +46,14 @@ public partial class IpScannerViewModel : ViewModelBase
             Values = new int[] { 254 },
             Name = "ADDRESSES SCANNED",
             DataLabelsFormatter = data => $"{data} NODES",
-            Fill = new SolidColorPaint(new SKColor(180,0, 0, 180))
+            Fill = new SolidColorPaint(new SKColor(239,68, 56))
         },
         new PieSeries<int>
         {
             Values = new int[] { 0 },
             Name = "ADDRESSES LOCATED",
             DataLabelsFormatter = data => $"{data} NODES",
-            Fill = new SolidColorPaint(new SKColor(0,0, 180, 180))
+            Fill = new SolidColorPaint(new SKColor(33,150, 243))
         },
     };
 
