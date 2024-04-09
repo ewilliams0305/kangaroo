@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Linq;
+using AsyncAwaitBestPractices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-
+using Kangaroo.UI.Services;
+using Kangaroo.UI.Services.Database;
 using Kangaroo.UI.ViewModels;
 using Kangaroo.UI.Views;
+using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.UI;
 
@@ -24,26 +28,18 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var builder = Host.CreateApplicationBuilder();
-
-        builder.Services.AddTransient<MainWindow>();
-        builder.Services.AddTransient<MainView>();
-        builder.Services.AddTransient<MainViewModel>();
-        
-        builder.Services.AddTransient<HomePageView>();
-        builder.Services.AddTransient<HomePageViewModel>();
-
-        builder.Services.AddTransient<IpScannerView>();
-        builder.Services.AddSingleton<IpScannerViewModel>();
-
-        builder.Services.AddTransient<PortScannerView>();
-        builder.Services.AddTransient<PortScannerViewModel>();
-
-        builder.Services.AddTransient<ConfigurationView>();
-        builder.Services.AddTransient<ConfigurationViewModel>();
-
-        builder.Services.AddTransient<IScannerBuilder, ScannerBuilder>();
+        builder.AddKangaroo();
+        builder.Services.AddSingleton(TimeProvider.System);
 
         var app = builder.Build();
+
+        var dbInitializer = app.Services.GetRequiredService<IDbInitializer>();
+        dbInitializer.InitializeAsync().SafeFireAndForget(ex =>
+        {
+            Console.WriteLine(ex);
+           // app.Services.GetRequiredService<ILogger>().LogError(ex, "Failed to initialize the database");
+        });
+
         Services = app.Services;
 
         this.Resources[typeof(IHost)] = app;

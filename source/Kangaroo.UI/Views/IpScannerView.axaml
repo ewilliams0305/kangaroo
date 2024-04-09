@@ -44,7 +44,6 @@
                   BorderThickness="1"
                   BorderBrush="Gray">
           <DataGrid.Columns>
-              
               <DataGridCheckBoxColumn Header="ONLINE" Binding="{Binding IsAlive}"/>
               <DataGridTextColumn Header="IP ADDRESS" Binding="{Binding IpAddress}"/>
               <DataGridTextColumn Header="MAC ADDRESS" Binding="{Binding MacAddress}" />
