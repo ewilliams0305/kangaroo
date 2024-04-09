@@ -73,10 +73,12 @@
                 Margin="12"
                 VerticalAlignment="Stretch"
                 CornerRadius="12">
-          <lvc:PieChart
-              Series="{Binding ScannedDeviceChart}"
-              Legend="" >
-          </lvc:PieChart>
+            <lvc:CartesianChart
+                Series="{Binding RecentStatistics}"
+                ZoomMode="X"
+                XAxes="{Binding RecentAxis}"
+            >
+            </lvc:CartesianChart>
         </Border>
     </Grid>
 </UserControl>

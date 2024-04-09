@@ -25,16 +25,41 @@ public partial class HomePageViewModel : ViewModelBase
         base.PropertyChanged += HomePageViewModel_PropertyChanged;
     }
 
+    private List<double> _items = new List<double>();
+    private List<double> _times = new List<double>();
+
     private void HomePageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(SelectedScan))
         {
+            if (SelectedScan == null)
+            {
+                return;
+            }
             _selectedScans.Add(SelectedScan);
-
+            _items.Add(SelectedScan.OnlineDevices);
+            _times.Add(SelectedScan.ElapsedTime.TotalSeconds);
+            RecentStatistics[1].Values = _items;
+            RecentStatistics[0].Values = _times;
         }
     }
 
+
     private List<RecentScan> _selectedScans = new List<RecentScan>();
+
+
+    [ObservableProperty]
+    private ObservableCollection<ISeries> _recentStatistics = new()
+    {
+        new ColumnSeries<double> { Values = new List<double> { 0 }},
+        new LineSeries<double> { Values = new List<double> { 0 }},
+    };
+
+    [ObservableProperty]
+    private ObservableCollection<Axis> _recentAxis = new()
+    {
+        new Axis { Name = "DATE & TIME", MinStep = 1, TextSize = 10, Labeler = d => $"{d}"}
+    };
 
     [ObservableProperty]
     private SolidColorPaint _legendTextPaint  = new SolidColorPaint
