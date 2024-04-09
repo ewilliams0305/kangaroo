@@ -18,7 +18,6 @@
 
   
   <ItemGroup>
-    <None Remove="Assets\circle-loader.gif" />
     <None Remove="Assets\kangaroo-header.png" />
     <None Remove="Assets\kangaroo-logo.png" />
     <None Remove="Assets\kangaroo.ico" />

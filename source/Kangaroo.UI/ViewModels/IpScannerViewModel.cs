@@ -15,6 +15,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using Avalonia;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -45,6 +47,9 @@ public partial class IpScannerViewModel : ViewModelBase
 
     [ObservableProperty]
     private int _progress;
+
+    [ObservableProperty]
+    private Vector _scrollPosition;
 
     [ObservableProperty]
     private ObservableCollection<ISeries> _scannedDeviceChart = new()
@@ -97,11 +102,13 @@ public partial class IpScannerViewModel : ViewModelBase
 
     partial void OnBeginIpAddressChanged(string value)
     {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && IPAddress.TryParse(EndIpAddress, out var _);
+        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
+                      IPAddress.TryParse(EndIpAddress, out var _);
     }
     partial void OnEndIpAddressChanged(string value)
     {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && IPAddress.TryParse(EndIpAddress, out var _);
+        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
+                      IPAddress.TryParse(EndIpAddress, out var _);
     }
 
     [RelayCommand]
@@ -120,46 +127,53 @@ public partial class IpScannerViewModel : ViewModelBase
             .WithHttpScan()
             .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
             .WithMaxHops(10)
-            //.WithParallelism()
+            .WithParallelism()
             .Build();
-
-        
-
 
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
-        var axisLabels = new List<string>( );
-
+        var axisLabels = new List<string>();
+        var counter = 0;
+        var items = 0;
         scanner.NodeStatusUpdate = (node, status) =>
         {
             if (status == LiveUpdateStatus.Started)
             {
-                NetworkNodes.Add(new NetworkNodeModel(node));
+                counter++;
+                ScannedDeviceChart[1].Values = new int[] { counter };
+                ScannedDeviceChart[0].Values = new int[] { items - counter};
+
+                AddInitialNetworkNode(node, queryTimes, latencyTimes, axisLabels);
             }
 
             if (status == LiveUpdateStatus.Completed)
             {
+                UpdateActiveNetworkNode(node, queryTimes, latencyTimes, axisLabels);
             }
-
-            queryTimes.Add(node.QueryTime.TotalMilliseconds);
-            latencyTimes.Add(node.Latency != null 
-                ? node.Latency!.Value.TotalMilliseconds 
-                : 0);
-            axisLabels.Add(node.IpAddress.ToString());
-
-            LatencyStatistics[0].Values = latencyTimes;
-            QueryStatistics[0].Values = queryTimes;
-            IpAddressAxis[0].Labels = axisLabels;
         };
 
         scanner.ScanStatusUpdate = (results, status) =>
         {
-            ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
-            ScannedDeviceChart[1].Values = new int[] { results.NumberOfAliveNodes };
-            base.OnPropertyChanged(nameof(ScannedDeviceChart));
+            if (status == LiveUpdateStatus.Started)
+            {
+                items = results.NumberOfAddressesScanned;
+
+                ScannedDeviceChart[1].Values = new int[] { 0 };
+                ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
+                //base.OnPropertyChanged(nameof(ScannedDeviceChart));
+            }
+
+            if (status == LiveUpdateStatus.Completed)
+            {
+                ScannedDeviceChart[1].Values = new int[] { results.NumberOfAliveNodes };
+                ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
+                //base.OnPropertyChanged(nameof(ScannedDeviceChart));
+            }
         };
 
         var results = await scanner.QueryNetwork();
+
+        UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
         await _recentScans.CreateAsync(
             RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes));
@@ -174,8 +188,63 @@ public partial class IpScannerViewModel : ViewModelBase
         var last = scans.LastOrDefault();
         if (last != null)
         {
-            BeginIpAddress = last.StartAddress?? string.Empty;
+            BeginIpAddress = last.StartAddress ?? string.Empty;
             EndIpAddress = last.EndAddress ?? string.Empty;
         }
     }
+
+    private void AddInitialNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
+    {
+        NetworkNodes.Add(new NetworkNodeModel(node));
+        queryTimes.Add(node.QueryTime.TotalMilliseconds);
+        latencyTimes.Add(node.Latency != null
+            ? node.Latency!.Value.TotalMilliseconds
+            : 0);
+        axisLabels.Add(node.IpAddress.ToString());
+
+        LatencyStatistics[0].Values = latencyTimes;
+        QueryStatistics[0].Values = queryTimes;
+        IpAddressAxis[0].Labels = axisLabels;
+    }
+
+    private void UpdateActiveNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
+    {
+        if (node.Alive)
+        {
+            var nodeToRemove = NetworkNodes.First(n => n.IpAddress == node.IpAddress.ToString());
+            NetworkNodes.Remove(nodeToRemove);
+            NetworkNodes.Add(new NetworkNodeModel(node));
+
+            queryTimes.Add(node.QueryTime.TotalMilliseconds);
+            latencyTimes.Add(node.Latency != null
+                ? node.Latency!.Value.TotalMilliseconds
+                : 0);
+            axisLabels.Add(node.IpAddress.ToString());
+
+            LatencyStatistics[0].Values = latencyTimes;
+            QueryStatistics[0].Values = queryTimes;
+            IpAddressAxis[0].Labels = axisLabels;
+        }
+    }
+
+    private void UpdateAliveChartData(ScanResults results, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
+    {
+        var updatedChart = results.Nodes
+            .Where(n => n.Alive)
+            .Select(n => new NetworkNodeModel(n));
+
+        queryTimes.RemoveAll(t => t == 0);
+        latencyTimes.RemoveAll(t => t == 0);
+        axisLabels.Clear();
+
+        foreach (var updatedNode in updatedChart)
+        {
+            axisLabels.Add(updatedNode.IpAddress);
+        }
+
+        LatencyStatistics[0].Values = latencyTimes;
+        QueryStatistics[0].Values = queryTimes;
+        IpAddressAxis[0].Labels = axisLabels;
+    }
+
 }

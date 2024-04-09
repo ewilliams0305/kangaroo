@@ -40,7 +40,7 @@ internal sealed class ParallelScanner : IScanner
 
     public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
-        ScanStatusUpdate?.Invoke(ScanResults.Empty, LiveUpdateStatus.Started);
+        ScanStatusUpdate?.Invoke(ScanResults.Initial(_addresses.Count()), LiveUpdateStatus.Started);
         _stopWatch.Restart();
         
         var counter = 0;

@@ -4,14 +4,11 @@ public class NetworkNodeModel
 {
     public string IpAddress { get; set; }
     public string MacAddress { get; set; }
-
     public string Latency { get; set; }
     public string QueryTime { get; set; }
-
     public bool IsAlive { get; set; }
     public string WebServer { get; set; }
     public string  DnsName { get; set; }
-
 
     public NetworkNodeModel(NetworkNode node)
     {

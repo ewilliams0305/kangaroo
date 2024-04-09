@@ -41,7 +41,7 @@ internal sealed class SingleScanner : IScanner
 
     public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
-        ScanStatusUpdate?.Invoke(ScanResults.Empty, LiveUpdateStatus.Started);
+        ScanStatusUpdate?.Invoke(ScanResults.Initial(1), LiveUpdateStatus.Started);
         _stopWatch.Restart();
 
         var nodes = new List<NetworkNode>();
