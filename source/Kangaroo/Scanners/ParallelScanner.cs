@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Kangaroo;
 
@@ -25,6 +24,12 @@ internal sealed class ParallelScanner : IScanner
     private readonly Stopwatch _stopWatch = new();
     private readonly int _batchSize;
 
+    /// <inheritdoc />
+    public Action<ScanResults, LiveUpdateStatus> ScanStatusUpdate { get; set; }
+
+    /// <inheritdoc />
+    public Action<NetworkNode, LiveUpdateStatus> NodeStatusUpdate { get; set; }
+
     private ParallelScanner(ILogger logger, IQueryNetworkNode querier, IEnumerable<IPAddress> addresses, int batchSize)
     {
         _logger = logger;
@@ -35,6 +40,7 @@ internal sealed class ParallelScanner : IScanner
 
     public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
+        ScanStatusUpdate?.Invoke(ScanResults.Initial(_addresses.Count()), LiveUpdateStatus.Started);
         _stopWatch.Restart();
         
         var counter = 0;
@@ -54,8 +60,13 @@ internal sealed class ParallelScanner : IScanner
                 _logger.LogDebug("Processed Batch #{counter} with #{itemsCount} items on Thread {threadId}", counter, networkNodes.Length, Environment.CurrentManagedThreadId);
             }
             _stopWatch.Stop();
-
-            return new ScanResults(nodes, _stopWatch.Elapsed, _addresses.Count(), nodes.Count(n => n.Alive), _addresses.First(), _addresses.Last());
+            return new ScanResults(
+                nodes, 
+                _stopWatch.Elapsed, 
+                _addresses.Count(), 
+                nodes.Count(n => n.Alive), 
+                _addresses.First(), _addresses.Last())
+                .PublishResults(ScanStatusUpdate);
         }
         catch (ArgumentNullException nullException)
         {
@@ -70,41 +81,18 @@ internal sealed class ParallelScanner : IScanner
     }
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsHandler = null, [EnumeratorCancellation] CancellationToken token = default)
+    public async IAsyncEnumerable<NetworkNode> QueryNetworkNodes([EnumeratorCancellation] CancellationToken token = default)
     {
         var batchOfTask = BatchedTaskFactoryIAsync(token);
-
-        var aliveCounter = 0;
-        var totalCounter = 0;
 
         foreach (var task in batchOfTask)
         {
             var nodes = await task;
             foreach (var networkNode in nodes)
             {
-                if (networkNode.Alive)
-                {
-                    aliveCounter++;
-                }
-
-                totalCounter++;
-
-                if (networkNode.Alive)
-                {
-                    resultsHandler?.Invoke(new LiveNodeResult
-                    (
-                        ScannedAddress: networkNode.IpAddress,
-                        QueryTime: networkNode.QueryTime,
-                        Latency: networkNode.Latency ?? TimeSpan.Zero,
-                        NumberOfAddressesScanned: totalCounter,
-                        NumberOfAliveNodes: aliveCounter
-                    ));
-                }
-
                 yield return networkNode;
             }
         }
-
     }
 
     public async IAsyncEnumerable<NetworkNode> NetworkQueryAsync(IEnumerable<IPAddress> address, [EnumeratorCancellation] CancellationToken token = default)
@@ -134,9 +122,13 @@ internal sealed class ParallelScanner : IScanner
         return results;
     }
 
-    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default) => 
-        await _querier.Query(ipAddress, token);
-    
+    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
+    {
+        NodeStatusUpdate?.Invoke(NetworkNode.InProgress(ipAddress), LiveUpdateStatus.Started);
+        var node = await _querier.Query(ipAddress, token);
+        return node.PublishStatus(NodeStatusUpdate);
+    }
+
 
     #region IDisposable
 

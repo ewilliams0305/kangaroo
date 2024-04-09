@@ -14,7 +14,7 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto, *"
-          ColumnDefinitions="7*, 1, 3*">
+          ColumnDefinitions="6*, 1, 4*">
         <GridSplitter Grid.Row="1" Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
         <StackPanel Grid.Row="0"
                     Grid.Column="0"
@@ -33,7 +33,8 @@
                 anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/wave-loader.gif" />
         </StackPanel>
 
-        <DataGrid Grid.Row="1"
+        <DataGrid x:Name="ScannedAddressTable"
+                  Grid.Row="1"
                   Grid.Column="0"
                   Margin="20"
                   VerticalAlignment="Stretch"
