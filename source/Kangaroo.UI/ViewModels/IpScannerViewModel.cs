@@ -107,6 +107,12 @@ public partial class IpScannerViewModel : ViewModelBase
     [RelayCommand]
     public async Task StartScan()
     {
+
+        for (var i = 0; i < 60; i++)
+        {
+            await _recentScans.CreateAsync(
+                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, TimeSpan.Zero, 1));
+        }
         if (!ScanEnabled)
         {
             return;

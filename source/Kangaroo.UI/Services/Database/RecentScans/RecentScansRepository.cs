@@ -11,8 +11,11 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
     private readonly IDbConnectionFactory _connectionFactory;
     private readonly TimeProvider _timeProvider;
 
-    private const string RecentScansQuery = @"Select Id, ScanMode, StartAddress, EndAddress, SubnetMask, SpecifiedAddresses, Adapter, CreatedDateTime, ElapsedTime, OnlineDevices
+    private const string RecentScansQuery = @"Select *
                                               FROM RecentScans GROUP BY CreatedDateTime";
+    
+    //private const string RecentScansQuery = @"Select Id, ScanMode, StartAddress, EndAddress, SubnetMask, SpecifiedAddresses, Adapter, CreatedDateTime, ElapsedTime, OnlineDevices
+    //                                          FROM RecentScans GROUP BY CreatedDateTime";
 
     private const string RecentScanQuery = @"select Id id, 
                                           ScanMode scanMode, 
@@ -25,6 +28,18 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
                                           ElapsedTime elapsedTime, 
                                           OnlineDevices onlineDevices
                                           FROM RecentScans WHERE Id = @Id";
+    
+    //private const string RecentScanQuery = @"select Id id, 
+    //                                      ScanMode scanMode, 
+    //                                      StartAddress startAddress,
+    //                                      EndAddress endAddress,
+    //                                      SubnetMask subnetMask,
+    //                                      SpecifiedAddresses specifiedAddresses,
+    //                                      Adapter adapter,
+    //                                      CreatedDateTime createdDateTime,
+    //                                      ElapsedTime elapsedTime, 
+    //                                      OnlineDevices onlineDevices
+    //                                      FROM RecentScans WHERE Id = @Id";
 
     public RecentScansRepository(IDbConnectionFactory connectionFactory, TimeProvider timeProvider)
     {
@@ -67,7 +82,7 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
         {
             var result = await connection.ExecuteAsync(new CommandDefinition(
                 commandText: @"INSERT INTO RecentScans ( Id, ScanMode, StartAddress, EndAddress, SubnetMask, SpecifiedAddresses, Adapter, CreatedDateTime, ElapsedTime, OnlineDevices)
-                               VALUES (@Id, @ScanMode, @StartAddress, @EndAddress, @SubnetMask, @SpecifiedAddresses, @Adapter, @CreatedDateTime, @ElapsedTime, @OnlineDevices)",
+                           VALUES (@Id, @ScanMode, @StartAddress, @EndAddress, @SubnetMask, @SpecifiedAddresses, @Adapter, @CreatedDateTime, @ElapsedTime, @OnlineDevices)",
                 parameters: parameters,
                 cancellationToken: token));
 
@@ -79,7 +94,6 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
             Console.WriteLine(e);
             throw;
         }
-        
     }
 
     /// <inheritdoc />
