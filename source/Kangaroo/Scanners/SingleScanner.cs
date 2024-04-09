@@ -21,6 +21,12 @@ internal sealed class SingleScanner : IScanner
         return new SingleScanner(logger, querier, address);
     }
 
+    /// <inheritdoc />
+    public Action<ScanResults, LiveUpdateStatus> ScanStatusUpdate { get; set; }
+
+    /// <inheritdoc />
+    public Action<NetworkNode, LiveUpdateStatus> NodeStatusUpdate { get; set; }
+
     private readonly ILogger _logger;
     private readonly IQueryNetworkNode _querier;
     private readonly IPAddress _address;
@@ -35,6 +41,7 @@ internal sealed class SingleScanner : IScanner
 
     public async Task<ScanResults> QueryNetwork(CancellationToken token = default)
     {
+        ScanStatusUpdate?.Invoke(ScanResults.Empty, LiveUpdateStatus.Started);
         _stopWatch.Restart();
 
         var nodes = new List<NetworkNode>();
@@ -46,17 +53,28 @@ internal sealed class SingleScanner : IScanner
         }
 
         _stopWatch.Stop();
-        return new ScanResults(nodes, _stopWatch.Elapsed, 1, nodes.Count(n => n.Alive), _address, _address);
+        return new ScanResults(
+            nodes,
+            _stopWatch.Elapsed, 
+            1, 
+            nodes.Count(n => n.Alive),
+            _address, 
+            _address)
+            .PublishResults(ScanStatusUpdate);
     }
 
     /// <inheritdoc />
-    public IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsHandler = null, CancellationToken token = default)
+    public IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default)
     {
         return NetworkQueryAsync(token);
     }
 
-    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default) =>
-        await _querier.Query(ipAddress, token);
+    public async Task<NetworkNode> CheckNetworkNode(IPAddress ipAddress, CancellationToken token = default)
+    {
+        NodeStatusUpdate?.Invoke(NetworkNode.InProgress(ipAddress), LiveUpdateStatus.Started);
+        var node = await _querier.Query(ipAddress, token);
+        return node.PublishStatus(NodeStatusUpdate);
+    }
 
     private async IAsyncEnumerable<NetworkNode> NetworkQueryAsync([EnumeratorCancellation] CancellationToken token = default)
     {

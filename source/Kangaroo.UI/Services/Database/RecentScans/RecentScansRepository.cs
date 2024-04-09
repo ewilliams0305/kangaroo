@@ -92,7 +92,7 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            return false;
         }
     }
 

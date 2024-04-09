@@ -5,7 +5,7 @@ namespace Kangaroo;
 /// <summary>
 /// The scanner, well scans...  A scanner will scan the entire range of IP addresses provided during the build configuration pipeline.
 /// </summary>
-public interface IScanner : IDisposable
+public interface IScanner : IScannerEvents, IDisposable
 {
     /// <summary>
     /// Queries all ip addresses provided during the build pipeline
@@ -18,10 +18,9 @@ public interface IScanner : IDisposable
     /// <summary>
     /// A query that provides the ability to range over the results as they come.
     /// </summary>
-    /// <param name="resultsAction"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    IAsyncEnumerable<NetworkNode> QueryNetworkNodes(Action<LiveNodeResult>? resultsAction = null, CancellationToken token = default);
+    IAsyncEnumerable<NetworkNode> QueryNetworkNodes(CancellationToken token = default);
 
     /// <summary>
     /// Queries a single node on the network.

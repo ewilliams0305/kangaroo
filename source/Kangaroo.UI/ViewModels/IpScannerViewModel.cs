@@ -1,6 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using Avalonia.Controls.Shapes;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Models;
+using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -9,12 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Kangaroo.UI.Services.Database;
-using System.Globalization;
-using System.Linq;
-using AsyncAwaitBestPractices;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -107,12 +107,6 @@ public partial class IpScannerViewModel : ViewModelBase
     [RelayCommand]
     public async Task StartScan()
     {
-
-        for (var i = 0; i < 60; i++)
-        {
-            await _recentScans.CreateAsync(
-                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, TimeSpan.Zero, 1));
-        }
         if (!ScanEnabled)
         {
             return;
@@ -121,49 +115,54 @@ public partial class IpScannerViewModel : ViewModelBase
         IsScanning = true;
         NetworkNodes = new ObservableCollection<NetworkNodeModel>();
 
-        var scanner = new ScannerBuilder()
+        using var scanner = new ScannerBuilder()
             .WithRange(IPAddress.Parse(BeginIpAddress), IPAddress.Parse(EndIpAddress))
             .WithHttpScan()
             .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
             .WithMaxHops(10)
-            .WithParallelism()
+            //.WithParallelism()
             .Build();
+
+        
+
 
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
         var axisLabels = new List<string>( );
-        var online = 0;
 
-        var elapsedTime = new Stopwatch();
-        elapsedTime.Start();
-
-        await foreach (var node in scanner.QueryNetworkNodes(live =>
-                       {
-                           queryTimes.Add(live.QueryTime.TotalMilliseconds);
-                           latencyTimes.Add(live.Latency.TotalMilliseconds);
-                           axisLabels.Add(live.ScannedAddress.ToString());
-
-                           LatencyStatistics[0].Values = latencyTimes;
-                           QueryStatistics[0].Values = queryTimes;
-
-                           IpAddressAxis[0].Labels = axisLabels;
-
-                           ScannedDeviceChart[0].Values = new int[] { live.NumberOfAddressesScanned };
-                           ScannedDeviceChart[1].Values = new int[] { live.NumberOfAliveNodes };
-
-                           online = live.NumberOfAliveNodes;
-                           base.OnPropertyChanged(nameof(ScannedDeviceChart));
-
-                       }))
+        scanner.NodeStatusUpdate = (node, status) =>
         {
-            NetworkNodes.Add(new NetworkNodeModel(node));
-            base.OnPropertyChanged(nameof(NetworkNodes));
-        }
+            if (status == LiveUpdateStatus.Started)
+            {
+                NetworkNodes.Add(new NetworkNodeModel(node));
+            }
 
-        elapsedTime.Stop();
+            if (status == LiveUpdateStatus.Completed)
+            {
+            }
+
+            queryTimes.Add(node.QueryTime.TotalMilliseconds);
+            latencyTimes.Add(node.Latency != null 
+                ? node.Latency!.Value.TotalMilliseconds 
+                : 0);
+            axisLabels.Add(node.IpAddress.ToString());
+
+            LatencyStatistics[0].Values = latencyTimes;
+            QueryStatistics[0].Values = queryTimes;
+            IpAddressAxis[0].Labels = axisLabels;
+        };
+
+        scanner.ScanStatusUpdate = (results, status) =>
+        {
+            ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
+            ScannedDeviceChart[1].Values = new int[] { results.NumberOfAliveNodes };
+            base.OnPropertyChanged(nameof(ScannedDeviceChart));
+        };
+
+        var results = await scanner.QueryNetwork();
 
         await _recentScans.CreateAsync(
-            RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, elapsedTime.Elapsed, online));
+            RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes));
 
         IsScanning = false;
     }
