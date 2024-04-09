@@ -1,24 +1,32 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Models;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using Avalonia.Controls.Shapes;
-using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
-using LiveChartsCore.SkiaSharpView.Painting;
-using SkiaSharp;
+using Kangaroo.UI.Services.Database;
+using System.Globalization;
+using System.Linq;
+using AsyncAwaitBestPractices;
 
 namespace Kangaroo.UI.ViewModels;
 
 public partial class IpScannerViewModel : ViewModelBase
 {
+    private readonly RecentScansRepository _recentScans;
+
+    public IpScannerViewModel(RecentScansRepository recentScans)
+    {
+        _recentScans = recentScans;
+        LoadRecent().SafeFireAndForget();
+    }
 
     [ObservableProperty]
     private ObservableCollection<NetworkNodeModel> _networkNodes = new();
@@ -118,6 +126,10 @@ public partial class IpScannerViewModel : ViewModelBase
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
         var axisLabels = new List<string>( );
+        var online = 0;
+
+        var elapsedTime = new Stopwatch();
+        elapsedTime.Start();
 
         await foreach (var node in scanner.QueryNetworkNodes(live =>
                        {
@@ -133,7 +145,7 @@ public partial class IpScannerViewModel : ViewModelBase
                            ScannedDeviceChart[0].Values = new int[] { live.NumberOfAddressesScanned };
                            ScannedDeviceChart[1].Values = new int[] { live.NumberOfAliveNodes };
 
-
+                           online = live.NumberOfAliveNodes;
                            base.OnPropertyChanged(nameof(ScannedDeviceChart));
 
                        }))
@@ -142,6 +154,23 @@ public partial class IpScannerViewModel : ViewModelBase
             base.OnPropertyChanged(nameof(NetworkNodes));
         }
 
+        elapsedTime.Stop();
+
+        await _recentScans.CreateAsync(
+            RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, elapsedTime.Elapsed, online));
+
         IsScanning = false;
+    }
+
+    private async Task LoadRecent()
+    {
+        var scans = await _recentScans.GetAsync();
+
+        var last = scans.LastOrDefault();
+        if (last != null)
+        {
+            BeginIpAddress = last.StartAddress?? string.Empty;
+            EndIpAddress = last.EndAddress ?? string.Empty;
+        }
     }
 }

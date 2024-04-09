@@ -15,10 +15,20 @@
         <Border Grid.Row="0"
                 Height="32">
 
-            <TextBlock Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" 
-                       HorizontalAlignment="Left" 
-                       VerticalAlignment="Center"
-                       Margin="10, 0"/>
+           <StackPanel Orientation="Horizontal" Margin="5, 0,0,0">
+             <Image
+                 VerticalAlignment="Center"
+                 HorizontalAlignment="Left"
+                 Width="20"
+                 Height="20"
+                 Source="avares://Kangaroo.UI/Assets/kangaroo.ico" />
+               <TextBlock Text="Kangaroo Network Scanner" 
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Center"
+                          Margin="10, 0"/>
+
+
+           </StackPanel>  
         </Border>
 
         <SplitView Grid.Row="1" 

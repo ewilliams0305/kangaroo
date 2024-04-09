@@ -40,6 +40,8 @@ public static class ContainerExtensions
     {
         builder.Services.AddTransient<IDbConnectionFactory, SqliteDbConnectionFactory>(sp => new SqliteDbConnectionFactory(options.DatabaseConnection));
         builder.Services.AddTransient<IDbInitializer, SqliteDbInitializer>();
+
+        builder.Services.AddTransient<RecentScansRepository>();
         return builder;
     }
     public static HostApplicationBuilder AddScannerServices(this HostApplicationBuilder builder, ServiceOptions options)

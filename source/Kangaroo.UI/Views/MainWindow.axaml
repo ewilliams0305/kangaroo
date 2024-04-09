@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:Kangaroo.UI.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Kangaroo.UI.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/kangaroo.ico"
         Title="Kangaroo.UI">
         <views:MainView />
 </Window>

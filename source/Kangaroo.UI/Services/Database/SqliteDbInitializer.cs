@@ -52,6 +52,8 @@ public sealed class SqliteDbInitializer : IDbInitializer
                                                                   SubnetMask TEXT,
                                                                   SpecifiedAddresses TEXT,
                                                                   Adapter TEXT,
-                                                                  CreatedDateTime TEXT NOT NULL
+                                                                  CreatedDateTime TEXT NOT NULL,
+                                                                  ElapsedTime TEXT NOT NULL,
+                                                                  OnlineDevices INTEGER NOT NULL 
                                                                   )";
 }

@@ -11,6 +11,8 @@ public sealed class BaseTypesRepositoryConfiguration : IConfigureRepository
         {
             SqlMapper.AddTypeHandler(new GuidTypeHandler());
             SqlMapper.AddTypeHandler(new DateTimeTypeHandler());
+            SqlMapper.AddTypeHandler(new TimeSpanTypeHandler());
+
 
             return true;
         }

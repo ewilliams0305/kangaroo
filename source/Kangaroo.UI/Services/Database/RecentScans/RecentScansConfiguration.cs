@@ -1,5 +1,4 @@
 ﻿using System;
-using Dapper;
 
 namespace Kangaroo.UI.Services.Database;
 
@@ -29,7 +28,9 @@ internal class RecentScansConfiguration : IConfigureRepository
             recentScan.SubnetMask,
             recentScan.SpecifiedAddresses,
             recentScan.Adapter,
-            CreatedDateTime = timeProvider.GetLocalNow().DateTime
+            CreatedDateTime = timeProvider.GetLocalNow().DateTime,
+            recentScan.ElapsedTime,
+            recentScan.OnlineDevices
         };
         return parameters;
     }

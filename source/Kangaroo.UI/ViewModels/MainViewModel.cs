@@ -50,7 +50,7 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        CurrentPage = new HomePageViewModel();
+        CurrentPage = App.Services.GetRequiredService<HomePageViewModel>();
     }
 
     public MainViewModel(IScannerBuilder scanner, IServiceProvider provider)
