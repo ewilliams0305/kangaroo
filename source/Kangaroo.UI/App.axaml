@@ -11,5 +11,6 @@
     <Application.Styles>
        <styling:FluentAvaloniaTheme PreferUserAccentColor="True"/>
        <StyleInclude Source="avares://Kangaroo.UI/Assets/Icons.axaml"/>
+       <StyleInclude Source="avares://Kangaroo.UI/Assets/ButtonStyles.axaml"/>
     </Application.Styles>
 </Application>
