@@ -1,0 +1,36 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+
+        <Button Classes="start">NEW BUTTON</Button>
+    </Design.PreviewWith>
+
+    <Style Selector="Button.start">
+        <Setter Property="Margin" Value="30, 0, 0, 0" />
+        <Setter Property="Background" Value="DarkOliveGreen" />
+        <Setter Property="Width" Value="58" />
+        <Setter Property="Height" Value="58" />
+    </Style>
+
+    <Style Selector="Button.start:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background"
+                Value="ForestGreen" />
+        <Setter Property="CornerRadius"
+                Value="3" />
+    </Style>
+
+    <Style Selector="Button.stop">
+        <Setter Property="Margin" Value="30, 0, 0, 0" />
+        <Setter Property="Background" Value="IndianRed" />
+        <Setter Property="Width" Value="58" />
+        <Setter Property="Height" Value="58" />
+    </Style>
+
+    <Style Selector="Button.stop:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background"
+                Value="OrangeRed" />
+        <Setter Property="CornerRadius"
+                Value="3" />
+    </Style>
+    
+</Styles>

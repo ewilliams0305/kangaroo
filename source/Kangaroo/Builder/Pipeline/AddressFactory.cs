@@ -115,43 +115,7 @@ internal sealed class AddressFactory
 
         broadcastAddressBytes[3] -= 1;
 
-        //if (broadcastAddressBytes[2] == 255)
-        //{
-        //    broadcastAddressBytes[2] -= 1;
-
-        //}
-
-        //if (broadcastAddressBytes[3] == 255)
-        //{
-        //    broadcastAddressBytes[2] -= 1;
-
-        //}
-
         return broadcastAddressBytes;
-
-        //var invertedSubnetMaskBytes = new byte[4];
-        //for (var i = 0; i < 4; i++)
-        //{
-        //    invertedSubnetMaskBytes[i] = (byte)~subnetMaskBytes[i];
-        //}
-
-        //var broadcastAddressBytes = new byte[4];
-        //for (var i = 0; i < 4; i++)
-        //{
-        //    broadcastAddressBytes[i] = (byte)(networkAddressBytes[i] | invertedSubnetMaskBytes[i]);
-        //}
-
-        //// Adjust the broadcast address to find the last available address
-        //for (var i = 3; i >= 0; i--)
-        //{
-        //    if (broadcastAddressBytes[i] != 255)
-        //    {
-        //        broadcastAddressBytes[i] -= 1;
-        //        break;
-        //    }
-        //}
-
-        //return broadcastAddressBytes;
     }
 
     private static IEnumerable<IPAddress> CreateAddresses16(IReadOnlyList<byte> startBytes, IReadOnlyList<byte> endBytes)
@@ -246,7 +210,7 @@ internal sealed class AddressFactory
     {
         if (@interface.OperationalStatus != OperationalStatus.Up)
         {
-            throw new InvalidNetworkAdapterException(@interface);
+            throw new InvalidNetworkAdapterException(@interface, AdapterFailureCode.LinkDown);
         }
 
         var ipProps = @interface.GetIPProperties();
@@ -259,7 +223,7 @@ internal sealed class AddressFactory
             return ip;
         }
 
-        throw new InvalidNetworkAdapterException(@interface);
+        throw new InvalidNetworkAdapterException(@interface, AdapterFailureCode.NoIpAddress);
     }
 
     internal static int GetBitCount(uint value)

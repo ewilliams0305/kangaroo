@@ -106,7 +106,8 @@ leverage the http client factory, or simply return a new client.  Each query wil
 A default factory is provided in the library if no function is provided.
 
 ```csharp
- var scanner = config
+using var scanner = ScannerBuilder
+    .Configure()
     .WithInterface(adapter)
     .WithHttpScan(() => new HttpClient())
     .Build();
@@ -116,17 +117,19 @@ A default factory is provided in the library if no function is provided.
 The ping can be configured as well. optional timeout and TTL can be provided to effectively speed up or slow down each query. A shorter timeout will allow kangaroo to fail faster on an unknown address. The TTL can be configured to ensure you are only scanning IP addresses within a physical boundary. A TTL of 1 would only ping devices on the physical switch. 
 
 ``` csharp
-using var scanner = ScannerBuilder.Configure()
+using var scanner = ScannerBuilder
+  .Configure()
   .WithIpAddresses(ips)
   .WithMaxTimeout(TimeSpan.FromSeconds(1))
-.Build();
+  .Build();
 ```
 
 ``` csharp
-using var scanner = ScannerBuilder.Configure()
+using var scanner = ScannerBuilder
+  .Configure()
   .WithIpAddresses(ips)
   .WithMaxHops(2)
-.Build();
+  .Build();
 ```
 
 ## Parallel Configuration
@@ -145,17 +148,19 @@ using var scanner = ScannerBuilder
 BYOL(Logger) 
 
 ``` csharp
-using var scanner = ScannerBuilder.Configure()
+using var scanner = ScannerBuilder
+  .Configure()
   .WithIpAddresses(ips)
   .WithLogging(_logger)  //Provide a logger
-.Build();
+  .Build();
 ```
 
 ``` csharp
-using var scanner = ScannerBuilder.Configure()
+using var scanner = ScannerBuilder
+  .Configure()
   .WithIpAddresses(ips)
   .WithLogging(() => ILogger)  //Provide a logger func
-.Build();
+  .Build();
 ```
 
 # Scanning Networks
@@ -190,7 +195,7 @@ exist at that endpoint and report the servers headers. For this test an HTTP GET
 servers IP address root `GET http://172.22.5.5/`. If any response is return the headers will queried to dertmine the type of webserver. 
 
 ## IP Scanning
-Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.  The reslts will include an IEnumerable of nodes each containing the following data. Note, the hostname results depend on the network environment and machine running the scanner. 
+Await a call to the QueryNetwork to query all the IP addresses provided.  Depending on the configuration each query could take anywhere from 5 seconds to several minutes.  The results will include an IEnumerable of nodes each containing the following data. Note, the hostname results depend on the network environment and machine running the scanner. 
 
 ```csharp
 public record NetworkNode(
@@ -209,9 +214,3 @@ Individual nodes can be queried as well.
 var node = await scanner.CheckNetworkNode();
 Console.WriteLine(node.Dump());
 ```
-
-## Scan Results
-The results of each scan will include the elapsed time and other properties.
-
-## Port Scanner
-(Future!)

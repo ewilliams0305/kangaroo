@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 
 namespace Kangaroo;
@@ -25,6 +26,9 @@ public record NetworkNode(
 
     internal static NetworkNode BadNode(IPAddress ipAddress, TimeSpan elapsedTime) => 
         new(ipAddress, MacAddress.Empty, null, null, null, elapsedTime, false);
+    
+    internal static NetworkNode InProgress(IPAddress ipAddress) => 
+        new(ipAddress, MacAddress.Empty, null, null, TimeSpan.Zero, TimeSpan.Zero, false);
 
     /// <inheritdoc />
     public override string ToString()

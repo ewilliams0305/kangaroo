@@ -48,6 +48,10 @@ public sealed class RangeScanCommand()
             results.DumpResults();
             return 0;
         }
+        catch (InvalidIpAddressException e)
+        {
+            e.Message.Dump();
+        }
         catch (InvalidIpRangeException e)
         {
             e.Message.Dump();

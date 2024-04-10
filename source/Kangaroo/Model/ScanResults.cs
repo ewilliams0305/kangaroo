@@ -21,4 +21,5 @@ public record ScanResults(
     )
 {
     internal static ScanResults Empty => new(Array.Empty<NetworkNode>(), TimeSpan.MinValue, 0, 0, IPAddress.Any, IPAddress.Any);
+    internal static ScanResults Initial(int numberOfItemsToScan) => new(Array.Empty<NetworkNode>(), TimeSpan.MinValue, numberOfItemsToScan, 0, IPAddress.Any, IPAddress.Any);
 };
