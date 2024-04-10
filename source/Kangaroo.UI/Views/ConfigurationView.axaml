@@ -4,5 +4,5 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.ConfigurationView">
-  Configure Kangaroo IP Scanner Settings
+  <TextBlock>Feature is not implemented</TextBlock>
 </UserControl>

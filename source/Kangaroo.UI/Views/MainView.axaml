@@ -56,7 +56,7 @@
                             <DataTemplate DataType="{x:Type models:MenuItemTemplate}">
              
                                     <StackPanel Spacing="20" Orientation="Horizontal">
-                                        <PathIcon Data="{Binding Icon}"></PathIcon>
+                                        <PathIcon Data="{Binding Icon}"/>
                                         <TextBlock Text="{Binding Label}"/>
                                     </StackPanel>
                           

@@ -42,10 +42,11 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<MenuItemTemplate> _menuItems = new()
     {
-        new MenuItemTemplate(typeof(HomePageViewModel), "Dashboard", "IconHome"),
-        new MenuItemTemplate(typeof(IpScannerViewModel), "IP Scanner", "IconScan"),
-        new MenuItemTemplate(typeof(PortScannerViewModel), "Port Scanner", "IconPort"),
-        new MenuItemTemplate(typeof(ConfigurationViewModel), "Configuration", "IconSettings")
+        new MenuItemTemplate(typeof(HomePageViewModel), "Dashboard", "IconHome", true),
+        new MenuItemTemplate(typeof(IpScannerViewModel), "IP Scanner", "IconScan", true),
+        new MenuItemTemplate(typeof(PortScannerViewModel), "Port Scanner", "IconPort", true),
+        new MenuItemTemplate(typeof(PortScannerViewModel), "Compliance Testing", "IconClipboard", true),
+        new MenuItemTemplate(typeof(ConfigurationViewModel), "Configuration", "IconSettings", true)
     };
 
     public MainViewModel()
