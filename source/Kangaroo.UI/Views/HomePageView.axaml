@@ -22,22 +22,19 @@
                 HorizontalAlignment="Left"
                 Source="avares://Kangaroo.UI/Assets/kangaroo-header.png" />
         </Border>
-        
+
         <Border Grid.Row="0" Grid.Column="1"
                 Background="#1e1e1e"
                 Padding="10"
                 Margin="12"
                 VerticalAlignment="Stretch"
                 CornerRadius="12">
-          <lvc:PieChart
-              Series="{Binding ScannedDeviceChart}"
-              LegendPosition="Left"
-              LegendTextPaint="{Binding LegendTextPaint}">
-          </lvc:PieChart>
+            <lvc:PieChart
+                Series="{Binding ScannedDeviceChart}"
+                LegendPosition="Left"
+                LegendTextPaint="{Binding LegendTextPaint}"/>
         </Border>
-      
-    
-          
+
 
         <Border Grid.Row="1" Grid.Column="0"
                 Background="#1e1e1e"
@@ -45,38 +42,42 @@
                 Margin="12"
                 VerticalAlignment="Stretch"
                 CornerRadius="12">
-            <StackPanel >
-                <Label>RECENT SCANS</Label>
+            <Grid RowDefinitions="1*, 18*">
+                <Label Grid.Row="0" 
+                       VerticalAlignment="Center"
+                       Padding="12, 0,0,0">RECENT SCANS</Label>
 
-          <DataGrid Margin="20"
-                    VerticalAlignment="Stretch"
-                    ItemsSource="{Binding RecentScans}"
-                    AutoGenerateColumns="false"
-                    IsReadOnly="True"
-                    GridLinesVisibility="All"
-                    BorderThickness="1"
-                    BorderBrush="Gray"
-                    SelectedItem="{Binding SelectedScan}">
-            <DataGrid.Columns>
-              <DataGridTextColumn Header="TIME" Binding="{Binding CreatedDateTime}" />
-              <DataGridTextColumn Header="DEVICES" Binding="{Binding OnlineDevices}"/>
-              <DataGridTextColumn Header="START IP" Binding="{Binding StartAddress}"/>
-              <DataGridTextColumn Header="END IP" Binding="{Binding EndAddress}" />
-              <DataGridTextColumn Header="ELAPSED" Binding="{Binding ElapsedTime}"/>
-            </DataGrid.Columns>
-          </DataGrid>
-            </StackPanel>
+                <DataGrid Grid.Row="1" 
+                          Margin="20"
+                          VerticalAlignment="Stretch"
+                          ItemsSource="{Binding RecentScans}"
+                          AutoGenerateColumns="false"
+                          IsReadOnly="True"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="Gray"
+                          SelectionChanged="DataGrid_OnSelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="TIME" Binding="{Binding CreatedDateTime}" />
+                        <DataGridTextColumn Header="DEVICES" Binding="{Binding OnlineDevices}" />
+                        <DataGridTextColumn Header="START IP" Binding="{Binding StartAddress}" />
+                        <DataGridTextColumn Header="END IP" Binding="{Binding EndAddress}" />
+                        <DataGridTextColumn Header="ELAPSED" Binding="{Binding ElapsedTime}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Border>
-        
+
         <Border Grid.Row="1" Grid.Column="1" Background="#1e1e1e"
                 Padding="10"
                 Margin="12"
                 VerticalAlignment="Stretch"
                 CornerRadius="12">
-          <lvc:PieChart
-              Series="{Binding ScannedDeviceChart}"
-              Legend="" >
-          </lvc:PieChart>
+            <lvc:CartesianChart
+                Series="{Binding RecentStatistics}"
+                ZoomMode="X"
+                XAxes="{Binding RecentChartXAxis}"
+                YAxes="{Binding RecentChartYAxis}"/>
         </Border>
     </Grid>
 </UserControl>
