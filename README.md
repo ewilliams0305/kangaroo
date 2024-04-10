@@ -19,7 +19,7 @@ The kangaroo network scanner supports (or will support) the following features.
 ![Static Badge](https://img.shields.io/badge/NODE-SCAN-blue)
 ![Static Badge](https://img.shields.io/badge/PARELLEL-SCAN-blue)   
 
-![Readme GIF](./docs/kangaroo-cli.gif)
+![Readme GIF](./docs/kangaroo-ui.gif)
 
 ## Table of Contents
 1. [Building Scanners](#Building)
