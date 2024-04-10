@@ -32,8 +32,7 @@
             <lvc:PieChart
                 Series="{Binding ScannedDeviceChart}"
                 LegendPosition="Left"
-                LegendTextPaint="{Binding LegendTextPaint}"
-                />
+                LegendTextPaint="{Binding LegendTextPaint}"/>
         </Border>
 
 
@@ -57,6 +56,7 @@
                           GridLinesVisibility="All"
                           BorderThickness="1"
                           BorderBrush="Gray"
+                          SelectionChanged="DataGrid_OnSelectionChanged"
                           SelectedItem="{Binding SelectedScan}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="TIME" Binding="{Binding CreatedDateTime}" />

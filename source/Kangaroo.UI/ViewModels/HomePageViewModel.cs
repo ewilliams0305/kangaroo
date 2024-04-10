@@ -1,5 +1,6 @@
 ﻿using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -10,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using LiveChartsCore.Kernel;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -23,26 +23,34 @@ public partial class HomePageViewModel : ViewModelBase
         _recentScansRepository = recentScansRepository;
         LoadRecent().SafeFireAndForget();
 
-        base.PropertyChanged += HomePageViewModel_PropertyChanged;
+        //base.PropertyChanged += HomePageViewModel_PropertyChanged;
     }
 
-    private List<double> _items = new List<double>();
-    private List<double> _times = new List<double>();
+    //private List<double> _items = new List<double>();
+    //private List<double> _times = new List<double>();
 
-    private void HomePageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    //private void HomePageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    //{
+    //    if (e.PropertyName == nameof(SelectedScan))
+    //    {
+    //        if (SelectedScan == null)
+    //        {
+    //            return;
+    //        }
+    //        _selectedScans.Add(SelectedScan);
+    //        _items.Add(SelectedScan.OnlineDevices);
+    //        _times.Add(SelectedScan.ElapsedTime.TotalSeconds);
+    //        RecentStatistics[1].Values = _items;
+    //        RecentStatistics[0].Values = _times;
+    //    }
+    //}
+
+    public void CompareSelectedItems(IList<RecentScan> scans)
     {
-        if (e.PropertyName == nameof(SelectedScan))
-        {
-            if (SelectedScan == null)
-            {
-                return;
-            }
-            _selectedScans.Add(SelectedScan);
-            _items.Add(SelectedScan.OnlineDevices);
-            _times.Add(SelectedScan.ElapsedTime.TotalSeconds);
-            RecentStatistics[1].Values = _items;
-            RecentStatistics[0].Values = _times;
-        }
+        _selectedScans = new List<RecentScan>(scans);
+        //_times.Add(SelectedScan.ElapsedTime.TotalSeconds);
+        RecentStatistics[1].Values = new List<double>(scans.Select(s => (double)s.OnlineDevices).ToList());
+        RecentStatistics[0].Values = new List<double>(scans.Select(s => s.ElapsedTime.TotalSeconds).ToList()); 
     }
 
 
@@ -78,15 +86,21 @@ public partial class HomePageViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<ISeries> _scannedDeviceChart = new() { };
 
+    [RelayCommand]
+    public void TestCommand()
+    {
+
+    }
+
     private async Task LoadRecent()
     {
         var scans = await _recentScansRepository.GetAsync();
-        var recentScans = scans as RecentScan[] ?? scans.ToArray();
-        var reversed = recentScans.Reverse();
-        var collection = reversed as RecentScan[] ?? reversed.ToArray();
-        RecentScans = new ObservableCollection<RecentScan>(collection);
+        var items = scans.Reverse();
+        var recentScans = items as RecentScan[] ?? items.ToArray();
 
-        foreach (var recentScan in collection.Take(collection.Count() >= 10 ? 10 : collection.Count()))
+        RecentScans = new ObservableCollection<RecentScan>(recentScans);
+
+        foreach (var recentScan in recentScans.Take(10))
         {
             if (recentScan.OnlineDevices == 0)
             {
