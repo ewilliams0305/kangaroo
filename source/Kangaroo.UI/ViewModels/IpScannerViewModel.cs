@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kangaroo.UI.ViewModels;
@@ -39,7 +40,10 @@ public partial class IpScannerViewModel : ViewModelBase
     private ObservableCollection<NetworkNodeModel> _networkNodes = new();
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotScanning))]
     private bool _isScanning;
+
+    public bool IsNotScanning => !IsScanning;
 
     [ObservableProperty]
     private bool _scanEnabled;
@@ -116,6 +120,20 @@ public partial class IpScannerViewModel : ViewModelBase
                       IPAddress.TryParse(EndIpAddress, out var _);
     }
 
+    private CancellationTokenSource _cts;
+
+    [RelayCommand]
+    public void StopScan()
+    {
+        if(!IsScanning)
+        {
+            return;
+        }
+
+        _cts.Cancel();
+        IsScanning = false;
+    }
+
     [RelayCommand]
     public async Task StartScan()
     {
@@ -124,6 +142,7 @@ public partial class IpScannerViewModel : ViewModelBase
             return;
         }
 
+        _cts = new CancellationTokenSource();
         IsScanning = true;
         NetworkNodes = new ObservableCollection<NetworkNodeModel>();
 
@@ -174,14 +193,21 @@ public partial class IpScannerViewModel : ViewModelBase
             }
         };
 
-        var results = await scanner.QueryNetwork();
+        try
+        {
+            var results = await scanner.QueryNetwork(_cts.Token);
 
-        UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
+            UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
-        await _recentScans.CreateAsync(
-            RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes));
+            await _recentScans.CreateAsync(
+                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes), _cts.Token);
 
-        IsScanning = false;
+            IsScanning = false;
+        }
+        catch (OperationCanceledException)
+        {
+            IsScanning = false;
+        }
     }
 
     private async Task LoadRecent()

@@ -49,6 +49,10 @@ internal sealed class OrderlyScanner : IScanner
 
         await foreach (var node in NetworkQueryAsync(token))
         {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
             _logger.LogInformation("{node}", node);
             nodes.Add(node);
         }

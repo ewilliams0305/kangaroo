@@ -13,6 +13,7 @@
 
   
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\ButtonStyles.axaml" />
     <AvaloniaResource Remove="Assets\Icons.axaml" />
   </ItemGroup>
 
@@ -44,6 +45,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kangaroo\Kangaroo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Update="Assets\ButtonStyles.axaml">
+      <SubType>Designer</SubType>
+    </AvaloniaXaml>
   </ItemGroup>
 
   <ItemGroup>

@@ -52,6 +52,10 @@ internal sealed class ParallelScanner : IScanner
 
             foreach(var batch in batchOfTask)
             {
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
                 counter++;
                 var batchedResult = await batch;
 
@@ -87,6 +91,11 @@ internal sealed class ParallelScanner : IScanner
 
         foreach (var task in batchOfTask)
         {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
             var nodes = await task;
             foreach (var networkNode in nodes)
             {
@@ -99,6 +108,10 @@ internal sealed class ParallelScanner : IScanner
     {
         foreach (var ip in address)
         {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
             _logger.LogDebug("Processed Batch on Thread {threadId}", Environment.CurrentManagedThreadId);
             yield return await CheckNetworkNode(ip, token);
         }
