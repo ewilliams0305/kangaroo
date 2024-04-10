@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using LiveChartsCore.Kernel;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -87,11 +88,19 @@ public partial class HomePageViewModel : ViewModelBase
 
         foreach (var recentScan in collection.Take(collection.Count() >= 10 ? 10 : collection.Count()))
         {
+            if (recentScan.OnlineDevices == 0)
+            {
+                continue;
+            }
+
             ScannedDeviceChart.Add(new PieSeries<int>
             {
-                Values = new int[] { recentScan.OnlineDevices },
+                Values = new List<int>(){ recentScan.OnlineDevices, (int)recentScan.ElapsedTime.TotalSeconds },
                 Name = $"{recentScan.CreatedDateTime:MM/dd/yyyy h:mm:ss}",
-                DataLabelsFormatter = data => $"{data} ALIVE",
+                DataLabelsPaint = new SolidColorPaint(SKColor.Parse("1e1e1e")),
+                DataLabelsSize = 12,
+                DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Middle,
+                DataLabelsFormatter = data => data.Index == 0 ? $"{data.Model} ALIVE" :  $"{data.Model} SEC",
             });
         }
     }
