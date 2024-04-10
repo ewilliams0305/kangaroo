@@ -56,8 +56,7 @@
                           GridLinesVisibility="All"
                           BorderThickness="1"
                           BorderBrush="Gray"
-                          SelectionChanged="DataGrid_OnSelectionChanged"
-                          SelectedItem="{Binding SelectedScan}">
+                          SelectionChanged="DataGrid_OnSelectionChanged">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="TIME" Binding="{Binding CreatedDateTime}" />
                         <DataGridTextColumn Header="DEVICES" Binding="{Binding OnlineDevices}" />
@@ -77,7 +76,8 @@
             <lvc:CartesianChart
                 Series="{Binding RecentStatistics}"
                 ZoomMode="X"
-                XAxes="{Binding RecentAxis}" />
+                XAxes="{Binding RecentChartXAxis}"
+                YAxes="{Binding RecentChartYAxis}"/>
         </Border>
     </Grid>
 </UserControl>

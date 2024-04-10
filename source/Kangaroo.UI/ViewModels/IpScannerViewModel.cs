@@ -1,5 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
-using Avalonia.Controls.Shapes;
+using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Models;
@@ -11,18 +11,23 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Avalonia;
 
 namespace Kangaroo.UI.ViewModels;
 
 public partial class IpScannerViewModel : ViewModelBase
 {
     private readonly RecentScansRepository _recentScans;
+
+    /// <summary>
+    /// Design view constructor
+    /// </summary>
+    public IpScannerViewModel()
+    {
+        
+    }
 
     public IpScannerViewModel(RecentScansRepository recentScans)
     {
@@ -160,14 +165,12 @@ public partial class IpScannerViewModel : ViewModelBase
 
                 ScannedDeviceChart[1].Values = new int[] { 0 };
                 ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
-                //base.OnPropertyChanged(nameof(ScannedDeviceChart));
             }
 
             if (status == LiveUpdateStatus.Completed)
             {
                 ScannedDeviceChart[1].Values = new int[] { results.NumberOfAliveNodes };
                 ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
-                //base.OnPropertyChanged(nameof(ScannedDeviceChart));
             }
         };
 
