@@ -22,8 +22,14 @@ The kangaroo network scanner supports (or will support) the following features.
 ![Readme GIF](./docs/kangaroo-ui.gif)
 
 ## Table of Contents
-1. [Building Scanners](#Building)
-2. [Scanning Networks](#Scanning-Networks)
+1. [Desktop UI Guide](#Desktop-Guide)
+2. [Command Line Tool](#Command-Line-Tool)
+3. [Building Scanners](#Building)
+4. [Scanning Networks](#Scanning-Networks)
+
+# Desktop Guide
+
+# Command Line Tool
 
 # Building
 Kangaroo leverages the builder pattern to ensure its configured correctly before usage. 
