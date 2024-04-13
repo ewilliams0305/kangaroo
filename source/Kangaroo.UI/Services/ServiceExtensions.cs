@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Kangaroo.UI.Controls;
 using Kangaroo.UI.Services;
 using Kangaroo.UI.Services.Database;
 using Kangaroo.UI.ViewModels;
@@ -67,6 +68,10 @@ public static class ContainerExtensions
 
         builder.Services.AddTransient<ConfigurationView>();
         builder.Services.AddTransient<ConfigurationViewModel>();
+
+
+        builder.Services.AddTransient<ScanConfiguratorView>();
+        builder.Services.AddTransient<ScanConfiguratorViewModel>();
 
         return builder;
     }

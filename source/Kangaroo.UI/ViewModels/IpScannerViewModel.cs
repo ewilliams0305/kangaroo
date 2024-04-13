@@ -227,8 +227,7 @@ public partial class IpScannerViewModel : ViewModelBase
     private void AddInitialNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
     {
         NetworkNodes.Insert(0,new NetworkNodeModel(node));
-        //NetworkNodes.Add(new NetworkNodeModel(node));
-
+ 
         queryTimes.Add(node.QueryTime.TotalMilliseconds);
         latencyTimes.Add(node.Latency != null
             ? node.Latency!.Value.TotalMilliseconds
@@ -246,8 +245,8 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             var nodeToRemove = NetworkNodes.First(n => n.IpAddress == node.IpAddress.ToString());
             NetworkNodes.Remove(nodeToRemove);
-            // NetworkNodes.Add(new NetworkNodeModel(node));
             NetworkNodes.Insert(0, new NetworkNodeModel(node));
+
             queryTimes.Add(node.QueryTime.TotalMilliseconds);
             latencyTimes.Add(node.Latency != null
                 ? node.Latency!.Value.TotalMilliseconds

@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.IpScannerView"
              x:DataType="viewModels:IpScannerViewModel">
@@ -19,6 +20,7 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
+            <controls:ScanConfiguratorView></controls:ScanConfiguratorView>
             <StackPanel>
                 <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label >
                 <TextBox Width="300" Margin="4" Text="{Binding BeginIpAddress}" Watermark="START IP ADDRESS (192.168.1.1)"/>
