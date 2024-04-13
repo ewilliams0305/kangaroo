@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
+             xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Kangaroo.UI.Views.IpScannerView"
+             x:DataType="viewModels:IpScannerViewModel">
+    <Design.DataContext>
+        <viewModels:IpScannerViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto, *"
+          ColumnDefinitions="6*, 1, 4*">
+        <GridSplitter Grid.Row="1" Grid.Column="1" Background="Transparent" ResizeDirection="Columns" />
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="20, 5,0,0" Orientation="Horizontal">
+
+            <controls:ScanConfiguratorView x:Name="ScanConfiguration"></controls:ScanConfiguratorView>
+
+            <Button Command="{Binding StartScan}"
+                    IsEnabled="{Binding ScanEnabled}"
+                    IsVisible="{Binding !IsScanning}"
+                    Classes="start"
+                    ToolTip.Tip="Start the IP scan for the specified network addresses" >
+                <PathIcon Data="{StaticResource IconPlay}" />
+            </Button>
+
+            <Button Command="{Binding StopScan}"
+                    IsVisible="{Binding IsScanning}"
+                    Classes="stop"
+                    ToolTip.Tip="Stop the current IP scan" >
+                <PathIcon Data="{StaticResource IconDelete}" />
+            </Button>
+            <Image
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Left"
+                Width="600"
+                Height="58"
+                IsVisible="{Binding IsScanning}"
+                anim:ImageBehavior.AnimatedSource="avares://Kangaroo.UI/Assets/wave-loader.gif" />
+        </StackPanel>
+
+        <DataGrid x:Name="ScannedAddressTable"
+                  Grid.Row="1"
+                  Grid.Column="0"
+                  Margin="20"
+                  VerticalAlignment="Stretch"
+                  ItemsSource="{Binding NetworkNodes}"
+                  AutoGenerateColumns="false"
+                  IsReadOnly="True"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="ONLINE" Binding="{Binding IsAlive}" />
+                <DataGridTextColumn Header="IP ADDRESS" Binding="{Binding IpAddress}" />
+                <DataGridTextColumn Header="MAC ADDRESS" Binding="{Binding MacAddress}" />
+                <DataGridTextColumn Header="DNS NAME" Binding="{Binding DnsName}" />
+                <DataGridTextColumn Header="QUERY TIME" Binding="{Binding QueryTime}" />
+                <DataGridTextColumn Header="LATENCY" Binding="{Binding Latency}" />
+                <DataGridTextColumn Header="SERVER INFO" Binding="{Binding WebServer}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <ScrollViewer Grid.Row="1" Grid.Column="2">
+            <StackPanel Spacing="10" Margin="0,0,12,0">
+
+                <Label Margin="0, 12, 0, 0">TOTAL DEVICES SCANNED</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:PieChart
+                        Series="{Binding ScannedDeviceChart}"
+                        Legend="" />
+                </Border>
+
+                <Label>DEVICE LATENCY</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:CartesianChart
+                        Series="{Binding LatencyStatistics}"
+                        ZoomMode="X"
+                        XAxes="{Binding IpAddressAxis}"
+                        YAxes="{Binding LatencyAxis}" />
+                </Border>
+
+                <Label>QUERY TIME</Label>
+                <Border Background="#1e1e1e"
+                        Padding="10"
+                        Height="300"
+                        CornerRadius="12">
+                    <lvc:CartesianChart
+                        Series="{Binding QueryStatistics}"
+                        ZoomMode="X"
+                        XAxes="{Binding IpAddressAxis}"
+                        YAxes="{Binding QueryTimeAxis}" />
+                </Border>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
+
+    </Grid>
+</UserControl>

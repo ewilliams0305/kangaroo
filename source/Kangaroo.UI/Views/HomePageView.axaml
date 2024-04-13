@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Kangaroo.UI.Views.HomePageView"
+             x:DataType="viewModels:HomePageViewModel">
+
+    <Grid RowDefinitions="5*, 5*"
+          ColumnDefinitions="5*,5*"
+          Margin="12">
+
+        <Border Background="#1e1e1e"
+                Padding="10"
+                Margin="12"
+                VerticalAlignment="Stretch"
+                CornerRadius="12">
+            <Image
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"
+                Source="avares://Kangaroo.UI/Assets/kangaroo-header.png" />
+        </Border>
+
+        <Border Grid.Row="0" Grid.Column="1"
+                Background="#1e1e1e"
+                Padding="10"
+                Margin="12"
+                VerticalAlignment="Stretch"
+                CornerRadius="12">
+            <lvc:PieChart
+                Series="{Binding ScannedDeviceChart}"
+                LegendPosition="Left"
+                LegendTextPaint="{Binding LegendTextPaint}"/>
+        </Border>
+
+
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="#1e1e1e"
+                Padding="10"
+                Margin="12"
+                VerticalAlignment="Stretch"
+                CornerRadius="12">
+            <Grid RowDefinitions="1*, 18*">
+                <Label Grid.Row="0" 
+                       VerticalAlignment="Center"
+                       Padding="12, 0,0,0">RECENT SCANS</Label>
+
+                <DataGrid Grid.Row="1" 
+                          Margin="20"
+                          VerticalAlignment="Stretch"
+                          ItemsSource="{Binding RecentScans}"
+                          AutoGenerateColumns="false"
+                          IsReadOnly="True"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="Gray"
+                          SelectionChanged="DataGrid_OnSelectionChanged">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="TIME" Binding="{Binding CreatedDateTime}" />
+                        <DataGridTextColumn Header="DEVICES" Binding="{Binding OnlineDevices}" />
+                        <DataGridTextColumn Header="START IP" Binding="{Binding StartAddress}" />
+                        <DataGridTextColumn Header="END IP" Binding="{Binding EndAddress}" />
+                        <DataGridTextColumn Header="ELAPSED" Binding="{Binding ElapsedTime}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" Background="#1e1e1e"
+                Padding="10"
+                Margin="12"
+                VerticalAlignment="Stretch"
+                CornerRadius="12">
+            <lvc:CartesianChart
+                Series="{Binding RecentStatistics}"
+                ZoomMode="X"
+                XAxes="{Binding RecentChartXAxis}"
+                YAxes="{Binding RecentChartYAxis}"/>
+        </Border>
+    </Grid>
+</UserControl>

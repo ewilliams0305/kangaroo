@@ -41,4 +41,16 @@ public static  class ScanResultsExtensions
 
         return builder.ToString();
     }
+
+    /// <summary>
+    /// Publishes the results of a scan
+    /// </summary>
+    /// <param name="results"></param>
+    /// <param name="scanStatusUpdate"></param>
+    /// <returns></returns>
+    public static ScanResults PublishResults(this ScanResults results, Action<ScanResults, LiveUpdateStatus>? scanStatusUpdate = null)
+    {
+        scanStatusUpdate?.Invoke(results, LiveUpdateStatus.Completed);
+        return results;
+    }
 }

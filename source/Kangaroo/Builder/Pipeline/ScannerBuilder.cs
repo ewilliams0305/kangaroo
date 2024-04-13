@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading;
 
 namespace Kangaroo;
 
@@ -71,6 +72,30 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
         _options.IpAddresses = @interface != null
             ? AddressFactory.CreateAddressesFromInterface(@interface)
             : AddressFactory.CreateAddressesFromInterfaces();
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IScannerParallelism WithOptions(Action<WithOptions>? optionsAction)
+    {
+        var ops = new WithOptions();
+        optionsAction?.Invoke(ops);
+
+        _options.Timeout = ops.Timeout.TotalMilliseconds switch
+        {
+            0 => throw new InvalidTimeoutException(ops.Timeout),
+            > 20_000 => throw new InvalidTimeoutException(ops.Timeout),
+            _ => ops.Timeout
+        };
+        _options.TimeToLive = ops.Ttl;
+
+        _options.ScanHttpServers = ops.EnableHttpScan;
+
+        if (ops.HttpClientFactory != null)
+        {
+            _options.HttpFactory = ops.HttpClientFactory;
+        }
 
         return this;
     }
@@ -200,4 +225,6 @@ public sealed class ScannerBuilder : IScannerIpConfiguration, IScannerTasks, ISc
             _options.Logger,
             querier,
             addresses.First());
+
+    
 }

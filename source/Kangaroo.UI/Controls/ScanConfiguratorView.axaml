@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Kangaroo.UI.Controls.ScanConfiguratorView"
+             x:DataType="controls:ScanConfiguratorViewModel">
+    <StackPanel Orientation="Horizontal">
+        <StackPanel>
+            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT MODE:</Label >
+            <ComboBox ItemsSource="{Binding ScanModes}"
+                      SelectedItem="{Binding SelectedMode}"
+                      Width="200"
+                      Margin="4">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource ScanModeTextConverter}}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding ShowRangeFields}">
+            <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label >
+            <TextBox Width="300" Margin="4" Text="{Binding StartAddress}" Watermark="START IP ADDRESS (192.168.1.1)"/>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding ShowRangeFields}">
+            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENDING IP ADDRESS:</Label >
+            <TextBox Width="300" Margin="4" Text="{Binding EndAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding ShowSingleFields}">
+            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER IP ADDRESS:</Label >
+            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
+        </StackPanel>
+
+
+        <StackPanel IsVisible="{Binding ShowSubnetFields}">
+            <Label FontStyle="Italic" FontSize="10">ENTER IP ADDRESS:</Label >
+            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.1)"/>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding ShowSubnetFields}">
+            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER SUBNET MASK:</Label >
+            <TextBox Width="300" Margin="4" Text="{Binding NetmaskAddress}" Watermark="SUBNET MASK (255.255.255.0)"/>
+        </StackPanel>
+
+      <StackPanel IsVisible="{Binding ShowAdapterFields}">
+          <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT NETWORK ADAPTER:</Label >
+          <ComboBox ItemsSource="{Binding Adapters}"
+                    SelectedItem="{Binding Adapter}"
+                    HorizontalAlignment="Stretch"
+                    Margin="4">
+              <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource NetworkAdapterTextConverter}}"/>
+                  </DataTemplate>
+              </ComboBox.ItemTemplate>
+          </ComboBox>
+      </StackPanel>
+  </StackPanel>
+
+</UserControl>

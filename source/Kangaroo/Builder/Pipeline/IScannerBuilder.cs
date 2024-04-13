@@ -123,7 +123,7 @@ public interface IScannerWebServer
 /// <summary>
 /// Optional steps
 /// </summary>
-public interface IScannerOptions : IScannerQueryTimeout, IScannerQueryTtl, IScannerParallelism, IScannerLogging, IScannerBuilder { }
+public interface IScannerOptions : IScannerQueryOptions, IScannerQueryTimeout, IScannerQueryTtl, IScannerParallelism, IScannerLogging, IScannerBuilder { }
 /// <summary>
 /// From timeout to...
 /// </summary>
@@ -136,6 +136,19 @@ public interface IScannerTtlNext : IScannerParallelism, IScannerLogging, IScanne
 /// from parallel to...
 /// </summary>
 public interface IScannerParallelNext : IScannerLogging, IScannerBuilder { }
+
+/// <summary>
+/// Configures all the options in one shot.
+/// </summary>
+public interface IScannerQueryOptions
+{
+    /// <summary>
+    /// Configures all the options
+    /// </summary>
+    /// <param name="optionsAction">Provides default options you can mutate</param>
+    /// <returns></returns>
+    IScannerParallelism WithOptions(Action<WithOptions>? optionsAction);
+}
 
 /// <summary>
 /// Overrides the default ping timeout with the provided time.

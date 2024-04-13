@@ -115,43 +115,7 @@ internal sealed class AddressFactory
 
         broadcastAddressBytes[3] -= 1;
 
-        //if (broadcastAddressBytes[2] == 255)
-        //{
-        //    broadcastAddressBytes[2] -= 1;
-
-        //}
-
-        //if (broadcastAddressBytes[3] == 255)
-        //{
-        //    broadcastAddressBytes[2] -= 1;
-
-        //}
-
         return broadcastAddressBytes;
-
-        //var invertedSubnetMaskBytes = new byte[4];
-        //for (var i = 0; i < 4; i++)
-        //{
-        //    invertedSubnetMaskBytes[i] = (byte)~subnetMaskBytes[i];
-        //}
-
-        //var broadcastAddressBytes = new byte[4];
-        //for (var i = 0; i < 4; i++)
-        //{
-        //    broadcastAddressBytes[i] = (byte)(networkAddressBytes[i] | invertedSubnetMaskBytes[i]);
-        //}
-
-        //// Adjust the broadcast address to find the last available address
-        //for (var i = 3; i >= 0; i--)
-        //{
-        //    if (broadcastAddressBytes[i] != 255)
-        //    {
-        //        broadcastAddressBytes[i] -= 1;
-        //        break;
-        //    }
-        //}
-
-        //return broadcastAddressBytes;
     }
 
     private static IEnumerable<IPAddress> CreateAddresses16(IReadOnlyList<byte> startBytes, IReadOnlyList<byte> endBytes)
@@ -240,6 +204,15 @@ internal sealed class AddressFactory
             }
         }
         return null;
+    }
+    internal static IEnumerable<NetworkInterface> GetInterfaces()
+    {
+        var interfaces = NetworkInterface.GetAllNetworkInterfaces()
+            .Where( i => i.OperationalStatus == OperationalStatus.Up)
+            .Where(i => i.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+            .Where(i => i.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
+
+        return interfaces;
     }
 
     internal static UnicastIPAddressInformation? GetIpFromInterface(NetworkInterface @interface)

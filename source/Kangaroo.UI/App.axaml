@@ -1,0 +1,22 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             xmlns:local="using:Kangaroo.UI"
+             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             x:Class="Kangaroo.UI.App"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    <Application.Styles>
+       <styling:FluentAvaloniaTheme PreferUserAccentColor="True"/>
+       <StyleInclude Source="avares://Kangaroo.UI/Assets/Icons.axaml"/>
+       <StyleInclude Source="avares://Kangaroo.UI/Assets/ButtonStyles.axaml"/>
+    </Application.Styles>
+
+    <Application.Resources>
+      <controls:ScanModeTextConverter x:Key="ScanModeTextConverter"/>
+      <controls:NetworkAdapterTextConverter x:Key="NetworkAdapterTextConverter"/>
+    </Application.Resources>
+</Application>

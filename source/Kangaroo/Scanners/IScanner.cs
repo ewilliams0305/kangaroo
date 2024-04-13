@@ -5,7 +5,7 @@ namespace Kangaroo;
 /// <summary>
 /// The scanner, well scans...  A scanner will scan the entire range of IP addresses provided during the build configuration pipeline.
 /// </summary>
-public interface IScanner : IDisposable
+public interface IScanner : IScannerEvents, IDisposable
 {
     /// <summary>
     /// Queries all ip addresses provided during the build pipeline
