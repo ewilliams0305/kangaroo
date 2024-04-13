@@ -4,8 +4,6 @@ using Kangaroo.UI.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
-using Avalonia;
-using Avalonia.Controls;
 
 namespace Kangaroo.UI.ViewModels;
 
