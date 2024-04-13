@@ -16,6 +16,7 @@
     </Application.Styles>
 
     <Application.Resources>
-      <controls:ScanModeTextConverter x:Key="ScanModeTextConverter"></controls:ScanModeTextConverter>
+      <controls:ScanModeTextConverter x:Key="ScanModeTextConverter"/>
+      <controls:NetworkAdapterTextConverter x:Key="NetworkAdapterTextConverter"/>
     </Application.Resources>
 </Application>

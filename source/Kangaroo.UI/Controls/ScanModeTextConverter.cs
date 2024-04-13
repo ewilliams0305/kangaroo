@@ -34,3 +34,24 @@ public class ScanModeTextConverter : IValueConverter
         throw new NotSupportedException();
     }
 }
+
+public class NetworkAdapterTextConverter : IValueConverter
+{
+    public static readonly ScanModeTextConverter Instance = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is NetworkAdapter apt && targetType.IsAssignableTo(typeof(string)))
+        {
+            return $"{apt.Name} | {apt.IpAddress} | {apt.MacAddress}";
+        }
+
+        return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
+    }
+
+    public object ConvertBack(object? value, Type targetType,
+        object? parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
+    }
+}

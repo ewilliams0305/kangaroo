@@ -20,20 +20,11 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
-            <controls:ScanConfiguratorView></controls:ScanConfiguratorView>
-            <StackPanel>
-                <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label >
-                <TextBox Width="300" Margin="4" Text="{Binding BeginIpAddress}" Watermark="START IP ADDRESS (192.168.1.1)"/>
-            </StackPanel>
-
-            <StackPanel>
-                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENDING IP ADDRESS:</Label >
-                <TextBox Width="300" Margin="4" Text="{Binding EndIpAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
-            </StackPanel>
+            <controls:ScanConfiguratorView x:Name="ScanConfiguration"></controls:ScanConfiguratorView>
 
             <Button Command="{Binding StartScan}"
                     IsEnabled="{Binding ScanEnabled}"
-                    IsVisible="{Binding IsNotScanning}"
+                    IsVisible="{Binding !IsScanning}"
                     Classes="start"
                     ToolTip.Tip="Start the IP scan for the specified network addresses" >
                 <PathIcon Data="{StaticResource IconPlay}" />

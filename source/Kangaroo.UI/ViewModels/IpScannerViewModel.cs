@@ -15,11 +15,14 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Kangaroo.UI.Controls;
 
 namespace Kangaroo.UI.ViewModels;
 
 public partial class IpScannerViewModel : ViewModelBase
 {
+    private IScanner? _scanner;
+    private readonly IScannerFactory _factory;
     private readonly RecentScansRepository _recentScans;
 
     /// <summary>
@@ -27,12 +30,18 @@ public partial class IpScannerViewModel : ViewModelBase
     /// </summary>
     public IpScannerViewModel()
     {
-        
+
     }
 
-    public IpScannerViewModel(RecentScansRepository recentScans)
+    public IpScannerViewModel(RecentScansRepository recentScans, IScannerFactory factory)
     {
         _recentScans = recentScans;
+        _factory = factory;
+        factory.OnScannerCreated = (scanner, valid) =>
+        {
+            ScanEnabled = valid && scanner is not null;
+            _scanner = scanner;
+        };
         LoadRecent().SafeFireAndForget();
     }
 
@@ -40,10 +49,10 @@ public partial class IpScannerViewModel : ViewModelBase
     private ObservableCollection<NetworkNodeModel> _networkNodes = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsNotScanning))]
+    //[NotifyPropertyChangedFor(nameof(IsNotScanning))]
     private bool _isScanning;
 
-    public bool IsNotScanning => !IsScanning;
+    //public bool IsNotScanning => !IsScanning;
 
     [ObservableProperty]
     private bool _scanEnabled;
@@ -109,16 +118,16 @@ public partial class IpScannerViewModel : ViewModelBase
             new Axis { Name = "SECONDS", TextSize = 10, Labeler = d => $"{d / 1000:N2} sec." }
         };
 
-    partial void OnBeginIpAddressChanged(string value)
-    {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
-                      IPAddress.TryParse(EndIpAddress, out var _);
-    }
-    partial void OnEndIpAddressChanged(string value)
-    {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
-                      IPAddress.TryParse(EndIpAddress, out var _);
-    }
+    //partial void OnBeginIpAddressChanged(string value)
+    //{
+    //    ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
+    //                  IPAddress.TryParse(EndIpAddress, out var _);
+    //}
+    //partial void OnEndIpAddressChanged(string value)
+    //{
+    //    ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
+    //                  IPAddress.TryParse(EndIpAddress, out var _);
+    //}
 
     private CancellationTokenSource _cts;
 
@@ -141,25 +150,33 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             return;
         }
+        
+        if (_scanner == null)
+        {
+            IsScanning = false;
+            return;
+        }
 
         _cts = new CancellationTokenSource();
         IsScanning = true;
         NetworkNodes = new ObservableCollection<NetworkNodeModel>();
 
-        using var scanner = new ScannerBuilder()
-            .WithRange(IPAddress.Parse(BeginIpAddress), IPAddress.Parse(EndIpAddress))
-            .WithHttpScan()
-            .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
-            .WithMaxHops(10)
-            .WithParallelism()
-            .Build();
+        //using var scanner = new ScannerBuilder()
+        //    .WithRange(IPAddress.Parse(BeginIpAddress), IPAddress.Parse(EndIpAddress))
+        //    .WithHttpScan()
+        //    .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
+        //    .WithMaxHops(10)
+        //    .WithParallelism()
+        //    .Build();
+
+        
 
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
         var axisLabels = new List<string>();
         var counter = 0;
         var items = 0;
-        scanner.NodeStatusUpdate = (node, status) =>
+        _scanner.NodeStatusUpdate = (node, status) =>
         {
             if (status == LiveUpdateStatus.Started)
             {
@@ -176,7 +193,7 @@ public partial class IpScannerViewModel : ViewModelBase
             }
         };
 
-        scanner.ScanStatusUpdate = (results, status) =>
+        _scanner.ScanStatusUpdate = (results, status) =>
         {
             if (status == LiveUpdateStatus.Started)
             {
@@ -197,7 +214,7 @@ public partial class IpScannerViewModel : ViewModelBase
 
         try
         {
-            var results = await scanner.QueryNetwork(_cts.Token);
+            var results = await _scanner.QueryNetwork(_cts.Token);
 
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
