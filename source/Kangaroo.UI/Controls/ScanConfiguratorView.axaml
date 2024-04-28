@@ -52,10 +52,17 @@
           <ComboBox ItemsSource="{Binding Adapters}"
                     SelectedItem="{Binding Adapter}"
                     HorizontalAlignment="Stretch"
+                    Width="400"
                     Margin="4">
               <ComboBox.ItemTemplate>
                   <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource NetworkAdapterTextConverter}}"/>
+                      <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="{Binding Name}"/>
+                          <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3"/>
+                          <TextBlock Text="{Binding IpAddress}"/>
+                          <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3"/>
+                          <TextBlock Text="{Binding MacAddress}"/>
+                      </StackPanel>
                   </DataTemplate>
               </ComboBox.ItemTemplate>
           </ComboBox>

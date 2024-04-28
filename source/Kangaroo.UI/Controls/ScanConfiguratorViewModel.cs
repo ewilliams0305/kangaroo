@@ -32,7 +32,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
     [ObservableProperty] 
     private ObservableCollection<NetworkAdapter> _adapters = new(AddressFactory.GetInterfaces().Select(i => new NetworkAdapter()
     {
-        IpAddress = i.GetIPProperties().UnicastAddresses.Where(a => a.Address.AddressFamily != AddressFamily.InterNetwork).FirstOrDefault().Address.ToString(),
+        IpAddress = i.GetIPProperties().UnicastAddresses.Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault().Address.ToString(),
         Name = i.Name,
         MacAddress = i.GetPhysicalAddress().ToString()
 
