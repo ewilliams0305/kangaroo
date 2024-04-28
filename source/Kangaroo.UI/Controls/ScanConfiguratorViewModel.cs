@@ -188,24 +188,17 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         }
     }
 
-    partial void OnSelectedModeChanged(ScanMode mode)
+    partial void OnSelectedModeChanged(ScanMode selectedMode)
     {
-        ShowRangeFields = mode == ScanMode.AddressRange;
-        ShowSubnetFields = mode == ScanMode.NetworkSubnet;
-        ShowAdapterFields = mode == ScanMode.NetworkAdapter;
-        ShowSingleFields = mode == ScanMode.SingleAddress;
+        ShowRangeFields = selectedMode == ScanMode.AddressRange;
+        ShowSubnetFields = selectedMode == ScanMode.NetworkSubnet;
+        ShowAdapterFields = selectedMode == ScanMode.NetworkAdapter;
+        ShowSingleFields = selectedMode == ScanMode.SingleAddress;
 
-        if (mode == ScanMode.NetworkAdapter)
+        if (selectedMode == ScanMode.NetworkAdapter)
         {
             Adapter = Adapters.FirstOrDefault();
         }
     }
 
-}
-
-public class NetworkAdapter
-{
-    public string Name { get; set; }
-    public string IpAddress { get; set; }
-    public string MacAddress { get; set; }
 }
