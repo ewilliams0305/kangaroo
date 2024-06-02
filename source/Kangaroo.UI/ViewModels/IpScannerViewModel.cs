@@ -197,24 +197,24 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             var results = await _scanner.QueryNetwork(_cts.Token);
 
-            var compliance = Checks.CheckForCompliance(results, results);
+            //var compliance = Checks.CheckForCompliance(results, results);
 
-            switch (compliance)
-            {
-                case Compliance.Compliance.Compliant compliant:
-                    foreach (var check in compliant.Item.Checks)
-                    {
-                        Console.WriteLine(check);
-                    }
-                    break;
+            //switch (compliance)
+            //{
+            //    case Compliance.Compliance.Compliant compliant:
+            //        foreach (var check in compliant.Item.Checks)
+            //        {
+            //            Console.WriteLine(check);
+            //        }
+            //        break;
 
-                case Compliance.Compliance.Failure failures:
-                    foreach (var check in failures.Item.Errors)
-                    {
-                        Console.WriteLine(check);
-                    }
-                    break;
-            }
+            //    case Compliance.Compliance.Failure failures:
+            //        foreach (var check in failures.Item.Errors)
+            //        {
+            //            Console.WriteLine(check);
+            //        }
+            //        break;
+            //}
 
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
