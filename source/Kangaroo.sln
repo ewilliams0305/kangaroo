@@ -14,11 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo.UnitTests", "..\tests\Kangaroo.UnitTests.csproj", "{C6E8196D-D68B-40B7-A85F-8711E71D65A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo.UnitTests", "..\tests\Kangaroo.UnitTests\Kangaroo.UnitTests.csproj", "{C6E8196D-D68B-40B7-A85F-8711E71D65A6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo.UI", "Kangaroo.UI\Kangaroo.UI.csproj", "{8830416D-3365-4342-A9D6-CC1141054782}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo.UI.Desktop", "Kangaroo.UI.Desktop\Kangaroo.UI.Desktop.csproj", "{733B4EC1-632B-4D6B-AD21-F90ABF12A1F6}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Kangaroo.Compliance", "Kangaroo.Compliance\Kangaroo.Compliance.fsproj", "{A3B43A81-01DD-430A-ACF7-CF086B828F3F}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Kangaroo.Compliance.UnitTests", "..\tests\Kangaroo.Compliance.UnitTests\Kangaroo.Compliance.UnitTests.fsproj", "{D7E67A33-A0A8-4272-A217-ECE9308C63FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +50,14 @@ Global
 		{733B4EC1-632B-4D6B-AD21-F90ABF12A1F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{733B4EC1-632B-4D6B-AD21-F90ABF12A1F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{733B4EC1-632B-4D6B-AD21-F90ABF12A1F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3B43A81-01DD-430A-ACF7-CF086B828F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3B43A81-01DD-430A-ACF7-CF086B828F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3B43A81-01DD-430A-ACF7-CF086B828F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3B43A81-01DD-430A-ACF7-CF086B828F3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E67A33-A0A8-4272-A217-ECE9308C63FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E67A33-A0A8-4272-A217-ECE9308C63FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E67A33-A0A8-4272-A217-ECE9308C63FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E67A33-A0A8-4272-A217-ECE9308C63FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -45,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Kangaroo.Compliance\Kangaroo.Compliance.fsproj" />
     <ProjectReference Include="..\Kangaroo\Kangaroo.csproj" />
   </ItemGroup>
 

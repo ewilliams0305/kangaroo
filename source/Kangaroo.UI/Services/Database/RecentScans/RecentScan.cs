@@ -18,13 +18,13 @@ public sealed class RecentScan
     public TimeSpan ElapsedTime { get; set; }
     public int OnlineDevices { get; set; }
 
-    public static RecentScan FromResults(ScanResults? results, ScanConfiguration config, TimeProvider time) =>
+    public static RecentScan FromResults(ScanResults? results, ScanConfiguration? config, TimeProvider time) =>
         results == null
             ? new RecentScan()
             : new RecentScan 
             {
                 Id = Guid.NewGuid(),
-                ScanMode = config.ScanMode,
+                ScanMode = config?.ScanMode ?? ScanMode.AddressRange,
                 StartAddress = results.StartAddress.ToString(),
                 EndAddress = results.EndAddress.ToString(),
                 CreatedDateTime = time.GetLocalNow().DateTime,
