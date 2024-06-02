@@ -1,49 +1,36 @@
-﻿using Kangaroo.UI.Models;
+﻿using Kangaroo.UI.Controls;
+using Kangaroo.UI.Models;
 using System;
 
-namespace Kangaroo.UI.Controls;
+namespace Kangaroo.UI.Services;
 
-public interface IScannerFactory
-{
-    Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
-
-    void CreateScanner(ScanConfiguration options);
-}
-
-
+/// <inheritdoc />
 public sealed class ScannerFactory : IScannerFactory
 {
+    /// <inheritdoc />
+    public Action<(IScanner? scanner, ScanConfiguration? configuration, bool valid)>? OnScannerCreated { get; set; }
 
-    public Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
-
+    /// <inheritdoc />
     public void CreateScanner(ScanConfiguration options)
     {
-        switch (options.ScanMode)
+        var scanData = options.ScanMode switch
         {
-            case ScanMode.AddressRange:
-                CreateRangeScanner(options);
-                break;
-            case ScanMode.NetworkSubnet:
-                CreateSubnetScanner(options);
-                break;
-            case ScanMode.NetworkAdapter:
-                CreateAdapterScanner(options);
-                break;
-            case ScanMode.SingleAddress:
-                CreateSingleScanner(options);
-                break;
-            case ScanMode.SpecifiedAddresses:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            ScanMode.AddressRange => CreateRangeScanner(options),
+            ScanMode.NetworkSubnet => CreateSubnetScanner(options),
+            ScanMode.NetworkAdapter => CreateAdapterScanner(options),
+            ScanMode.SingleAddress => CreateSingleScanner(options),
+            ScanMode.SpecifiedAddresses => throw new ArgumentOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        OnScannerCreated?.Invoke(scanData);
     }
 
-    private void CreateRangeScanner(ScanConfiguration options)
+    private (IScanner scanner, ScanConfiguration config, bool isValid) CreateRangeScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.StartAddress);
         ArgumentNullException.ThrowIfNull(options.EndAddress);
-        
+
         var scanner = new ScannerBuilder()
             .WithRange(options.StartAddress, options.EndAddress)
             .WithOptions(ops =>
@@ -55,13 +42,13 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, options, true);
+        return (scanner, options, true);
     }
 
-    private void CreateSingleScanner(ScanConfiguration options)
+    private (IScanner scanner, ScanConfiguration config, bool isValid) CreateSingleScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
-        
+
         var scanner = new ScannerBuilder()
             .WithAddress(options.SpecificAddress)
             .WithOptions(ops =>
@@ -73,13 +60,13 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, options, true);
+        return (scanner, options, true);
     }
-    private void CreateSubnetScanner(ScanConfiguration options)
+    private (IScanner scanner, ScanConfiguration config, bool isValid) CreateSubnetScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
         ArgumentNullException.ThrowIfNull(options.NetmaskAddress);
-        
+
         var scanner = new ScannerBuilder()
             .WithSubnet(options.SpecificAddress, options.NetmaskAddress)
             .WithOptions(ops =>
@@ -91,10 +78,10 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, options, true);
+        return (scanner, options, true);
     }
 
-    private void CreateAdapterScanner(ScanConfiguration options)
+    private (IScanner scanner, ScanConfiguration config, bool isValid) CreateAdapterScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.NetworkInterface);
 
@@ -109,6 +96,6 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, options, true);
+        return (scanner, options, true);
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Kangaroo.UI.Services;
 
 namespace Kangaroo.UI.Controls;
 public partial class ScanConfiguratorViewModel : ViewModelBase
