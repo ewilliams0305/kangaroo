@@ -1,14 +1,15 @@
 ﻿using System;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Kangaroo.UI.Models;
-using Kangaroo.UI.ViewModels;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Kangaroo.UI.Controls;
+using Kangaroo.UI.Models;
 using Kangaroo.UI.Services;
 
-namespace Kangaroo.UI.Controls;
+namespace Kangaroo.UI.ViewModels;
 public partial class ScanConfiguratorViewModel : ViewModelBase
 {
     private readonly IScannerFactory _factory;
@@ -33,7 +34,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
     [ObservableProperty] 
     private ObservableCollection<NetworkAdapter> _adapters = new(AddressFactory.GetInterfaces().Select(i => new NetworkAdapter()
     {
-        IpAddress = i.GetIPProperties().UnicastAddresses.Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault().Address.ToString(),
+        IpAddress = GetAddressFromAdapter(i).ToString(),
         Name = i.Name,
         MacAddress = i.GetPhysicalAddress().ToString()
 
@@ -42,6 +43,48 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
     [ObservableProperty]
     private NetworkAdapter? _adapter;
 
+    [ObservableProperty]
+    private bool _showRangeFields = true;
+
+    [ObservableProperty]
+    private bool _showSingleFields = false;
+
+    [ObservableProperty]
+    private bool _showSubnetFields = false;
+
+    [ObservableProperty]
+    private bool _showAdapterFields = false;
+
+    [ObservableProperty]
+    private string _startAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _endAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _ipAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _netmaskAddress = string.Empty;
+
+    partial void OnSelectedModeChanged(ScanMode value)
+    {
+        _factory.OnScannerCreated?.Invoke((null, null, false));
+        StartAddress = string.Empty;
+        EndAddress = string.Empty;
+        NetmaskAddress = string.Empty;
+        IpAddress = string.Empty;
+
+        ShowRangeFields = value == ScanMode.AddressRange;
+        ShowSubnetFields = value == ScanMode.NetworkSubnet;
+        ShowAdapterFields = value == ScanMode.NetworkAdapter;
+        ShowSingleFields = value == ScanMode.SingleAddress;
+
+        if (value == ScanMode.NetworkAdapter)
+        {
+            Adapter = Adapters.FirstOrDefault<NetworkAdapter>();
+        }
+    }
     partial void OnAdapterChanged(NetworkAdapter? value)
     {
         if (SelectedMode != ScanMode.NetworkAdapter)
@@ -62,24 +105,6 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         }
     }
 
-    [ObservableProperty]
-    private bool _showRangeFields = true;
-
-    [ObservableProperty]
-    private bool _showSingleFields = false;
-
-    [ObservableProperty]
-    private bool _showSubnetFields = false;
-
-    [ObservableProperty]
-    private bool _showAdapterFields = false;
-
-    [ObservableProperty]
-    private string _startAddress;
-
-    [ObservableProperty]
-    private string _endAddress;
-
     partial void OnStartAddressChanged(string value)
     {
         if (SelectedMode != ScanMode.AddressRange)
@@ -99,8 +124,11 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
                 StartAddress = start,
                 EndAddress = end
             });
+            return;
         }
+        _factory.OnScannerCreated?.Invoke((null, null, false));
     }
+
     partial void OnEndAddressChanged(string value)
     {
         if (SelectedMode != ScanMode.AddressRange)
@@ -121,14 +149,12 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
                 StartAddress = start,
                 EndAddress = end
             });
+
+            return;
         }
+
+        _factory.OnScannerCreated?.Invoke((null, null, false));
     }
-
-    [ObservableProperty]
-    private string _ipAddress;
-
-    [ObservableProperty]
-    private string _netmaskAddress;
 
     partial void OnIpAddressChanged(string value)
     {
@@ -144,7 +170,9 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
                     WithHttp = true,
                     SpecificAddress = singleAddress,
                 });
+                return;
             }
+            _factory.OnScannerCreated?.Invoke((null, null, false));
         }
 
         if (SelectedMode != ScanMode.NetworkSubnet)
@@ -164,7 +192,9 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
                 SpecificAddress = ip,
                 NetmaskAddress = mask
             });
+            return;
         }
+        _factory.OnScannerCreated?.Invoke((null, null, false));
     }
     partial void OnNetmaskAddressChanged(string value)
     {
@@ -186,20 +216,9 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
                 SpecificAddress = ip,
                 NetmaskAddress = mask
             });
+            return;
         }
-    }
-
-    partial void OnSelectedModeChanged(ScanMode selectedMode)
-    {
-        ShowRangeFields = selectedMode == ScanMode.AddressRange;
-        ShowSubnetFields = selectedMode == ScanMode.NetworkSubnet;
-        ShowAdapterFields = selectedMode == ScanMode.NetworkAdapter;
-        ShowSingleFields = selectedMode == ScanMode.SingleAddress;
-
-        if (selectedMode == ScanMode.NetworkAdapter)
-        {
-            Adapter = Adapters.FirstOrDefault();
-        }
+        _factory.OnScannerCreated?.Invoke((null, null, false));
     }
 
     private bool IsValidIpAddress(string? ipAddressValue, out IPAddress? ipAddress)
@@ -221,6 +240,12 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         }
 
         return IPAddress.TryParse(ipAddressValue, out ipAddress);
+    }
+
+    private static IPAddress GetAddressFromAdapter(NetworkInterface @interface)
+    {
+        var props = @interface.GetIPProperties().UnicastAddresses.FirstOrDefault(a => a.Address.AddressFamily == AddressFamily.InterNetwork);
+        return props != null ? props.Address : IPAddress.Any;
     }
 
 }

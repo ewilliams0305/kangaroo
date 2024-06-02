@@ -5,6 +5,8 @@ using Kangaroo.UI.ViewModels;
 using Kangaroo.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ScanConfiguratorView = Kangaroo.UI.Views.ScanConfiguratorView;
+using ScanConfiguratorViewModel = Kangaroo.UI.ViewModels.ScanConfiguratorViewModel;
 
 namespace Kangaroo.UI.Services;
 

@@ -6,6 +6,7 @@
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             xmlns:views="clr-namespace:Kangaroo.UI.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.IpScannerView"
              x:DataType="viewModels:IpScannerViewModel">
@@ -20,7 +21,7 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
-            <controls:ScanConfiguratorView x:Name="ScanConfiguration"></controls:ScanConfiguratorView>
+            <views:ScanConfiguratorView x:Name="ScanConfiguration"></views:ScanConfiguratorView>
 
             <Button Command="{Binding StartScan}"
                     IsEnabled="{Binding ScanEnabled}"
