@@ -3,9 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Kangaroo.UI.Controls.ScanConfiguratorView"
-             x:DataType="controls:ScanConfiguratorViewModel">
+             x:Class="Kangaroo.UI.Views.ScanConfiguratorView"
+             x:DataType="viewModels:ScanConfiguratorViewModel">
     <StackPanel Orientation="Horizontal">
         <StackPanel>
             <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT MODE:</Label >
@@ -33,7 +34,7 @@
 
         <StackPanel IsVisible="{Binding ShowSingleFields}">
             <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER IP ADDRESS:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
+            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.254)"/>
         </StackPanel>
 
 
