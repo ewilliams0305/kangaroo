@@ -87,8 +87,8 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IPAddress.TryParse(StartAddress, out var start) &&
-            IPAddress.TryParse(EndAddress, out var end))
+        if (IsValidIpAddress(StartAddress, out var start) &&
+            IsValidIpAddress(EndAddress, out var end))
         {
             _factory.CreateScanner(new ScanConfiguration()
             {
@@ -108,8 +108,8 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IPAddress.TryParse(StartAddress, out var start) &&
-            IPAddress.TryParse(EndAddress, out var end))
+        if (IsValidIpAddress(StartAddress, out var start) &&
+            IsValidIpAddress(EndAddress, out var end))
         {
             
             _factory.CreateScanner(new ScanConfiguration()
@@ -134,7 +134,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
     {
         if (SelectedMode == ScanMode.SingleAddress)
         {
-            if (IPAddress.TryParse(IpAddress, out var singleAddress))
+            if (IsValidIpAddress(IpAddress, out var singleAddress))
             {
                 _factory.CreateScanner(new ScanConfiguration()
                 {
@@ -152,8 +152,8 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IPAddress.TryParse(IpAddress, out var ip) &&
-            IPAddress.TryParse(NetmaskAddress, out var mask))
+        if (IsValidIpAddress(IpAddress, out var ip) &&
+            IsValidIpAddress(NetmaskAddress, out var mask))
         {
             _factory.CreateScanner(new ScanConfiguration()
             {
@@ -173,8 +173,8 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IPAddress.TryParse(IpAddress, out var ip) &&
-            IPAddress.TryParse(NetmaskAddress, out var mask))
+        if (IsValidIpAddress(IpAddress, out var ip) &&
+            IsValidIpAddress(NetmaskAddress, out var mask))
         {
             
             _factory.CreateScanner(new ScanConfiguration()
@@ -200,6 +200,27 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         {
             Adapter = Adapters.FirstOrDefault();
         }
+    }
+
+    private bool IsValidIpAddress(string? ipAddressValue, out IPAddress? ipAddress)
+    {
+        if (string.IsNullOrEmpty(ipAddressValue))
+        {
+            ipAddress = null;
+            return false;
+        }
+        if (ipAddressValue.Length < 7)
+        {
+            ipAddress = null;
+            return false;
+        }
+        if (ipAddressValue.Split('.').Length != 4)
+        {
+            ipAddress = null;
+            return false;
+        }
+
+        return IPAddress.TryParse(ipAddressValue, out ipAddress);
     }
 
 }
