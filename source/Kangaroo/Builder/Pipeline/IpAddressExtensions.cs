@@ -37,12 +37,12 @@ internal static class IpAddressExtensions
         var bytes = address.GetAddressBytes();
         if (bytes[0] != 255)
         {
-            throw new InvalidIpAddressException(address);
+            throw new InvalidSubnetException(address);
         }
 
         if (bytes[1] != 255)
         {
-            throw new InvalidIpAddressException(address);
+            throw new InvalidSubnetException(address);
         }
 
         return bytes;

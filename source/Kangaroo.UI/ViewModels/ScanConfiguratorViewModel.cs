@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
@@ -67,6 +68,9 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
     [ObservableProperty]
     private string _netmaskAddress = string.Empty;
 
+    [ObservableProperty]
+    private string _validationError = string.Empty;
+
     partial void OnSelectedModeChanged(ScanMode value)
     {
         _factory.OnScannerCreated?.Invoke((null, null, false));
@@ -94,14 +98,14 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
 
         if (Adapter != null)
         {
-            _factory.CreateScanner(new ScanConfiguration()
+            ValidationError = TryCreateScanner(new ScanConfiguration()
             {
                 NetworkInterface = AddressFactory.GetInterfaces().First(i => i.Name == Adapter.Name),
                 ScanMode = ScanMode.NetworkAdapter,
                 Timeout = TimeSpan.FromSeconds(1),
                 Ttl = 10,
                 WithHttp = true
-            });
+            }) ?? string.Empty;
         }
     }
 
@@ -112,21 +116,30 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IsValidIpAddress(StartAddress, out var start) &&
-            IsValidIpAddress(EndAddress, out var end))
+        if (!IsValidIpAddress(StartAddress, out var start))
         {
-            _factory.CreateScanner(new ScanConfiguration()
-            {
-                ScanMode = ScanMode.AddressRange,
-                Timeout = TimeSpan.FromSeconds(1),
-                Ttl = 10,
-                WithHttp = true,
-                StartAddress = start,
-                EndAddress = end
-            });
+            ValidationError = $"{value} is not a valid starting IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
             return;
         }
-        _factory.OnScannerCreated?.Invoke((null, null, false));
+        
+        if (!IsValidIpAddress(EndAddress, out var end))
+        {
+            ValidationError = "";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
+            return;
+        }
+
+        ValidationError = TryCreateScanner(new ScanConfiguration()
+        {
+            ScanMode = ScanMode.AddressRange,
+            Timeout = TimeSpan.FromSeconds(1),
+            Ttl = 10,
+            WithHttp = true,
+            StartAddress = start,
+            EndAddress = end
+        }) ?? string.Empty;
+
     }
 
     partial void OnEndAddressChanged(string value)
@@ -136,43 +149,52 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IsValidIpAddress(StartAddress, out var start) &&
-            IsValidIpAddress(EndAddress, out var end))
+        if (!IsValidIpAddress(EndAddress, out var end))
         {
-            
-            _factory.CreateScanner(new ScanConfiguration()
-            {
-                ScanMode = ScanMode.AddressRange,
-                Timeout = TimeSpan.FromSeconds(1),
-                Ttl = 10,
-                WithHttp = true,
-                StartAddress = start,
-                EndAddress = end
-            });
+            ValidationError = $"{value} is not a valid ending IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
 
             return;
         }
+        
+        if (!IsValidIpAddress(StartAddress, out var start))
+        {
+            ValidationError = $"{StartAddress} is not a valid starting IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
 
-        _factory.OnScannerCreated?.Invoke((null, null, false));
+            return;
+        }
+        
+        ValidationError = TryCreateScanner(new ScanConfiguration()
+        {
+            ScanMode = ScanMode.AddressRange,
+            Timeout = TimeSpan.FromSeconds(1),
+            Ttl = 10,
+            WithHttp = true,
+            StartAddress = start,
+            EndAddress = end
+        }) ?? string.Empty;
     }
 
     partial void OnIpAddressChanged(string value)
     {
         if (SelectedMode == ScanMode.SingleAddress)
         {
-            if (IsValidIpAddress(IpAddress, out var singleAddress))
+            if (!IsValidIpAddress(IpAddress, out var singleAddress))
             {
-                _factory.CreateScanner(new ScanConfiguration()
-                {
-                    ScanMode = SelectedMode,
-                    Timeout = TimeSpan.FromSeconds(1),
-                    Ttl = 10,
-                    WithHttp = true,
-                    SpecificAddress = singleAddress,
-                });
-                return;
+                ValidationError = $"{value} is not a valid IP address";
+                _factory.OnScannerCreated?.Invoke((null, null, false));
             }
-            _factory.OnScannerCreated?.Invoke((null, null, false));
+            ValidationError = TryCreateScanner(new ScanConfiguration()
+            {
+                ScanMode = SelectedMode,
+                Timeout = TimeSpan.FromSeconds(1),
+                Ttl = 10,
+                WithHttp = true,
+                SpecificAddress = singleAddress,
+            }) ?? string.Empty;
+
+            return;
         }
 
         if (SelectedMode != ScanMode.NetworkSubnet)
@@ -180,21 +202,29 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IsValidIpAddress(IpAddress, out var ip) &&
-            IsValidIpAddress(NetmaskAddress, out var mask))
+        if (!IsValidIpAddress(IpAddress, out var ip))
         {
-            _factory.CreateScanner(new ScanConfiguration()
-            {
-                ScanMode = SelectedMode,
-                Timeout = TimeSpan.FromSeconds(1),
-                Ttl = 10,
-                WithHttp = true,
-                SpecificAddress = ip,
-                NetmaskAddress = mask
-            });
+            ValidationError = $"{value} is not a valid IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
             return;
         }
-        _factory.OnScannerCreated?.Invoke((null, null, false));
+
+        if (!IsValidIpAddress(NetmaskAddress, out var mask))
+        {
+            _factory.OnScannerCreated?.Invoke((null, null, false));
+            ValidationError = "";
+            return;
+        }
+
+        ValidationError = TryCreateScanner(new ScanConfiguration()
+        {
+            ScanMode = SelectedMode,
+            Timeout = TimeSpan.FromSeconds(1),
+            Ttl = 10,
+            WithHttp = true,
+            SpecificAddress = ip,
+            NetmaskAddress = mask
+        })?? string.Empty;
     }
     partial void OnNetmaskAddressChanged(string value)
     {
@@ -203,22 +233,51 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             return;
         }
 
-        if (IsValidIpAddress(IpAddress, out var ip) &&
-            IsValidIpAddress(NetmaskAddress, out var mask))
+        if (!IsValidIpAddress(NetmaskAddress, out var mask))
         {
-            
-            _factory.CreateScanner(new ScanConfiguration()
-            {
-                ScanMode = SelectedMode,
-                Timeout = TimeSpan.FromSeconds(1),
-                Ttl = 10,
-                WithHttp = true,
-                SpecificAddress = ip,
-                NetmaskAddress = mask
-            });
+            ValidationError = $"{value} invalid subnet mask IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
             return;
         }
-        _factory.OnScannerCreated?.Invoke((null, null, false));
+
+        if (!IsValidIpAddress(IpAddress, out var ip))
+        {
+            ValidationError = $"{IpAddress} invalid IP address";
+            _factory.OnScannerCreated?.Invoke((null, null, false));
+            return;
+        }
+
+        ValidationError = TryCreateScanner(new ScanConfiguration()
+        {
+            ScanMode = SelectedMode,
+            Timeout = TimeSpan.FromSeconds(1),
+            Ttl = 10,
+            WithHttp = true,
+            SpecificAddress = ip,
+            NetmaskAddress = mask
+        })?? string.Empty;
+    }
+
+    private string? TryCreateScanner(ScanConfiguration configuration)
+    {
+        try
+        {
+            _factory.CreateScanner(configuration);
+            return null;
+        }
+        catch (Exception e)
+        {
+            return e switch
+            {
+                InvalidIpAddressException ex => ex.Message,
+                InvalidIpRangeException ex => ex.Message,
+                InvalidNetworkAdapterException ex => ex.Message,
+                InvalidSubnetException ex => ex.Message,
+                InvalidTimeoutException ex => ex.Message,
+                InvalidTtlException ex => ex.Message,
+                _ => e.Message
+            };
+        }
     }
 
     private bool IsValidIpAddress(string? ipAddressValue, out IPAddress? ipAddress)

@@ -2,72 +2,86 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.ScanConfiguratorView"
              x:DataType="viewModels:ScanConfiguratorViewModel">
-    <StackPanel Orientation="Horizontal">
-        <StackPanel>
-            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT MODE:</Label >
-            <ComboBox ItemsSource="{Binding ScanModes}"
-                      SelectedItem="{Binding SelectedMode}"
-                      Width="200"
-                      Margin="4">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource ScanModeTextConverter}}"/>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <StackPanel>
+                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT MODE:</Label>
+                <ComboBox ItemsSource="{Binding ScanModes}"
+                          SelectedItem="{Binding SelectedMode}"
+                          Width="200"
+                          Margin="4">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource ScanModeTextConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding ShowRangeFields}">
+                <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label>
+                <TextBox Width="300" Margin="4" Text="{Binding StartAddress}"
+                         Watermark="START IP ADDRESS (192.168.1.1)" />
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding ShowRangeFields}">
+                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENDING IP ADDRESS:</Label>
+                <TextBox Width="300" Margin="4" Text="{Binding EndAddress}" Watermark="END IP ADDRESS (192.168.1.254)" >
+                </TextBox>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding ShowSingleFields}">
+                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER IP ADDRESS:</Label>
+                <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.254)" />
+            </StackPanel>
+
+
+            <StackPanel IsVisible="{Binding ShowSubnetFields}">
+                <Label FontStyle="Italic" FontSize="10">ENTER IP ADDRESS:</Label>
+                <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.1)" />
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding ShowSubnetFields}">
+                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER SUBNET MASK:</Label>
+                <TextBox Width="300" Margin="4" Text="{Binding NetmaskAddress}" Watermark="SUBNET MASK (255.255.255.0)" />
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding ShowAdapterFields}">
+                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT NETWORK ADAPTER:</Label>
+                <ComboBox ItemsSource="{Binding Adapters}"
+                          SelectedItem="{Binding Adapter}"
+                          HorizontalAlignment="Stretch"
+                          Width="400"
+                          Margin="4">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" />
+                                <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3" />
+                                <TextBlock Text="{Binding IpAddress}" />
+                                <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3" />
+                                <TextBlock Text="{Binding MacAddress}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+
         </StackPanel>
+        <TextBlock Text="{Binding ValidationError}"
+                   FontStyle="Italic"
+                   FontSize="12"
+                   FontWeight="Bold"
+                   Foreground="IndianRed"
+                   Margin="3,0,0,0"/>
 
-        <StackPanel IsVisible="{Binding ShowRangeFields}">
-            <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding StartAddress}" Watermark="START IP ADDRESS (192.168.1.1)"/>
-        </StackPanel>
+    </StackPanel>
 
-        <StackPanel IsVisible="{Binding ShowRangeFields}">
-            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENDING IP ADDRESS:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding EndAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
-        </StackPanel>
-
-        <StackPanel IsVisible="{Binding ShowSingleFields}">
-            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER IP ADDRESS:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.254)"/>
-        </StackPanel>
-
-
-        <StackPanel IsVisible="{Binding ShowSubnetFields}">
-            <Label FontStyle="Italic" FontSize="10">ENTER IP ADDRESS:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding IpAddress}" Watermark="IP ADDRESS (192.168.1.1)"/>
-        </StackPanel>
-
-        <StackPanel IsVisible="{Binding ShowSubnetFields}">
-            <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENTER SUBNET MASK:</Label >
-            <TextBox Width="300" Margin="4" Text="{Binding NetmaskAddress}" Watermark="SUBNET MASK (255.255.255.0)"/>
-        </StackPanel>
-
-      <StackPanel IsVisible="{Binding ShowAdapterFields}">
-          <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT NETWORK ADAPTER:</Label >
-          <ComboBox ItemsSource="{Binding Adapters}"
-                    SelectedItem="{Binding Adapter}"
-                    HorizontalAlignment="Stretch"
-                    Width="400"
-                    Margin="4">
-              <ComboBox.ItemTemplate>
-                  <DataTemplate>
-                      <StackPanel Orientation="Horizontal">
-                          <TextBlock Text="{Binding Name}"/>
-                          <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3"/>
-                          <TextBlock Text="{Binding IpAddress}"/>
-                          <Border Background="White" Width="6" Height="6" Margin="6" CornerRadius="3"/>
-                          <TextBlock Text="{Binding MacAddress}"/>
-                      </StackPanel>
-                  </DataTemplate>
-              </ComboBox.ItemTemplate>
-          </ComboBox>
-      </StackPanel>
-  </StackPanel>
 
 </UserControl>
