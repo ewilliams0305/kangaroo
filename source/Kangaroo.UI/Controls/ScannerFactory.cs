@@ -5,18 +5,18 @@ namespace Kangaroo.UI.Controls;
 
 public interface IScannerFactory
 {
-    Action<IScanner?, ScannerOptions?, bool>? OnScannerCreated { get; set; }
+    Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
 
-    void CreateScanner(ScannerOptions options);
+    void CreateScanner(ScanConfiguration options);
 }
 
 
 public sealed class ScannerFactory : IScannerFactory
 {
 
-    public Action<IScanner?, ScannerOptions?, bool>? OnScannerCreated { get; set; }
+    public Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
 
-    public void CreateScanner(ScannerOptions options)
+    public void CreateScanner(ScanConfiguration options)
     {
         switch (options.ScanMode)
         {
@@ -39,7 +39,7 @@ public sealed class ScannerFactory : IScannerFactory
         }
     }
 
-    private void CreateRangeScanner(ScannerOptions options)
+    private void CreateRangeScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.StartAddress);
         ArgumentNullException.ThrowIfNull(options.EndAddress);
@@ -58,7 +58,7 @@ public sealed class ScannerFactory : IScannerFactory
         OnScannerCreated?.Invoke(scanner, options, true);
     }
 
-    private void CreateSingleScanner(ScannerOptions options)
+    private void CreateSingleScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
         
@@ -75,7 +75,7 @@ public sealed class ScannerFactory : IScannerFactory
 
         OnScannerCreated?.Invoke(scanner, options, true);
     }
-    private void CreateSubnetScanner(ScannerOptions options)
+    private void CreateSubnetScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
         ArgumentNullException.ThrowIfNull(options.NetmaskAddress);
@@ -94,7 +94,7 @@ public sealed class ScannerFactory : IScannerFactory
         OnScannerCreated?.Invoke(scanner, options, true);
     }
 
-    private void CreateAdapterScanner(ScannerOptions options)
+    private void CreateAdapterScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.NetworkInterface);
 

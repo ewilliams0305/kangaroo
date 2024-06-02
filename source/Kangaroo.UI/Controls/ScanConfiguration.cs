@@ -6,7 +6,7 @@ using Kangaroo.UI.Models;
 
 namespace Kangaroo.UI.Controls;
 
-public sealed class ScannerOptions
+public sealed class ScanConfiguration
 {
     public ScanMode ScanMode { get; set; }
     public bool WithHttp { get; set; }

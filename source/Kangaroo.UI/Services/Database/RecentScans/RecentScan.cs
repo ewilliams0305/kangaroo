@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
 
 namespace Kangaroo.UI.Services.Database;
@@ -17,13 +18,13 @@ public sealed class RecentScan
     public TimeSpan ElapsedTime { get; set; }
     public int OnlineDevices { get; set; }
 
-    public static RecentScan FromResults(ScanResults? results, ScanMode mode, TimeProvider time) =>
+    public static RecentScan FromResults(ScanResults? results, ScanConfiguration config, TimeProvider time) =>
         results == null
             ? new RecentScan()
             : new RecentScan 
             {
                 Id = Guid.NewGuid(),
-                ScanMode = mode,
+                ScanMode = config.ScanMode,
                 StartAddress = results.StartAddress.ToString(),
                 EndAddress = results.EndAddress.ToString(),
                 CreatedDateTime = time.GetLocalNow().DateTime,
