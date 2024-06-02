@@ -34,7 +34,7 @@ public class AddressFactory_SubnetTests
 
         // Act
 
-        Assert.Throws<InvalidIpAddressException>(() => AddressFactory.CreateAddressesFromSubnet(start, mask));
+        Assert.Throws<InvalidSubnetException>(() => AddressFactory.CreateAddressesFromSubnet(start, mask));
     }
 
     [Theory]

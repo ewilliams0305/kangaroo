@@ -2,7 +2,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Kangaroo.UI.Views.ConfigurationView">
-  <TextBlock>Feature is not implemented</TextBlock>
+             x:Class="Kangaroo.UI.Views.ConfigurationView"
+             x:DataType="viewModels:ConfigurationViewModel">
+    <Design.DataContext>
+        <viewModels:ConfigurationViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,Auto,Auto">
+
+      <StackPanel Spacing="20">
+            <Label Margin="20,10,0,2">PREFERENCES</Label>
+            <Border Background="#1e1e1e"
+                    Padding="10"
+                    Margin="12"
+                    CornerRadius="12"
+                    VerticalAlignment="Stretch">
+                <StackPanel Spacing="20">
+                    <ComboBox>
+                        <ComboBoxItem>Light</ComboBoxItem>
+                        <ComboBoxItem>Dark</ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock ></TextBlock>
+                </StackPanel>
+
+              </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <Label Margin="20,10,0,2">IP CONFIGURATION</Label>
+            <Border Background="#1e1e1e"
+                    Padding="10"
+                    Margin="12"
+                    CornerRadius="12"
+                    VerticalAlignment="Stretch">
+                <StackPanel Spacing="20">
+                    <ToggleSwitch IsChecked="{Binding Options.EnableHttpScan}">Enable HTTP</ToggleSwitch>
+                    <ButtonSpinner><TextBlock Text="{Binding Options.Ttl}"></TextBlock></ButtonSpinner>
+                    <ButtonSpinner>Timeout</ButtonSpinner>
+                </StackPanel>
+
+
+              </Border>
+        </StackPanel>
+
+
+
+      </Grid>
 </UserControl>

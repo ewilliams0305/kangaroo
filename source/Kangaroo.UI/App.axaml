@@ -4,7 +4,7 @@
              xmlns:local="using:Kangaroo.UI"
              xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
              x:Class="Kangaroo.UI.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
 
     <Application.DataTemplates>
         <local:ViewLocator/>
