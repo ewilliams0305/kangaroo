@@ -21,6 +21,7 @@ namespace Kangaroo.UI.ViewModels;
 public partial class IpScannerViewModel : ViewModelBase
 {
     private IScanner? _scanner;
+    private ScanConfiguration? _configuration;
     private readonly IScannerFactory _factory;
     private readonly RecentScansRepository _recentScans;
 
@@ -36,10 +37,12 @@ public partial class IpScannerViewModel : ViewModelBase
     {
         _recentScans = recentScans;
         _factory = factory;
-        factory.OnScannerCreated = (scanner, valid) =>
+        factory.OnScannerCreated = (scanner, options, valid) =>
         {
+            _scanner?.Dispose();
             ScanEnabled = valid && scanner is not null;
             _scanner = scanner;
+            _configuration = options;
         };
         LoadRecent().SafeFireAndForget();
     }
@@ -195,7 +198,7 @@ public partial class IpScannerViewModel : ViewModelBase
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
             await _recentScans.CreateAsync(
-                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes), _cts.Token);
+                RecentScan.FromResults(results, _configuration, TimeProvider.System), _cts.Token);
 
             IsScanning = false;
         }

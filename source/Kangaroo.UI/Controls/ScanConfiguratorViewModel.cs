@@ -50,7 +50,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
 
         if (Adapter != null)
         {
-            _factory.CreateScanner(new ScannerOptions()
+            _factory.CreateScanner(new ScanConfiguration()
             {
                 NetworkInterface = AddressFactory.GetInterfaces().First(i => i.Name == Adapter.Name),
                 ScanMode = ScanMode.NetworkAdapter,
@@ -89,7 +89,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         if (IPAddress.TryParse(StartAddress, out var start) &&
             IPAddress.TryParse(EndAddress, out var end))
         {
-            _factory.CreateScanner(new ScannerOptions()
+            _factory.CreateScanner(new ScanConfiguration()
             {
                 ScanMode = ScanMode.AddressRange,
                 Timeout = TimeSpan.FromSeconds(1),
@@ -111,7 +111,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             IPAddress.TryParse(EndAddress, out var end))
         {
             
-            _factory.CreateScanner(new ScannerOptions()
+            _factory.CreateScanner(new ScanConfiguration()
             {
                 ScanMode = ScanMode.AddressRange,
                 Timeout = TimeSpan.FromSeconds(1),
@@ -135,7 +135,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         {
             if (IPAddress.TryParse(IpAddress, out var singleAddress))
             {
-                _factory.CreateScanner(new ScannerOptions()
+                _factory.CreateScanner(new ScanConfiguration()
                 {
                     ScanMode = SelectedMode,
                     Timeout = TimeSpan.FromSeconds(1),
@@ -154,7 +154,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
         if (IPAddress.TryParse(IpAddress, out var ip) &&
             IPAddress.TryParse(NetmaskAddress, out var mask))
         {
-            _factory.CreateScanner(new ScannerOptions()
+            _factory.CreateScanner(new ScanConfiguration()
             {
                 ScanMode = SelectedMode,
                 Timeout = TimeSpan.FromSeconds(1),
@@ -176,7 +176,7 @@ public partial class ScanConfiguratorViewModel : ViewModelBase
             IPAddress.TryParse(NetmaskAddress, out var mask))
         {
             
-            _factory.CreateScanner(new ScannerOptions()
+            _factory.CreateScanner(new ScanConfiguration()
             {
                 ScanMode = SelectedMode,
                 Timeout = TimeSpan.FromSeconds(1),

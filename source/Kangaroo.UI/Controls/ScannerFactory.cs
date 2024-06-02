@@ -1,25 +1,22 @@
 ﻿using Kangaroo.UI.Models;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.NetworkInformation;
 
 namespace Kangaroo.UI.Controls;
 
 public interface IScannerFactory
 {
-    Action<IScanner?, bool>? OnScannerCreated { get; set; }
+    Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
 
-    void CreateScanner(ScannerOptions options);
+    void CreateScanner(ScanConfiguration options);
 }
 
 
 public sealed class ScannerFactory : IScannerFactory
 {
 
-    public Action<IScanner?, bool>? OnScannerCreated { get; set; }
+    public Action<IScanner?, ScanConfiguration?, bool>? OnScannerCreated { get; set; }
 
-    public void CreateScanner(ScannerOptions options)
+    public void CreateScanner(ScanConfiguration options)
     {
         switch (options.ScanMode)
         {
@@ -42,7 +39,7 @@ public sealed class ScannerFactory : IScannerFactory
         }
     }
 
-    private void CreateRangeScanner(ScannerOptions options)
+    private void CreateRangeScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.StartAddress);
         ArgumentNullException.ThrowIfNull(options.EndAddress);
@@ -58,10 +55,10 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
 
-    private void CreateSingleScanner(ScannerOptions options)
+    private void CreateSingleScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
         
@@ -76,9 +73,9 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
-    private void CreateSubnetScanner(ScannerOptions options)
+    private void CreateSubnetScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
         ArgumentNullException.ThrowIfNull(options.NetmaskAddress);
@@ -94,10 +91,10 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
 
-    private void CreateAdapterScanner(ScannerOptions options)
+    private void CreateAdapterScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.NetworkInterface);
 
@@ -112,20 +109,6 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
-}
-
-public sealed class ScannerOptions
-{
-    public ScanMode ScanMode { get; set; }
-    public bool WithHttp { get; set; }
-    public int Ttl { get; set; }
-    public TimeSpan Timeout { get; set; }
-    public IPAddress? StartAddress { get; set; }
-    public IPAddress? EndAddress { get; set; }
-    public IPAddress? SpecificAddress { get; set; }
-    public IPAddress? NetmaskAddress { get; set; }
-    public IEnumerable<IPAddress>? SpecificAddresses { get; set; }
-    public NetworkInterface? NetworkInterface { get; set; }
 }
