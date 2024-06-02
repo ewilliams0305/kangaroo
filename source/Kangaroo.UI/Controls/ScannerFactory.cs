@@ -8,7 +8,7 @@ namespace Kangaroo.UI.Controls;
 
 public interface IScannerFactory
 {
-    Action<IScanner?, bool>? OnScannerCreated { get; set; }
+    Action<IScanner?, bool, ScanMode>? OnScannerCreated { get; set; }
 
     void CreateScanner(ScannerOptions options);
 }
@@ -17,7 +17,7 @@ public interface IScannerFactory
 public sealed class ScannerFactory : IScannerFactory
 {
 
-    public Action<IScanner?, bool>? OnScannerCreated { get; set; }
+    public Action<IScanner?, bool, ScanMode>? OnScannerCreated { get; set; }
 
     public void CreateScanner(ScannerOptions options)
     {
@@ -58,7 +58,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
     }
 
     private void CreateSingleScanner(ScannerOptions options)
@@ -76,7 +76,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
     }
     private void CreateSubnetScanner(ScannerOptions options)
     {
@@ -94,7 +94,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
     }
 
     private void CreateAdapterScanner(ScannerOptions options)
@@ -112,7 +112,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true);
+        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
     }
 }
 
