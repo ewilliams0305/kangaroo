@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
+using Kangaroo.UI.Services;
 using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -37,12 +38,12 @@ public partial class IpScannerViewModel : ViewModelBase
     {
         _recentScans = recentScans;
         _factory = factory;
-        factory.OnScannerCreated = (scanner, options, valid) =>
+        factory.OnScannerCreated = scannerData =>
         {
             _scanner?.Dispose();
-            ScanEnabled = valid && scanner is not null;
-            _scanner = scanner;
-            _configuration = options;
+            ScanEnabled = scannerData is { valid: true, scanner: not null };
+            _scanner = scannerData.scanner;
+            _configuration = scannerData.configuration;
         };
         LoadRecent().SafeFireAndForget();
     }
