@@ -21,5 +21,10 @@ public sealed class InvalidIpRangeException : Exception
     /// <param name="start">The value that was used to create the range resulting in an exception</param>
     /// <param name="end">The value that was used to create the range resulting in an exception</param>
     public InvalidIpRangeException(byte[] start, byte[] end)
-        : base($"Invalid IP address range {start} - {end}") { }
+        : base($"Invalid IP address range, Ending address {DisplayBytes(end)} is not greater than start address {DisplayBytes(start)}") { }
+
+    private static string DisplayBytes(byte[] ip)
+    {
+        return string.Join(".", ip);
+    }
 }

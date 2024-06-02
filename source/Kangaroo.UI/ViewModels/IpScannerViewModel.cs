@@ -2,7 +2,9 @@
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
+using Kangaroo.UI.Services;
 using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -12,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,9 @@ namespace Kangaroo.UI.ViewModels;
 
 public partial class IpScannerViewModel : ViewModelBase
 {
+    private IScanner? _scanner;
+    private ScanConfiguration? _configuration;
+    private readonly IScannerFactory _factory;
     private readonly RecentScansRepository _recentScans;
 
     /// <summary>
@@ -27,12 +31,20 @@ public partial class IpScannerViewModel : ViewModelBase
     /// </summary>
     public IpScannerViewModel()
     {
-        
+
     }
 
-    public IpScannerViewModel(RecentScansRepository recentScans)
+    public IpScannerViewModel(RecentScansRepository recentScans, IScannerFactory factory)
     {
         _recentScans = recentScans;
+        _factory = factory;
+        factory.OnScannerCreated = scannerData =>
+        {
+            _scanner?.Dispose();
+            ScanEnabled = scannerData is { valid: true, scanner: not null };
+            _scanner = scannerData.scanner;
+            _configuration = scannerData.configuration;
+        };
         LoadRecent().SafeFireAndForget();
     }
 
@@ -40,10 +52,7 @@ public partial class IpScannerViewModel : ViewModelBase
     private ObservableCollection<NetworkNodeModel> _networkNodes = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsNotScanning))]
     private bool _isScanning;
-
-    public bool IsNotScanning => !IsScanning;
 
     [ObservableProperty]
     private bool _scanEnabled;
@@ -109,17 +118,6 @@ public partial class IpScannerViewModel : ViewModelBase
             new Axis { Name = "SECONDS", TextSize = 10, Labeler = d => $"{d / 1000:N2} sec." }
         };
 
-    partial void OnBeginIpAddressChanged(string value)
-    {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
-                      IPAddress.TryParse(EndIpAddress, out var _);
-    }
-    partial void OnEndIpAddressChanged(string value)
-    {
-        ScanEnabled = IPAddress.TryParse(BeginIpAddress, out var _) && 
-                      IPAddress.TryParse(EndIpAddress, out var _);
-    }
-
     private CancellationTokenSource _cts;
 
     [RelayCommand]
@@ -141,25 +139,24 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             return;
         }
+        
+        if (_scanner == null)
+        {
+            IsScanning = false;
+            return;
+        }
 
         _cts = new CancellationTokenSource();
         IsScanning = true;
         NetworkNodes = new ObservableCollection<NetworkNodeModel>();
-
-        using var scanner = new ScannerBuilder()
-            .WithRange(IPAddress.Parse(BeginIpAddress), IPAddress.Parse(EndIpAddress))
-            .WithHttpScan()
-            .WithMaxTimeout(TimeSpan.FromMilliseconds(1000))
-            .WithMaxHops(10)
-            .WithParallelism()
-            .Build();
 
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
         var axisLabels = new List<string>();
         var counter = 0;
         var items = 0;
-        scanner.NodeStatusUpdate = (node, status) =>
+
+        _scanner.NodeStatusUpdate = (node, status) =>
         {
             if (status == LiveUpdateStatus.Started)
             {
@@ -176,7 +173,7 @@ public partial class IpScannerViewModel : ViewModelBase
             }
         };
 
-        scanner.ScanStatusUpdate = (results, status) =>
+        _scanner.ScanStatusUpdate = (results, status) =>
         {
             if (status == LiveUpdateStatus.Started)
             {
@@ -197,12 +194,12 @@ public partial class IpScannerViewModel : ViewModelBase
 
         try
         {
-            var results = await scanner.QueryNetwork(_cts.Token);
+            var results = await _scanner.QueryNetwork(_cts.Token);
 
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
             await _recentScans.CreateAsync(
-                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes), _cts.Token);
+                RecentScan.FromResults(results, _configuration, TimeProvider.System), _cts.Token);
 
             IsScanning = false;
         }
@@ -227,8 +224,7 @@ public partial class IpScannerViewModel : ViewModelBase
     private void AddInitialNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
     {
         NetworkNodes.Insert(0,new NetworkNodeModel(node));
-        //NetworkNodes.Add(new NetworkNodeModel(node));
-
+ 
         queryTimes.Add(node.QueryTime.TotalMilliseconds);
         latencyTimes.Add(node.Latency != null
             ? node.Latency!.Value.TotalMilliseconds
@@ -246,8 +242,8 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             var nodeToRemove = NetworkNodes.First(n => n.IpAddress == node.IpAddress.ToString());
             NetworkNodes.Remove(nodeToRemove);
-            // NetworkNodes.Add(new NetworkNodeModel(node));
             NetworkNodes.Insert(0, new NetworkNodeModel(node));
+
             queryTimes.Add(node.QueryTime.TotalMilliseconds);
             latencyTimes.Add(node.Latency != null
                 ? node.Latency!.Value.TotalMilliseconds

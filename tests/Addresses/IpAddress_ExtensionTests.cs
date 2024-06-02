@@ -65,7 +65,7 @@ public class IpAddress_ExtensionTests
 
         // Assert
 
-        Assert.Throws<InvalidIpAddressException>(() => ip.ThrowIfAddressLessThen16());
+        Assert.Throws<InvalidSubnetException>(() => ip.ThrowIfAddressLessThen16());
     }
 
 }

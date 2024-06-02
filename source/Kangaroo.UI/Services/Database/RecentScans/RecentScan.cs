@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
 
 namespace Kangaroo.UI.Services.Database;
@@ -17,10 +18,23 @@ public sealed class RecentScan
     public TimeSpan ElapsedTime { get; set; }
     public int OnlineDevices { get; set; }
 
+    public static RecentScan FromResults(ScanResults? results, ScanConfiguration config, TimeProvider time) =>
+        results == null
+            ? new RecentScan()
+            : new RecentScan 
+            {
+                Id = Guid.NewGuid(),
+                ScanMode = config.ScanMode,
+                StartAddress = results.StartAddress.ToString(),
+                EndAddress = results.EndAddress.ToString(),
+                CreatedDateTime = time.GetLocalNow().DateTime,
+                ElapsedTime = results.ElapsedTime,
+                OnlineDevices = results.NumberOfAliveNodes
+            };
+    
 
-    public static RecentScan FromRange(string start, string end, TimeProvider time, TimeSpan elapsedTime, int onlineDevices)
-    {
-        return new RecentScan
+    public static RecentScan FromRange(string start, string end, TimeProvider time, TimeSpan elapsedTime, int onlineDevices) =>
+        new()
         {
             Id = Guid.NewGuid(),
             ScanMode = ScanMode.AddressRange,
@@ -30,10 +44,9 @@ public sealed class RecentScan
             ElapsedTime = elapsedTime,
             OnlineDevices = onlineDevices
         };
-    }
-    public static RecentScan FromAdapter(string adapter, IPAddress address, IPAddress subnet, TimeProvider time, TimeSpan elapsedTime, int onlineDevices)
-    {
-        return new RecentScan
+
+    public static RecentScan FromAdapter(string adapter, IPAddress address, IPAddress subnet, TimeProvider time, TimeSpan elapsedTime, int onlineDevices) =>
+        new()
         {
             Id = Guid.NewGuid(),
             ScanMode = ScanMode.NetworkAdapter,
@@ -43,11 +56,9 @@ public sealed class RecentScan
             ElapsedTime = elapsedTime,
             OnlineDevices = onlineDevices
         };
-    }
-    
-    public static RecentScan FromSubnet(IPAddress address, IPAddress subnet, TimeProvider time, TimeSpan elapsedTime, int onlineDevices) 
-    {
-        return new RecentScan
+
+    public static RecentScan FromSubnet(IPAddress address, IPAddress subnet, TimeProvider time, TimeSpan elapsedTime, int onlineDevices) =>
+        new()
         {
             Id = Guid.NewGuid(),
             ScanMode = ScanMode.NetworkSubnet,
@@ -57,6 +68,4 @@ public sealed class RecentScan
             ElapsedTime = elapsedTime,
             OnlineDevices = onlineDevices
         };
-    }
-
 }

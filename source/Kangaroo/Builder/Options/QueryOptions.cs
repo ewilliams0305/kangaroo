@@ -1,4 +1,6 @@
-﻿namespace Kangaroo;
+﻿using System.Security.AccessControl;
+
+namespace Kangaroo;
 
 /// <summary>
 /// Options used for network queries
@@ -12,7 +14,6 @@ internal sealed record QueryOptions(int Ttl, TimeSpan Timeout)
     /// </summary>
     public static QueryOptions Default => new(64, TimeSpan.FromMilliseconds(3000));
 
-
     /// <summary>
     /// Returns the timeout value from the options
     /// </summary>
@@ -24,4 +25,4 @@ internal sealed record QueryOptions(int Ttl, TimeSpan Timeout)
     /// </summary>
     /// <param name="options">options</param>
     public static implicit operator int(QueryOptions options) => options.Ttl;
-};
+}

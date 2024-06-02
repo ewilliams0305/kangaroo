@@ -28,6 +28,19 @@ The kangaroo network scanner supports (or will support) the following features.
 4. [Scanning Networks](#Scanning-Networks)
 
 # Desktop Guide
+Complete desktop user guid TDB, for now heres the status:
+
+Desktop UI supports IP Scans with:
+- Network Adapter Selection
+- IP Address Range
+- Subnet Calculation up to /16
+- Single Address
+
+Dashboard will display recent scans
+- Allows user to select scans for comparison
+- Allows user to view latency information
+
+Configuration and compliance views are non-functional
 
 # Command Line Tool
 

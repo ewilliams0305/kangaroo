@@ -14,4 +14,11 @@ public sealed class InvalidSubnetException : Exception
     /// <param name="subnet">Subnet mask</param>
     public InvalidSubnetException(IPAddress address, IPAddress subnet)
         : base($"Invalid IP address subnet {address}/{subnet}") { }
+
+    /// <summary>
+    /// Creates an exception when a subnet is not supported.
+    /// </summary>
+    /// <param name="subnet">the subnet that was invalid</param>
+    public InvalidSubnetException(IPAddress subnet)
+        : base($"Unsupported subnet calculated {subnet}, maximum size /16") { }
 }

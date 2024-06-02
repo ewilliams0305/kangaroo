@@ -5,6 +5,8 @@
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             xmlns:views="clr-namespace:Kangaroo.UI.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.IpScannerView"
              x:DataType="viewModels:IpScannerViewModel">
@@ -19,19 +21,11 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
-            <StackPanel>
-                <Label FontStyle="Italic" FontSize="10">STARTING IP ADDRESS:</Label >
-                <TextBox Width="300" Margin="4" Text="{Binding BeginIpAddress}" Watermark="START IP ADDRESS (192.168.1.1)"/>
-            </StackPanel>
-
-            <StackPanel>
-                <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">ENDING IP ADDRESS:</Label >
-                <TextBox Width="300" Margin="4" Text="{Binding EndIpAddress}" Watermark="END IP ADDRESS (192.168.1.254)"/>
-            </StackPanel>
+            <views:ScanConfiguratorView x:Name="ScanConfiguration"></views:ScanConfiguratorView>
 
             <Button Command="{Binding StartScan}"
                     IsEnabled="{Binding ScanEnabled}"
-                    IsVisible="{Binding IsNotScanning}"
+                    IsVisible="{Binding !IsScanning}"
                     Classes="start"
                     ToolTip.Tip="Start the IP scan for the specified network addresses" >
                 <PathIcon Data="{StaticResource IconPlay}" />

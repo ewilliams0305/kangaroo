@@ -205,6 +205,15 @@ internal sealed class AddressFactory
         }
         return null;
     }
+    internal static IEnumerable<NetworkInterface> GetInterfaces()
+    {
+        var interfaces = NetworkInterface.GetAllNetworkInterfaces()
+            .Where( i => i.OperationalStatus == OperationalStatus.Up)
+            .Where(i => i.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+            .Where(i => i.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
+
+        return interfaces;
+    }
 
     internal static UnicastIPAddressInformation? GetIpFromInterface(NetworkInterface @interface)
     {
