@@ -1,14 +1,11 @@
 ﻿using Kangaroo.UI.Models;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.NetworkInformation;
 
 namespace Kangaroo.UI.Controls;
 
 public interface IScannerFactory
 {
-    Action<IScanner?, bool, ScanMode>? OnScannerCreated { get; set; }
+    Action<IScanner?, ScannerOptions?, bool>? OnScannerCreated { get; set; }
 
     void CreateScanner(ScannerOptions options);
 }
@@ -17,7 +14,7 @@ public interface IScannerFactory
 public sealed class ScannerFactory : IScannerFactory
 {
 
-    public Action<IScanner?, bool, ScanMode>? OnScannerCreated { get; set; }
+    public Action<IScanner?, ScannerOptions?, bool>? OnScannerCreated { get; set; }
 
     public void CreateScanner(ScannerOptions options)
     {
@@ -58,7 +55,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
 
     private void CreateSingleScanner(ScannerOptions options)
@@ -76,7 +73,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
     private void CreateSubnetScanner(ScannerOptions options)
     {
@@ -94,7 +91,7 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
 
     private void CreateAdapterScanner(ScannerOptions options)
@@ -112,20 +109,6 @@ public sealed class ScannerFactory : IScannerFactory
             .WithParallelism()
             .Build();
 
-        OnScannerCreated?.Invoke(scanner, true, options.ScanMode);
+        OnScannerCreated?.Invoke(scanner, options, true);
     }
-}
-
-public sealed class ScannerOptions
-{
-    public ScanMode ScanMode { get; set; }
-    public bool WithHttp { get; set; }
-    public int Ttl { get; set; }
-    public TimeSpan Timeout { get; set; }
-    public IPAddress? StartAddress { get; set; }
-    public IPAddress? EndAddress { get; set; }
-    public IPAddress? SpecificAddress { get; set; }
-    public IPAddress? NetmaskAddress { get; set; }
-    public IEnumerable<IPAddress>? SpecificAddresses { get; set; }
-    public NetworkInterface? NetworkInterface { get; set; }
 }

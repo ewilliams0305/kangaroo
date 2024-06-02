@@ -36,7 +36,7 @@ public partial class IpScannerViewModel : ViewModelBase
     {
         _recentScans = recentScans;
         _factory = factory;
-        factory.OnScannerCreated = (scanner, valid) =>
+        factory.OnScannerCreated = (scanner, valid, mode) =>
         {
             ScanEnabled = valid && scanner is not null;
             _scanner = scanner;
@@ -195,7 +195,7 @@ public partial class IpScannerViewModel : ViewModelBase
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
             await _recentScans.CreateAsync(
-                RecentScan.FromRange(BeginIpAddress, EndIpAddress, TimeProvider.System, results.ElapsedTime, results.NumberOfAliveNodes), _cts.Token);
+                RecentScan.FromResults(results, , TimeProvider.System), _cts.Token);
 
             IsScanning = false;
         }
