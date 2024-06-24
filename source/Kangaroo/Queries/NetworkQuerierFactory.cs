@@ -20,22 +20,33 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
     /// <inheritdoc />
     public IQueryNetworkNode CreateQuerier()
     {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Linux) 
-                ? new QueryNetworkNode(
-                    logger: _logger,
-                    ping: _ping,
-                    mac: new LinuxQueryMacAddress(_logger),
-                    host: new QueryHostname(_logger),
-                    http: _clientFactory != null 
-                        ? new QueryWebServer(_logger, _clientFactory)
-                        : null)
-                : new QueryNetworkNode(
-                    logger: _logger,
-                    ping: _ping,
-                    mac: new WindowsQueryMacAddress(_logger),
-                    host: new QueryHostname(_logger),
-                    http: _clientFactory != null 
-                        ? new QueryWebServer(_logger, _clientFactory) 
-                        : null);
+
+        // Linux || Mac
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return new QueryNetworkNode(
+                logger: _logger,
+                ping: _ping,
+                mac: new LinuxQueryMacAddress(_logger),
+                host: new QueryHostname(_logger),
+                http: _clientFactory != null
+                    ? new QueryWebServer(_logger, _clientFactory)
+                    : null);
+        }
+        
+        // Windows
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return new QueryNetworkNode(
+                logger: _logger,
+                ping: _ping,
+                mac: new WindowsQueryMacAddress(_logger),
+                host: new QueryHostname(_logger),
+                http: _clientFactory != null 
+                    ? new QueryWebServer(_logger, _clientFactory) 
+                    : null);
+        }
+
+        throw new PlatformNotSupportedException();
     }
 }
