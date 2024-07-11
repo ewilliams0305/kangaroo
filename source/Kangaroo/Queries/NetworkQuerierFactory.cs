@@ -20,22 +20,28 @@ internal sealed class NetworkQuerierFactory : IQueryFactory
     /// <inheritdoc />
     public IQueryNetworkNode CreateQuerier()
     {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Linux) 
-                ? new QueryNetworkNode(
-                    logger: _logger,
-                    ping: _ping,
-                    mac: new LinuxQueryMacAddress(_logger),
-                    host: new QueryHostname(_logger),
-                    http: _clientFactory != null 
-                        ? new QueryWebServer(_logger, _clientFactory)
-                        : null)
-                : new QueryNetworkNode(
+        return Environment.OSVersion.Platform switch
+        {
+            PlatformID.Win32S or PlatformID.Win32Windows or PlatformID.Win32Windows or PlatformID.Win32NT
+                or PlatformID.WinCE =>
+                new QueryNetworkNode(
                     logger: _logger,
                     ping: _ping,
                     mac: new WindowsQueryMacAddress(_logger),
                     host: new QueryHostname(_logger),
-                    http: _clientFactory != null 
-                        ? new QueryWebServer(_logger, _clientFactory) 
-                        : null);
+                    http: _clientFactory != null
+                        ? new QueryWebServer(_logger, _clientFactory)
+                        : null),
+            PlatformID.Unix or PlatformID.MacOSX =>
+                new QueryNetworkNode(
+                    logger: _logger,
+                    ping: _ping,
+                    mac: new LinuxQueryMacAddress(_logger),
+                    host: new QueryHostname(_logger),
+                    http: _clientFactory != null
+                        ? new QueryWebServer(_logger, _clientFactory)
+                        : null),
+            _ => throw new PlatformNotSupportedException()
+        };
     }
 }
