@@ -233,3 +233,9 @@ Individual nodes can be queried as well.
 var node = await scanner.CheckNetworkNode();
 Console.WriteLine(node.Dump());
 ```
+
+# Contributing
+<a href="https://github.com/ewilliams0305/kangaroo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ewilliams0305/kangaroo" />
+</a>
+
