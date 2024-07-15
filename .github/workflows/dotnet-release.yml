@@ -1,0 +1,97 @@
+name: PUBLISH RELEASE
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    types: [closed]
+    branches: [main]
+          
+jobs:
+  build:
+    if: github.event.pull_request.merged == true 
+
+    runs-on: ubuntu-latest    
+    outputs: 
+      Version: ${{ steps.gitversion.outputs.SemVer }}
+      CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }} 
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 #fetch-depth is needed for GitVersion
+        
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v1.2.0
+      with:
+        versionSpec: 5.x
+
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v1.2.0
+      id: gitversion 
+
+    - name: Display GitVersion outputs
+      run: |
+        echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
+        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: Dotnet Restore  
+      run: dotnet restore ./source/**.sln
+
+    - name: Build Source Projects 
+      run: dotnet build ./source/**.sln -p:Version='${{ steps.gitversion.outputs.SemVer }}' -c Release
+
+    - name: Pack NuGet Packages
+      run: dotnet pack ./source/**.sln -p:Version='${{ steps.gitversion.outputs.SemVer }}' -c Release -o bin/releasedFiles
+
+    - name: Publish Linux
+      run: dotnet publish ./source/Kangaroo.UI.Desktop/Kangaroo.UI.Desktop.csproj -c Release -r linux-x64 --self-contained true --framework net8.0 --output ./release/linux -p:PublishSingleFile="true" -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+    
+    - name: Publish Windows
+      run: dotnet publish ./source/Kangaroo.UI.Desktop/Kangaroo.UI.Desktop.csproj -c Release -r win-x86 --self-contained true --framework net8.0 --output ./release/windows -p:PublishSingleFile="true" -p:PublishReadyToRun="true" -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+    
+    - name: Archive Published Outputs
+      run: |
+        zip -r bin/releasedFiles/kangaroo_scanner_linux.zip ./release/linux
+        zip -r bin/releasedFiles/kangaroo_scanner_windows.zip ./release/windows
+
+    - name: Upload NuGet package to GitHub
+      uses: actions/upload-artifact@v4
+      with:
+        name: nugetPackage
+        path: bin/releasedFiles
+        
+  release:
+    if: needs.build.outputs.CommitsSinceVersionSource > 0  && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest    
+    needs: build
+    
+    steps:  
+    - name: Download nuget package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: nugetPackage
+        path: bin/releasedFiles
+    
+    - name: Create Release
+      uses: ncipollo/release-action@v1.14.0
+      with:
+        tag: ${{ needs.build.outputs.Version }}
+        name: Release ${{ needs.build.outputs.Version }}
+        body: Released via github actions workflow, see repository README.md
+        generateReleaseNotes: true
+        artifacts: "bin/releasedFiles/*"  
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push packages to Nuget
+      run: |
+        for file in $(find bin/releasedFiles -type f -name "*.nupkg"); do
+          echo $file
+          dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        done
+    

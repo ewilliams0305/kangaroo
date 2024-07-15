@@ -8,6 +8,10 @@ namespace Kangaroo;
 
 internal sealed class SingleScanner : IScanner
 {
+    /// <summary>
+    /// Starts a new scan build
+    /// </summary>
+    /// <returns></returns>
     public static IScannerIpConfiguration Configure()
     {
         return new ScannerBuilder();
@@ -22,16 +26,22 @@ internal sealed class SingleScanner : IScanner
     }
 
     /// <inheritdoc />
-    public Action<ScanResults, LiveUpdateStatus> ScanStatusUpdate { get; set; }
+    public Action<ScanResults, LiveUpdateStatus>? ScanStatusUpdate { get; set; }
 
     /// <inheritdoc />
-    public Action<NetworkNode, LiveUpdateStatus> NodeStatusUpdate { get; set; }
+    public Action<NetworkNode, LiveUpdateStatus>? NodeStatusUpdate { get; set; }
 
     private readonly ILogger _logger;
     private readonly IQueryNetworkNode _querier;
     private readonly IPAddress _address;
     private readonly Stopwatch _stopWatch = new();
 
+    /// <summary>
+    /// Creates a new single network endpoint scanner
+    /// </summary>
+    /// <param name="logger">logger output</param>
+    /// <param name="querier">querier</param>
+    /// <param name="address">network address</param>
     private SingleScanner(ILogger logger, IQueryNetworkNode querier, IPAddress address)
     {
         _logger = logger;
