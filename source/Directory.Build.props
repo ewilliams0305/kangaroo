@@ -2,5 +2,17 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <AvaloniaVersion>11.0.2</AvaloniaVersion>
+
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageOutputPath>..\..\release\</PackageOutputPath>
+
+
+    <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
+    <PackageIcon>kangaroo-logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/ewilliams0305/kangaroo</RepositoryUrl>
+    <PackageTags>network;ip;scanner;tool</PackageTags>
   </PropertyGroup>
 </Project>
