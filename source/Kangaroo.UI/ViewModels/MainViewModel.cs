@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#pragma warning disable IDE0028
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,8 +11,6 @@ namespace Kangaroo.UI.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly IScannerBuilder _scanner;
-
     [ObservableProperty]
     private bool _isPaneOpen = true;
 
@@ -18,7 +18,7 @@ public partial class MainViewModel : ViewModelBase
     private ViewModelBase _currentPage;
 
     [ObservableProperty]
-    private MenuItemTemplate _selectedMenuItem;
+    private MenuItemTemplate? _selectedMenuItem;
 
     partial void OnSelectedMenuItemChanged(MenuItemTemplate? value)
     {
@@ -49,12 +49,11 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        CurrentPage = App.Services.GetRequiredService<HomePageViewModel>();
+        CurrentPage = App.Services!.GetRequiredService<HomePageViewModel>();
     }
 
-    public MainViewModel(IScannerBuilder scanner, IServiceProvider provider)
+    public MainViewModel(IServiceProvider provider)
     {
-        _scanner = scanner;
         CurrentPage = provider.GetRequiredService<HomePageViewModel>();
     }
 

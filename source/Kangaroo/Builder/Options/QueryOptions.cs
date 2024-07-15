@@ -1,6 +1,4 @@
-﻿using System.Security.AccessControl;
-
-namespace Kangaroo;
+﻿namespace Kangaroo;
 
 /// <summary>
 /// Options used for network queries
