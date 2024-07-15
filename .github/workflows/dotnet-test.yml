@@ -30,4 +30,4 @@ jobs:
       run: dotnet build $SOLUTION --no-restore
 
     - name: Test Solution
-      run: dotnet test $SOLUTION --no-restore --verbosity normal
+      run: sudo dotnet test $SOLUTION --no-restore --verbosity normal
