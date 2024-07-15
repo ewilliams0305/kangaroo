@@ -13,6 +13,6 @@ public class DateTimeTypeHandler : SqlMapper.TypeHandler<DateTime>
 
     public override DateTime Parse(object value)
     {
-        return DateTime.Parse(value.ToString());
+        return DateTime.Parse(value.ToString() ?? string.Empty);
     }
 }
