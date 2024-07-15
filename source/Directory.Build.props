@@ -6,8 +6,6 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageOutputPath>..\..\release\</PackageOutputPath>
-
 
     <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
     <PackageIcon>kangaroo-logo.png</PackageIcon>
