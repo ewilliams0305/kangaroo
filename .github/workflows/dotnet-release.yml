@@ -49,6 +49,17 @@ jobs:
     - name: Pack NuGet Packages
       run: dotnet pack ./source/**.sln -p:Version='${{ steps.gitversion.outputs.SemVer }}' -c Release -o bin/releasedFiles
 
+    - name: Publish Linux
+      run: dotnet publish ./source/Kangaroo.UI.Desktop/Kangaroo.UI.Desktop.csproj -c Release -r linux-x64 --self-contained true --framework net8.0 --output ./release/linux -p:PublishSingleFile="true" -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+    
+    - name: Publish Windows
+      run: dotnet publish .\source\Kangaroo.UI.Desktop\Kangaroo.UI.Desktop.csproj -c Release -r win-x86 --self-contained true --framework net8.0 --output ./release/windows -p:PublishSingleFile="true" -p:PublishReadyToRun="true" -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+    
+    - name: Archive Published Outputs
+      run: |
+        tar -czvf bin/releasedFiles/kangaroo_scanner_linux.zip -C ./release/linux .
+        tar -czvf bin/releasedFiles/kangaroo_scanner_windows.zip -C ./release/windows .
+
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v4
       with:

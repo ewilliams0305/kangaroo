@@ -9,6 +9,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>kangaroo.ico</ApplicationIcon>
     <IsPackable>false</IsPackable>
+    <AssemblyName>Kangaroo Scanner</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="kangaroo.ico" />
@@ -21,5 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kangaroo.UI\Kangaroo.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 </Project>
