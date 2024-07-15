@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Kangaroo;
 
@@ -79,8 +80,11 @@ public readonly struct MacAddress
             throw new ArgumentOutOfRangeException(nameof(macAddress));
         }
 
+#if NET6_0_OR_GREATER
         var bytes = Convert.FromHexString(macAddress.Replace(ColonString, ""));
-
+#else
+        var bytes = FromHexString(macAddress.Replace(ColonString, ""));
+#endif
         if (bytes.Length != 6)
         {
             throw new ArgumentOutOfRangeException(nameof(macAddress));
@@ -167,5 +171,23 @@ public readonly struct MacAddress
     /// <param name="macAddress"></param>
     /// <returns></returns>
     public static implicit operator byte[](MacAddress macAddress) => macAddress._bytes;
+
+#if NETSTANDARD
+    private static byte[] FromHexString(string hex)
+    {
+        if (hex.Length % 2 != 0)
+        {
+            throw new ArgumentException("Invalid length of the hex string.");
+        }
+
+        var bytes = new byte[hex.Length / 2];
+        for (int i = 0; i < hex.Length; i += 2)
+        {
+            bytes[i / 2] = byte.Parse(hex.Substring(i, 2), NumberStyles.HexNumber);
+        }
+
+        return bytes;
+    }
+#endif
 
 }

@@ -19,7 +19,12 @@ internal sealed class WindowsCommand
 
         process.Start();
         var result = await process.StandardOutput.ReadToEndAsync();
+#if NET6_0_OR_GREATER
         await process.WaitForExitAsync(token);
         return result;
+#else
+        process.WaitForExit();
+        return result;
+#endif
     }
 }

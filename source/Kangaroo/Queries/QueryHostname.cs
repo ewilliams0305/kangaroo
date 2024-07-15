@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
@@ -18,7 +19,11 @@ internal sealed class QueryHostname : IQueryHostname
     {
         try
         {
+#if NET6_0_OR_GREATER
             var ipHostEntry = await Dns.GetHostEntryAsync(ipAddress.ToString(), AddressFamily.NetBios , token);
+#else
+            var ipHostEntry = await Dns.GetHostEntryAsync(ipAddress);
+#endif
             return ipHostEntry;
         }
         catch (ArgumentException argumentException)

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net.Mail;
 
 namespace Kangaroo.Platforms;
 
@@ -19,7 +20,13 @@ internal sealed class LinuxCommand
 
         process.Start();
         var result = await process.StandardOutput.ReadToEndAsync();
+
+#if NET6_0_OR_GREATER
         await process.WaitForExitAsync(token);
         return result;
+#else
+        process.WaitForExit();
+        return result;
+#endif
     }
 }

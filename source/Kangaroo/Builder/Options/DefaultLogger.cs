@@ -2,7 +2,7 @@
 
 namespace Kangaroo;
 
-internal sealed class DefaultLogger : ILogger<IScanner>
+internal sealed class DefaultLogger : ILogger<IScanner> 
 {
     #region Implementation of ILogger
 
@@ -13,11 +13,14 @@ internal sealed class DefaultLogger : ILogger<IScanner>
         {
             return;
         }
-
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(nameof(formatter));
+#else
         if (formatter == null)
         {
             throw new ArgumentNullException(nameof(formatter));
         }
+#endif
 
         var message = formatter(state, exception);
 
@@ -34,10 +37,10 @@ internal sealed class DefaultLogger : ILogger<IScanner>
         return true;
     }
 
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull
     {
         return default!;
     }
 
-    #endregion
+#endregion
 }

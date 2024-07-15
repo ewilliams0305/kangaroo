@@ -19,6 +19,8 @@ mono_crash.*
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
 x64/
 x86/
 [Ww][Ii][Nn]32/
@@ -178,9 +180,11 @@ DocProject/Help/html
 publish/
 
 # Publish Web Output
+*.[Pp]ublish.xml
 *.azurePubxml
 # Note: Comment the next line if you want to checkin your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
+*.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
@@ -392,15 +396,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-release/linux/Kangaroo Scanner
-release/linux/Kangaroo.xml
-release/linux/libe_sqlite3.so
-release/linux/libHarfBuzzSharp.so
-release/linux/libSkiaSharp.so
-release/windows/av_libglesv2.dll
-release/windows/e_sqlite3.dll
-release/windows/Kangaroo Scanner.exe
-release/windows/Kangaroo.xml
-release/windows/kangaroo_scanner.db
-release/windows/libHarfBuzzSharp.dll
-release/windows/libSkiaSharp.dll

@@ -1,4 +1,6 @@
-﻿using Dapper;
+﻿#pragma warning disable IDE0290
+
+using Dapper;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,14 +36,8 @@ public sealed class SqliteDbInitializer : IDbInitializer
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync();
 
-        try
-        {
-            await connection.ExecuteAsync(CreateRecentScansTable);
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        await connection.ExecuteAsync(CreateRecentScansTable);
+        
     }
 
     private const string CreateRecentScansTable = @"CREATE TABLE IF NOT EXISTS RecentScans (
