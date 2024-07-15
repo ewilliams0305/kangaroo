@@ -16,7 +16,7 @@ public class ParallelPing_Query_Tests
         using var pingQuery = new QueryPingResultsParallel(new DefaultLogger(), new QueryOptions(1, TimeSpan.FromSeconds(1)));
 
         // Act
-        var ping = await pingQuery.Query(IPAddress.Loopback);
+        var ping = await pingQuery.Query(IPAddress.Parse("127.0.0.1"));
 
         // Assert
 
