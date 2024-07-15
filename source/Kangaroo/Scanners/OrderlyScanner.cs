@@ -28,10 +28,10 @@ internal sealed class OrderlyScanner : IScanner
     private readonly Stopwatch _stopWatch = new();
 
     /// <inheritdoc />
-    public Action<ScanResults, LiveUpdateStatus> ScanStatusUpdate { get; set; }
+    public Action<ScanResults, LiveUpdateStatus>? ScanStatusUpdate { get; set; }
 
     /// <inheritdoc />
-    public Action<NetworkNode, LiveUpdateStatus> NodeStatusUpdate { get; set; }
+    public Action<NetworkNode, LiveUpdateStatus>? NodeStatusUpdate { get; set; }
 
     private OrderlyScanner(ILogger logger, IQueryNetworkNode querier, IEnumerable<IPAddress> addresses)
     {

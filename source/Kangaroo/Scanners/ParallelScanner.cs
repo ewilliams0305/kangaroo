@@ -25,10 +25,10 @@ internal sealed class ParallelScanner : IScanner
     private readonly int _batchSize;
 
     /// <inheritdoc />
-    public Action<ScanResults, LiveUpdateStatus> ScanStatusUpdate { get; set; }
+    public Action<ScanResults, LiveUpdateStatus>? ScanStatusUpdate { get; set; }
 
     /// <inheritdoc />
-    public Action<NetworkNode, LiveUpdateStatus> NodeStatusUpdate { get; set; }
+    public Action<NetworkNode, LiveUpdateStatus>? NodeStatusUpdate { get; set; }
 
     private ParallelScanner(ILogger logger, IQueryNetworkNode querier, IEnumerable<IPAddress> addresses, int batchSize)
     {
@@ -117,7 +117,7 @@ internal sealed class ParallelScanner : IScanner
         }
     }
 
-    private IEnumerable<Task<IEnumerable<NetworkNode>>> BatchedTaskFactoryIAsync(CancellationToken token = default) =>
+    private List<Task<IEnumerable<NetworkNode>>> BatchedTaskFactoryIAsync(CancellationToken token = default) =>
         _addresses
             .Select((x, index) => new { Address = x, Index = index })
             .GroupBy(x => x.Index / _batchSize)

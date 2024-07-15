@@ -10,16 +10,9 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackAsTool>True</PackAsTool>
     <ToolCommandName>kangaroo</ToolCommandName>
-    <PackageOutputPath>..\..\release</PackageOutputPath>
     <VersionPrefix>0.2.1</VersionPrefix>
     <Title>Kangaroo CLI Tool</Title>
     <Description>A command line IP scanner</Description>
-    <Copyright></Copyright>
-    <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
-    <PackageIcon>kangaroo-logo.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/ewilliams0305/kangaroo</RepositoryUrl>
-    <PackageOutputPath>..\..\release\</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
