@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile></DocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Kangaroo network scanner</Title>
-    <VersionPrefix>0.2.1</VersionPrefix>
     <Description>The kangaroo scanner is a network scanner designed to operate within a C# dotnet application.  The kangaroo scanner allows you to query network endpoints and operate common tasks against them.</Description>
     <PackageProjectUrl>https://github.com/ewilliams0305/kangaroo</PackageProjectUrl>
     <PackageIcon>kangaroo-logo.png</PackageIcon>
