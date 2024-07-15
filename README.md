@@ -7,6 +7,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/ewilliams0305/kangaroo?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ewilliams0305/kangaroo?style=social)
 [![DOTNET TEST](https://github.com/ewilliams0305/kangaroo/actions/workflows/dotnet-test.yml/badge.svg)](https://github.com/ewilliams0305/kangaroo/actions/workflows/dotnet-test.yml)
+[![PUBLISH RELEASE](https://github.com/ewilliams0305/kangaroo/actions/workflows/dotnet-release.yml/badge.svg)](https://github.com/ewilliams0305/kangaroo/actions/workflows/dotnet-release.yml)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/ewilliams0305/kangaroo/main)
 
 *"Kangaroos have large, powerful hind legs, large feet adapted for leaping"*
