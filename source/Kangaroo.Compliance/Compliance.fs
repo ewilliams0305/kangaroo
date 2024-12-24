@@ -5,12 +5,12 @@ open Kangaroo
 
 type ComplianceCheck =
     | NumberOfAliveDevicesMatch
-    | ElapsedTimeWithinThreashold
+    | ElapsedTimeWithinThreshold
     | IpAddressesMatch
 
 type ComplianceError =
     | NumberOfAliveDevicesDontMatch
-    | ElapsedTimeExceededThreashold
+    | ElapsedTimeExceededThreshold
     | IpAddressesDontMatch
 
 
@@ -46,10 +46,10 @@ module Checks =
     let internal checkElapsedTime (compliance: TimeSpan, scanned: TimeSpan, threashold: TimeSpan) =
         let difference = scanned - compliance
         match difference with 
-        | d when d < threashold -> Ok ElapsedTimeWithinThreashold
-        | _ -> Error ElapsedTimeExceededThreashold
+        | d when d < threashold -> Ok ElapsedTimeWithinThreshold
+        | _ -> Error ElapsedTimeExceededThreshold
 
-    let private checkIpAddressesAginstScanned (compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
+    let private checkIpAddressesAgainstScanned (compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
         let ips = scanned |> List.map (fun item -> item.IpAddress)
         compliance
         |> List.filter (fun node -> node.Alive)
@@ -59,7 +59,7 @@ module Checks =
             | [] -> Ok IpAddressesMatch 
             | _ -> Error IpAddressesDontMatch         
             
-    let private checkIpAddressesAginstCompliance (compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
+    let private checkIpAddressesAgainstCompliance (compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
         let ips = compliance |> List.map (fun item -> item.IpAddress)
         scanned
         |> List.filter (fun node -> node.Alive)
@@ -70,11 +70,11 @@ module Checks =
             | _ -> Error IpAddressesDontMatch
                 
     let internal checkIpAddresses(compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
-        let result = checkIpAddressesAginstScanned (compliance, scanned)
+        let result = checkIpAddressesAgainstScanned (compliance, scanned)
         match result with 
         | Ok matched -> 
             match matched with 
-            | IpAddressesMatch -> checkIpAddressesAginstCompliance(compliance, scanned)
+            | IpAddressesMatch -> checkIpAddressesAgainstCompliance(compliance, scanned)
             | _ -> Error IpAddressesDontMatch
         | Error mismatch -> Error mismatch
             
