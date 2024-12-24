@@ -65,7 +65,7 @@ module ``Check IP addresses are matched tests`` =
         match res with 
         | Ok ok -> 
             match ok with 
-            | ElapsedTimeWithinThreashold -> Assert.True(false)
+            | ElapsedTimeWithinThreshold -> Assert.True(false)
             | NumberOfAliveDevicesMatch -> Assert.True(false)
             | IpAddressesMatch -> Assert.True(true)
         | Error err -> Assert.True(false)
@@ -80,7 +80,7 @@ module ``Check IP addresses are matched tests`` =
         | Error err ->
             match err with 
             | NumberOfAliveDevicesDontMatch -> Assert.True(false)
-            | ElapsedTimeExceededThreashold -> Assert.True(false)
+            | ElapsedTimeExceededThreshold -> Assert.True(false)
             | IpAddressesDontMatch -> Assert.True(true)
             | _ -> Assert.True(false)
        

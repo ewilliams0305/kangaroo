@@ -48,7 +48,7 @@ module ``Check elapsed scan time tests`` =
         match res with 
         | Ok ok -> 
             match ok with 
-            | ElapsedTimeWithinThreashold -> Assert.True(true)
+            | ElapsedTimeWithinThreshold -> Assert.True(true)
             | NumberOfAliveDevicesMatch -> Assert.True(false)
             | IpAddressesMatch -> Assert.True(false)
         | Error err -> Assert.True(false)
@@ -63,7 +63,7 @@ module ``Check elapsed scan time tests`` =
         | Error err ->
             match err with 
             | NumberOfAliveDevicesDontMatch -> Assert.True(false)
-            | ElapsedTimeExceededThreashold -> Assert.True(true)
+            | ElapsedTimeExceededThreshold -> Assert.True(true)
             | IpAddressesDontMatch -> Assert.True(false)
             | _ -> Assert.True(false)
        

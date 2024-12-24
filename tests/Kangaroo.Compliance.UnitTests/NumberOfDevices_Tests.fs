@@ -24,7 +24,7 @@ module ``Check number of alive devices tests`` =
         | Ok ok -> 
             match ok with 
             | NumberOfAliveDevicesMatch -> Assert.True(true)
-            | ElapsedTimeWithinThreashold -> Assert.True(false)
+            | ElapsedTimeWithinThreshold -> Assert.True(false)
             | IpAddressesMatch -> Assert.True(false)
         | Error err -> Assert.True(false)
           
@@ -61,7 +61,7 @@ module ``Check number of alive devices tests`` =
         | Error err -> 
             match err with 
             | NumberOfAliveDevicesDontMatch -> Assert.True(true)
-            | ElapsedTimeExceededThreashold -> Assert.True(false)
+            | ElapsedTimeExceededThreshold -> Assert.True(false)
             | IpAddressesDontMatch -> Assert.True(false)
             | _ -> Assert.True(false)
 
