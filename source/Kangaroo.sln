@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo.CLI", "Kangaroo.CL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kangaroo", "Kangaroo\Kangaroo.csproj", "{1906C3C6-8944-4C2C-8D29-379DFF9BA892}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{657FBE6A-5E1B-4E5B-93C6-DB4CC457ABC5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sln", "sln", "{657FBE6A-5E1B-4E5B-93C6-DB4CC457ABC5}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		..\README.md = ..\README.md
@@ -22,6 +22,10 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Kangaroo.Compliance", "Kangaroo.Compliance\Kangaroo.Compliance.fsproj", "{A3B43A81-01DD-430A-ACF7-CF086B828F3F}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Kangaroo.Compliance.UnitTests", "..\tests\Kangaroo.Compliance.UnitTests\Kangaroo.Compliance.UnitTests.fsproj", "{D7E67A33-A0A8-4272-A217-ECE9308C63FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{70273541-D9A6-4143-B200-4752A8F554DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{51D77D85-D4DA-4836-BC98-161F5ADBB63D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,5 +67,14 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A7416D0-2ADE-49C1-A786-11EA717B21C7}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C6E8196D-D68B-40B7-A85F-8711E71D65A6} = {51D77D85-D4DA-4836-BC98-161F5ADBB63D}
+		{D7E67A33-A0A8-4272-A217-ECE9308C63FB} = {51D77D85-D4DA-4836-BC98-161F5ADBB63D}
+		{1906C3C6-8944-4C2C-8D29-379DFF9BA892} = {70273541-D9A6-4143-B200-4752A8F554DD}
+		{27A6FE08-C138-4397-AD34-F3877A808BA5} = {70273541-D9A6-4143-B200-4752A8F554DD}
+		{A3B43A81-01DD-430A-ACF7-CF086B828F3F} = {70273541-D9A6-4143-B200-4752A8F554DD}
+		{8830416D-3365-4342-A9D6-CC1141054782} = {70273541-D9A6-4143-B200-4752A8F554DD}
+		{733B4EC1-632B-4D6B-AD21-F90ABF12A1F6} = {70273541-D9A6-4143-B200-4752A8F554DD}
 	EndGlobalSection
 EndGlobal
