@@ -14,6 +14,9 @@
     <Compile Include="ElapsedTime_Tests.fs" />
     <Compile Include="NumberOfDevices_Tests.fs" />
     <Compile Include="Node_MacAddress_Tests.fs" />
+    <Compile Include="Node_WebServer_Tests.fs" />
+    <Compile Include="Node_Latency_Tests.fs" />
+    <Compile Include="Node_QueryTime_Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

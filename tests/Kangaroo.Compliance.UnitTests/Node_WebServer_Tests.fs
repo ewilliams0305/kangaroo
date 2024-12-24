@@ -6,12 +6,12 @@ open Xunit
 open Kangaroo
 open Kangaroo.Compliance
 
-module ``Check network node for compliant Hostname`` = 
+module ``Check network node for compliant WebServer Name`` = 
     let node1 = new NetworkNode(
         IPAddress.Any,
         new MacAddress("00:AA:BB:CC:00:01"),
-        "kangaroo_rules",
         null,
+        "node.kangaroo",
         TimeSpan.FromMilliseconds(200),
         TimeSpan.FromMilliseconds(200),
         true)
@@ -19,8 +19,8 @@ module ``Check network node for compliant Hostname`` =
     let node2 = new NetworkNode(
         IPAddress.Any,
         new MacAddress("AA:01:BB:CC:00:01"),
-        "kangaroo_jumps",
         null,
+        "apache.kangaroo",
         TimeSpan.FromMilliseconds(200),
         TimeSpan.FromMilliseconds(200),
         true)
@@ -28,29 +28,29 @@ module ``Check network node for compliant Hostname`` =
     let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
     
     [<Fact>]
-    let ``with equal Hostname Address Node is Compliant`` () =
+    let ``with equal WebServer Node is Compliant`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
-        match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName -> Assert.True(true)
-        | NodeHostnameCheck.Failure reason -> Assert.True(false)
+        match res.WebServer with 
+        | NodeWebServerCheck.Compliant server -> Assert.True(true)
+        | NodeWebServerCheck.Failure reason -> Assert.True(false)
            
     [<Fact>]
-    let ``with different Hostname Node is not Compliant`` () =
+    let ``with different WebServer Node is not Compliant`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node2, options)
-        match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName -> Assert.True(false)
-        | NodeHostnameCheck.Failure reason -> Assert.True(true)
+        match res.WebServer with 
+        | NodeWebServerCheck.Compliant server -> Assert.True(false)
+        | NodeWebServerCheck.Failure reason -> Assert.True(true)
        
     [<Fact>]
-    let ``with equal Hostname results contain Hostname`` () =
+    let ``with equal WebServer results contain MAC`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
-        match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName ->
-            match dnsName with
-            | (m) when m = "kangaroo_rules" -> Assert.True(true)
+        match res.WebServer with 
+        | NodeWebServerCheck.Compliant server ->
+            match server with
+            | (s) when s = "node.kangaroo" -> Assert.True(true)
             | _ -> Assert.True(false)
-        | NodeHostnameCheck.Failure reason -> Assert.True(false)
+        | NodeWebServerCheck.Failure reason -> Assert.True(false)
         
