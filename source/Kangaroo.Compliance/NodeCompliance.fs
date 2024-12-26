@@ -15,13 +15,22 @@ type NodeWebServerCheck =
     | Compliant of string
     | Failure of string
     
+type LatencyFailure =
+    | Slow
+    | None
+    | Invalid
+    
 type NodeLatencyCheck =
     | Compliant of TimeSpan
-    | Failure  of string
+    | Failure  of LatencyFailure
     
 type NodeQueryTime =
     | Compliant of TimeSpan
-    | Failure  of string
+    | Failure  of LatencyFailure
+    
+type NodeAlive =
+    | Compliant
+    | Failure
     
 type NodeComplianceRun = {
     Node: NetworkNode
@@ -29,7 +38,8 @@ type NodeComplianceRun = {
     DnsName: NodeHostnameCheck
     WebServer: NodeWebServerCheck
     Latency: NodeLatencyCheck    
-    QueryTime: NodeQueryTime    
+    QueryTime: NodeQueryTime
+    IsAlive: NodeAlive
 }
 
 type NodeComplianceConfiguration = {
@@ -58,22 +68,28 @@ module NodeChecks =
         | false -> NodeWebServerCheck.Failure "Webserver Type Does Not Match"
                
     let internal CheckLatency (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
-        match (scanned.Latency, compliance.Latency) with
-        | (x, y) when x.HasValue && y.HasValue -> 
-            match x.Value - y.Value with 
-            | (x) when x <= options.LatencyThreshold -> NodeLatencyCheck.Compliant scanned.Latency.Value
-            | (x) when x = TimeSpan.MinValue -> NodeLatencyCheck.Failure "The network returned a Zero latency"
-            | (x) when x > options.LatencyThreshold -> NodeLatencyCheck.Failure "The network node is too slow and out of spec"
-            | _ -> NodeLatencyCheck.Failure "Invalid Latency"
-        | (x, y) when x.HasValue -> NodeLatencyCheck.Compliant scanned.Latency.Value
-        | _ -> NodeLatencyCheck.Failure "Missing Compliance Value or Scanned Latency"
+        match (compliance.Latency, scanned.Latency) with
+        | (c, s) when c.HasValue && s.HasValue -> 
+            match (c.Value, s.Value) with
+            | (c, s) when s = TimeSpan.Zero -> NodeLatencyCheck.Failure LatencyFailure.None
+            | (c, s) when s - c <= options.LatencyThreshold -> NodeLatencyCheck.Compliant (s - c)
+            | (c, s) when s - c > options.LatencyThreshold -> NodeLatencyCheck.Failure LatencyFailure.Slow
+            | _ -> NodeLatencyCheck.Failure LatencyFailure.Invalid
+        | (c, s) when not c.HasValue && s.HasValue -> NodeLatencyCheck.Compliant scanned.Latency.Value
+        | _ -> NodeLatencyCheck.Failure LatencyFailure.None
                        
     let internal CheckQueryTime(compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
         match (compliance.QueryTime, scanned.QueryTime) with
-        | (x, y) when x - y <= options.LatencyThreshold -> NodeQueryTime.Compliant scanned.Latency.Value
-        | (x, y)  when x = TimeSpan.MinValue -> NodeQueryTime.Failure "The network returned a Zero latency"
-        | (x, y) when x > options.LatencyThreshold -> NodeQueryTime.Failure "The network node is too slow and out of spec"
-        | _ -> NodeQueryTime.Failure "Invalid Latency"
+        | (c, s) when s = TimeSpan.Zero -> NodeQueryTime.Failure  LatencyFailure.None
+        | (c, s) when s - c <= options.LatencyThreshold -> NodeQueryTime.Compliant scanned.Latency.Value
+        | (c, s) when s - c > options.LatencyThreshold -> NodeQueryTime.Failure  LatencyFailure.Slow
+        | _ -> NodeQueryTime.Failure LatencyFailure.Invalid
+        
+    let internal CheckAlive(compliance: NetworkNode, scanned: NetworkNode) =
+        match (compliance, scanned) with
+        | (x, y) when x.Alive && y.Alive -> NodeAlive.Compliant
+        | (x, y) when x.Alive && not y.Alive -> NodeAlive.Failure
+        | _ -> NodeAlive.Failure
         
     let public CheckNetworkNode (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
         {
@@ -83,4 +99,5 @@ module NodeChecks =
             WebServer = CheckWebServer(compliance, scanned)
             Latency = CheckLatency(compliance, scanned, options)    
             QueryTime = CheckQueryTime(compliance, scanned, options)
+            IsAlive = CheckAlive(compliance, scanned) 
         }
