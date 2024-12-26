@@ -19,7 +19,7 @@ module ``Check compliance on full scan results`` =
     [<Fact>]
     let ``with the identical data is ok`` () =
 
-        let res = Checks.CheckForCompliance (result1, result1)
+        let res = ScanChecks.CheckForCompliance (result1, result1)
         match res with 
         | Compliance.Compliant data -> Assert.True(true)
         | Compliance.Failure data -> Assert.True(false)

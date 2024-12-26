@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Compliance.fs" />
+    <Compile Include="ScanCompliance.fs" />
     <Compile Include="NodeCompliance.fs" />
   </ItemGroup>
 

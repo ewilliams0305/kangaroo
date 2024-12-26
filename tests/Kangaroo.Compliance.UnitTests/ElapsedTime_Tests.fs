@@ -11,7 +11,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with equal elapsed time is ok`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))
         match res with 
         | Ok ok -> Assert.True(true)
         | Error err -> Assert.True(false)
@@ -19,7 +19,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with greater elapsed time within threashold is ok`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1200), TimeSpan.FromMilliseconds(500))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(1200), TimeSpan.FromMilliseconds(500))
         match res with 
         | Ok ok -> Assert.True(true)
         | Error err -> Assert.True(false)
@@ -28,7 +28,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with lesser elapsed time is always ok`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(500))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(500))
         match res with 
         | Ok ok -> Assert.True(true)
         | Error err -> Assert.True(false)        
@@ -36,7 +36,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with greater elapsed time above threashold is error`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(11), TimeSpan.FromMilliseconds(500))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(11), TimeSpan.FromMilliseconds(500))
         match res with 
         | Ok ok -> Assert.True(false)
         | Error err -> Assert.True(true)
@@ -44,7 +44,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with compliant elapsed time is ElapsedTimeWithinThreashold`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1))
         match res with 
         | Ok ok -> 
             match ok with 
@@ -57,7 +57,7 @@ module ``Check elapsed scan time tests`` =
     [<Fact>]
     let ``with greater elapsed time above threashold is ElapsedTimeExceededThreashold`` () =
 
-        let res = Checks.checkElapsedTime (TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(11), TimeSpan.FromMilliseconds(500))
+        let res = ScanChecks.checkElapsedTime (TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(11), TimeSpan.FromMilliseconds(500))
         match res with 
         | Ok ok -> Assert.True(false)
         | Error err ->

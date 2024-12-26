@@ -35,7 +35,7 @@ type Compliance =
     | Failure of ComplianceFailure
 
 
-module Checks =
+module ScanChecks =
 
     let internal checkAliveDevices (compliance: AliveDevices, scanned: AliveDevices) =
         let itemsMatch = compliance = scanned
