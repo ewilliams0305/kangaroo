@@ -22,9 +22,9 @@ namespace Kangaroo.UI.ViewModels;
 
 public partial class IpScannerViewModel : ViewModelBase
 {
+    private CancellationTokenSource _cts;
     private IScanner? _scanner;
     private ScanConfiguration? _configuration;
-    private readonly IScannerFactory _factory;
     private readonly RecentScansRepository _recentScans;
 
     /// <summary>
@@ -32,13 +32,13 @@ public partial class IpScannerViewModel : ViewModelBase
     /// </summary>
     public IpScannerViewModel()
     {
-
+        _cts = new CancellationTokenSource();
     }
 
     public IpScannerViewModel(RecentScansRepository recentScans, IScannerFactory factory)
     {
+        _cts = new CancellationTokenSource();
         _recentScans = recentScans;
-        _factory = factory;
         factory.OnScannerCreated = scannerData =>
         {
             _scanner?.Dispose();
@@ -46,6 +46,7 @@ public partial class IpScannerViewModel : ViewModelBase
             _scanner = scannerData.scanner;
             _configuration = scannerData.configuration;
         };
+        
         LoadRecent().SafeFireAndForget();
     }
 
@@ -75,14 +76,14 @@ public partial class IpScannerViewModel : ViewModelBase
     {
         new PieSeries<int>
         {
-            Values = new int[] { 254 },
+            Values = [254],
             Name = "ADDRESSES SCANNED",
             DataLabelsFormatter = data => $"{data} NODES",
             Fill = new SolidColorPaint(new SKColor(239,68, 56))
         },
         new PieSeries<int>
         {
-            Values = new int[] { 0 },
+            Values = [0],
             Name = "ADDRESSES LOCATED",
             DataLabelsFormatter = data => $"{data} NODES",
             Fill = new SolidColorPaint(new SKColor(33,150, 243))
@@ -118,8 +119,6 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             new Axis { Name = "SECONDS", TextSize = 10, Labeler = d => $"{d / 1000:N2} sec." }
         };
-
-    private CancellationTokenSource _cts;
 
     [RelayCommand]
     public void StopScan()
@@ -196,28 +195,8 @@ public partial class IpScannerViewModel : ViewModelBase
         try
         {
             var results = await _scanner.QueryNetwork(_cts.Token);
-
-            //var compliance = Checks.CheckForCompliance(results, results);
-
-            //switch (compliance)
-            //{
-            //    case Compliance.Compliance.Compliant compliant:
-            //        foreach (var check in compliant.Item.Checks)
-            //        {
-            //            Console.WriteLine(check);
-            //        }
-            //        break;
-
-            //    case Compliance.Compliance.Failure failures:
-            //        foreach (var check in failures.Item.Errors)
-            //        {
-            //            Console.WriteLine(check);
-            //        }
-            //        break;
-            //}
-
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
-
+            
             await _recentScans.CreateAsync(
                 RecentScan.FromResults(results, _configuration, TimeProvider.System), _cts.Token);
 
@@ -295,5 +274,4 @@ public partial class IpScannerViewModel : ViewModelBase
         QueryStatistics[0].Values = queryTimes;
         IpAddressAxis[0].Labels = axisLabels;
     }
-
 }
