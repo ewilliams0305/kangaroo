@@ -60,23 +60,22 @@ type NodeComplianceData = {
 module NodeChecks =
    
     let internal CheckMacAddress (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
-        let itemsMatch = compliance.MacAddress = scanned.MacAddress
         match (compliance.MacAddress, scanned.MacAddress, options.UseStrictMacAddress) with 
         | (c, s, x) when x = false -> MacAddressCompliance.Compliant s
         | (c, s, x) when x = true && c = s -> MacAddressCompliance.Compliant s
         | _ -> MacAddressCompliance.Failure "Mac Addresses Do Not Match" 
        
-    let internal CheckHostname (compliance: NetworkNode, scanned: NetworkNode) =
-        let itemsMatch = compliance.HostName = scanned.HostName
-        match itemsMatch with 
-        | true -> HostnameCompliance.Compliant scanned.HostName
-        | false -> HostnameCompliance.Failure "DNS Names Do Not Match"        
+    let internal CheckHostname (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
+        match (compliance.HostName, scanned.HostName, options.UseStrictHostname) with 
+        | (c, s, x) when x = false -> HostnameCompliance.Compliant s
+        | (c, s, x) when x = true && c = s -> HostnameCompliance.Compliant s
+        | _ -> HostnameCompliance.Failure "DNS Names Do Not Match"
        
-    let internal CheckWebServer (compliance: NetworkNode, scanned: NetworkNode) =
-        let itemsMatch = compliance.WebServer = scanned.WebServer
-        match itemsMatch with 
-        | true -> WebServerCompliance.Compliant scanned.WebServer
-        | false -> WebServerCompliance.Failure "Webserver Type Does Not Match"
+    let internal CheckWebServer (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
+        match (compliance.WebServer, scanned.WebServer, options.UseStrictMacAddress) with 
+        | (c, s, x) when x = false -> WebServerCompliance.Compliant s
+        | (c, s, x) when x = true && c = s -> WebServerCompliance.Compliant s
+        | _ -> WebServerCompliance.Failure "Webserver Type Does Not Match"
                
     let internal CheckLatency (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         match (compliance.Latency, scanned.Latency) with
@@ -91,8 +90,8 @@ module NodeChecks =
                        
     let internal CheckQueryTime(compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         match (compliance.QueryTime, scanned.QueryTime) with
-        | (c, s) when s = TimeSpan.Zero -> QueryTimeCompliance.Failure  LatencyFailure.None
-        | (c, s) when s - c <= options.LatencyThreshold -> QueryTimeCompliance.Compliant scanned.Latency.Value
+        | (c, s) when s = TimeSpan.Zero -> QueryTimeCompliance.Failure LatencyFailure.None
+        | (c, s) when s - c <= options.LatencyThreshold -> QueryTimeCompliance.Compliant s
         | (c, s) when s - c > options.LatencyThreshold -> QueryTimeCompliance.Failure  LatencyFailure.Slow
         | _ -> QueryTimeCompliance.Failure LatencyFailure.Invalid
         
@@ -106,8 +105,8 @@ module NodeChecks =
         {
             Node = scanned;
             MacAddress = CheckMacAddress(compliance, scanned, options) 
-            DnsName = CheckHostname(compliance, scanned)
-            WebServer = CheckWebServer(compliance, scanned)
+            DnsName = CheckHostname(compliance, scanned, options)
+            WebServer = CheckWebServer(compliance, scanned, options)
             Latency = CheckLatency(compliance, scanned, options)    
             QueryTime = CheckQueryTime(compliance, scanned, options)
             IsAlive = CheckAlive(compliance, scanned) 

@@ -1,4 +1,4 @@
-namespace Kangaroo.Compliance
+namespace Kangaroo.Compliance.Node_Checks
 
 open System
 open System.Net

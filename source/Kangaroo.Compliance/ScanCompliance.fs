@@ -37,7 +37,6 @@ type Compliance =
     | Compliant of ComplianceSuccess 
     | Failure of ComplianceFailure
 
-
 module ScanChecks =
 
     let internal checkAliveDevices (compliance: AliveDevices, scanned: AliveDevices) =
@@ -82,7 +81,7 @@ module ScanChecks =
         | Error mismatch -> Error mismatch
     
     let internal findMatchingNode(ipAddress: IPAddress, nodes: list<NetworkNode>) =
-        match nodes |> List.tryFind(fun n -> n.IpAddress = IPAddress.Any ) with
+        match nodes |> List.tryFind(fun n -> n.IpAddress = ipAddress ) with
         | Option.Some node -> Ok node
         | Option.None -> Error IpAddressNotFound
        
@@ -106,5 +105,4 @@ module ScanChecks =
             TimeBetweenScans = compliance.ElapsedTime - scanned.ElapsedTime
             Checks = success |> List.map (function | Ok check -> check | _ -> failwith "Unexpected pattern")
             Errors = failure |> List.map (function | Error err -> err | _ -> failwith "Unexpected pattern")
-            Nodes = checkNetworkNodes(Seq.toList compliance.Nodes, Seq.toList scanned.Nodes, options.NodeOptions)
-            }
+            Nodes = checkNetworkNodes(Seq.toList compliance.Nodes, Seq.toList scanned.Nodes, options.NodeOptions)}

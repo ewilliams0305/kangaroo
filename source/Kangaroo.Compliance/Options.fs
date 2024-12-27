@@ -18,26 +18,26 @@ type ComplianceOptions = {
 
 module Options =
    
-    let internal CreateDefaultNodeOptions() =
+    let CreateDefaultNodeOptions() =
         { LatencyThreshold = TimeSpan.FromSeconds(1)
           QueryThreshold = TimeSpan.FromSeconds(1)
           UseStrictMacAddress = true
           UseStrictHostname = true
           UseStrictWebServers = true }
         
-    let internal CreateNodeOptionsWithLatency(latency: TimeSpan) =
+    let CreateNodeOptionsWithLatency(latency: TimeSpan) =
         { LatencyThreshold = latency
           QueryThreshold = latency
           UseStrictMacAddress = true
           UseStrictHostname = true
           UseStrictWebServers = true }
         
-    let internal CreateDefaultOptions() =
+    let CreateDefaultOptions() =
         { TotalTimeThreshold = TimeSpan.FromSeconds(3)
           UseStrictNodes = true
           NodeOptions = CreateDefaultNodeOptions() }
         
-    let internal CreateOptionsWithLatency(totalScanTime: TimeSpan, nodeScanTime: TimeSpan) =
+    let CreateOptionsWithLatency(totalScanTime: TimeSpan, nodeScanTime: TimeSpan) =
         { TotalTimeThreshold = totalScanTime
           UseStrictNodes = true
           NodeOptions = CreateNodeOptionsWithLatency(nodeScanTime) }

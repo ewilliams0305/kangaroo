@@ -1,12 +1,10 @@
-namespace Kangaroo.Compliance
+namespace Kangaroo.Compliance.Scan_Checks
 
 open System
 open System.Net
+open Kangaroo.Compliance
 open Xunit
 open Kangaroo
-open Kangaroo.ComplianceChecks
-
-
 
 module ``Check IP addresses are matched tests`` = 
 
