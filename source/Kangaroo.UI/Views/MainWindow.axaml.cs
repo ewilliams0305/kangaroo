@@ -12,8 +12,5 @@ public partial class MainWindow : AppWindow
 
         TitleBar.ExtendsContentIntoTitleBar = true;
         TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
-
-
-        var provider = (IServiceProvider)this.FindResource(typeof(IServiceProvider));
     }
 }
