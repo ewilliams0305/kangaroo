@@ -1,6 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Kangaroo.UI.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kangaroo.UI.Views;
 

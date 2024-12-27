@@ -42,8 +42,8 @@ public partial class MainViewModel : ViewModelBase
     {
         new MenuItemTemplate(typeof(HomePageViewModel), "Dashboard", "IconHome", true),
         new MenuItemTemplate(typeof(IpScannerViewModel), "IP Scanner", "IconScan", true),
+        new MenuItemTemplate(typeof(ComplianceViewModel), "Compliance Testing", "IconClipboard", true),
         new MenuItemTemplate(typeof(PortScannerViewModel), "Port Scanner", "IconPort", true),
-        new MenuItemTemplate(typeof(PortScannerViewModel), "Compliance Testing", "IconClipboard", true),
         new MenuItemTemplate(typeof(ConfigurationViewModel), "Configuration", "IconSettings", true)
     };
 
