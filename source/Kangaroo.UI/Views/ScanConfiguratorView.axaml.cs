@@ -8,6 +8,6 @@ public partial class ScanConfiguratorView : UserControl
     public ScanConfiguratorView()
     {
         InitializeComponent();
-        DataContext = App.Services.GetRequiredService<ViewModels.ScanConfiguratorViewModel>();
+        DataContext = App.Services?.GetRequiredService<ViewModels.ScanConfiguratorViewModel>();
     }
 }
