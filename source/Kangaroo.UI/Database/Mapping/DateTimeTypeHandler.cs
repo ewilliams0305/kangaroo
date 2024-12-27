@@ -2,7 +2,7 @@
 using System.Data;
 using Dapper;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 public class DateTimeTypeHandler : SqlMapper.TypeHandler<DateTime>
 {

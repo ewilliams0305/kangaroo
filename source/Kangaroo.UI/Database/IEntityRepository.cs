@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 /// <summary>
 /// Reads and writes entities in a database

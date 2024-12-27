@@ -2,7 +2,7 @@
 using System.Data;
 using Dapper;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 /// <summary>
 /// Facilitates the conversion from the GUID to a string and back. 

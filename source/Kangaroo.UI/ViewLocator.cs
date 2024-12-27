@@ -3,12 +3,12 @@ using Avalonia.Controls.Templates;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Kangaroo.UI.ViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.UI;
 
 public sealed class ViewLocator: IDataTemplate
 {
-
     public Control? Build(object? data)
     {
         if (data == null)
@@ -37,12 +37,10 @@ public sealed class ViewLocator: IDataTemplate
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            var logger = App.Services!.GetRequiredService<ILogger<ViewLocator>>();
+            logger.LogError(e, "Failed to find view from the Service Container");
             throw;
         }
-
-        
-
     }
 
     public bool Match(object? data)

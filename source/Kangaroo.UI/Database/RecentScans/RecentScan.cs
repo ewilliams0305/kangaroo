@@ -3,7 +3,7 @@ using System.Net;
 using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 public sealed class RecentScan
 {
@@ -17,6 +17,8 @@ public sealed class RecentScan
     public DateTime CreatedDateTime { get; set; }
     public TimeSpan ElapsedTime { get; set; }
     public int OnlineDevices { get; set; }
+    
+    public ScanResults? Result { get; set; }
 
     public static RecentScan FromResults(ScanResults? results, ScanConfiguration? config, TimeProvider time) =>
         results == null
@@ -29,7 +31,8 @@ public sealed class RecentScan
                 EndAddress = results.EndAddress.ToString(),
                 CreatedDateTime = time.GetLocalNow().DateTime,
                 ElapsedTime = results.ElapsedTime,
-                OnlineDevices = results.NumberOfAliveNodes
+                OnlineDevices = results.NumberOfAliveNodes,
+                Result = results
             };
     
 

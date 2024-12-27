@@ -1,10 +1,11 @@
 ﻿using System;
 using Kangaroo.UI.Controls;
-using Kangaroo.UI.Services.Database;
+using Kangaroo.UI.Database;
 using Kangaroo.UI.ViewModels;
 using Kangaroo.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ScanConfiguratorView = Kangaroo.UI.Views.ScanConfiguratorView;
 using ScanConfiguratorViewModel = Kangaroo.UI.ViewModels.ScanConfiguratorViewModel;
 
@@ -17,6 +18,12 @@ public static class ContainerExtensions
         var ops = new ServiceOptions();
         options?.Invoke(ops);
 
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+            logging.AddDebug();
+        });
+        
         return builder
             .AddDatabaseServices(ops)
             .AddScannerServices(ops)

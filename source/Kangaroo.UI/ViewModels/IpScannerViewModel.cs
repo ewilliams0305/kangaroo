@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
 using Kangaroo.UI.Services;
-using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -17,6 +16,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kangaroo.Compliance;
+using Kangaroo.UI.Database;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -124,7 +124,7 @@ public partial class IpScannerViewModel : ViewModelBase
     [RelayCommand]
     public void StopScan()
     {
-        if(!IsScanning)
+        if (!IsScanning)
         {
             return;
         }
@@ -140,7 +140,7 @@ public partial class IpScannerViewModel : ViewModelBase
         {
             return;
         }
-        
+
         if (_scanner == null)
         {
             IsScanning = false;
@@ -163,7 +163,7 @@ public partial class IpScannerViewModel : ViewModelBase
             {
                 counter++;
                 ScannedDeviceChart[1].Values = new int[] { counter };
-                ScannedDeviceChart[0].Values = new int[] { items - counter};
+                ScannedDeviceChart[0].Values = new int[] { items - counter };
 
                 AddInitialNetworkNode(node, queryTimes, latencyTimes, axisLabels);
             }
@@ -243,8 +243,8 @@ public partial class IpScannerViewModel : ViewModelBase
 
     private void AddInitialNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
     {
-        NetworkNodes.Insert(0,new NetworkNodeModel(node));
- 
+        NetworkNodes.Insert(0, new NetworkNodeModel(node));
+
         queryTimes.Add(node.QueryTime.TotalMilliseconds);
         latencyTimes.Add(node.Latency != null
             ? node.Latency!.Value.TotalMilliseconds

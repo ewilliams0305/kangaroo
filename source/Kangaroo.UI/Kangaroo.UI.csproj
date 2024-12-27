@@ -6,18 +6,15 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-
   
   <ItemGroup>
     <AvaloniaResource Remove="Assets\ButtonStyles.axaml" />
     <AvaloniaResource Remove="Assets\Icons.axaml" />
   </ItemGroup>
-
   
   <ItemGroup>
     <None Remove="Assets\kangaroo-header.png" />
@@ -36,6 +33,7 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.10" />
     <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="dbup-sqlite" Version="5.0.40" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.3" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc2" />
@@ -64,4 +62,9 @@
   <ItemGroup>
     <Folder Include="Converters\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Database\Scripts\*.sql" />
+  </ItemGroup>
+  
 </Project>
