@@ -41,8 +41,8 @@ module ``Check network node for compliant network Query Time`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options)
         match res.QueryTime with 
-        | NodeQueryTime.Compliant latency -> Assert.True(true)
-        | NodeQueryTime.Failure reason -> Assert.True(false)
+        | QueryTimeCompliance.Compliant latency -> Assert.True(true)
+        | QueryTimeCompliance.Failure reason -> Assert.True(false)
           
 
     [<Fact>]
@@ -50,8 +50,8 @@ module ``Check network node for compliant network Query Time`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, slowNode, options)
         match res.QueryTime with 
-        | NodeQueryTime.Compliant latency -> Assert.True(false)
-        | NodeQueryTime.Failure reason -> Assert.True(true)
+        | QueryTimeCompliance.Compliant latency -> Assert.True(false)
+        | QueryTimeCompliance.Failure reason -> Assert.True(true)
           
           
     [<Fact>]
@@ -59,6 +59,6 @@ module ``Check network node for compliant network Query Time`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, zeroNode, options)
         match res.QueryTime with 
-        | NodeQueryTime.Compliant latency -> Assert.True(false)
-        | NodeQueryTime.Failure reason -> Assert.True(true)
+        | QueryTimeCompliance.Compliant latency -> Assert.True(false)
+        | QueryTimeCompliance.Failure reason -> Assert.True(true)
           

@@ -32,25 +32,25 @@ module ``Check network node for compliant WebServer Name`` =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
         match res.WebServer with 
-        | NodeWebServerCheck.Compliant server -> Assert.True(true)
-        | NodeWebServerCheck.Failure reason -> Assert.True(false)
+        | WebServerCompliance.Compliant server -> Assert.True(true)
+        | WebServerCompliance.Failure reason -> Assert.True(false)
            
     [<Fact>]
     let ``with different WebServer Node is not Compliant`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node2, options)
         match res.WebServer with 
-        | NodeWebServerCheck.Compliant server -> Assert.True(false)
-        | NodeWebServerCheck.Failure reason -> Assert.True(true)
+        | WebServerCompliance.Compliant server -> Assert.True(false)
+        | WebServerCompliance.Failure reason -> Assert.True(true)
        
     [<Fact>]
     let ``with equal WebServer results contain MAC`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
         match res.WebServer with 
-        | NodeWebServerCheck.Compliant server ->
+        | WebServerCompliance.Compliant server ->
             match server with
             | (s) when s = "node.kangaroo" -> Assert.True(true)
             | _ -> Assert.True(false)
-        | NodeWebServerCheck.Failure reason -> Assert.True(false)
+        | WebServerCompliance.Failure reason -> Assert.True(false)
         

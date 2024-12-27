@@ -59,8 +59,8 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency -> Assert.True(true)
-        | NodeLatencyCheck.Failure reason -> Assert.True(false)
+        | LatencyCompliance.Compliant latency -> Assert.True(true)
+        | LatencyCompliance.Failure reason -> Assert.True(false)
           
 
     [<Fact>]
@@ -68,8 +68,8 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, withinNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency -> Assert.True(true)
-        | NodeLatencyCheck.Failure reason -> Assert.True(false)
+        | LatencyCompliance.Compliant latency -> Assert.True(true)
+        | LatencyCompliance.Failure reason -> Assert.True(false)
           
           
     [<Fact>]
@@ -77,16 +77,16 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, slowNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency -> Assert.True(false)
-        | NodeLatencyCheck.Failure reason -> Assert.True(true)
+        | LatencyCompliance.Compliant latency -> Assert.True(false)
+        | LatencyCompliance.Failure reason -> Assert.True(true)
           
           
     [<Fact>]
     let ``with zero latency is not Compliant`` () =
         let res = NodeChecks.CheckNetworkNode(baseNode, zeroNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency -> Assert.True(false)
-        | NodeLatencyCheck.Failure reason -> Assert.True(true)
+        | LatencyCompliance.Compliant latency -> Assert.True(false)
+        | LatencyCompliance.Failure reason -> Assert.True(true)
           
           
     [<Fact>]
@@ -94,15 +94,15 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, nullNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency -> Assert.True(false)
-        | NodeLatencyCheck.Failure reason -> Assert.True(true)
+        | LatencyCompliance.Compliant latency -> Assert.True(false)
+        | LatencyCompliance.Failure reason -> Assert.True(true)
           
     [<Fact>]
     let ``with equal Latency Node contains the difference`` () =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency when latency = TimeSpan.Zero -> Assert.True(true)
+        | LatencyCompliance.Compliant latency when latency = TimeSpan.Zero -> Assert.True(true)
         | _ -> Assert.True(false)
           
     [<Fact>]
@@ -110,7 +110,7 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, withinNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Compliant latency when latency = (withinNode.Latency.Value - baseNode.Latency.Value) -> Assert.True(true)
+        | LatencyCompliance.Compliant latency when latency = (withinNode.Latency.Value - baseNode.Latency.Value) -> Assert.True(true)
         | _ -> Assert.True(false)
           
           
@@ -119,7 +119,7 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, slowNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Failure reason when reason = LatencyFailure.Slow -> Assert.True(true)
+        | LatencyCompliance.Failure reason when reason = LatencyFailure.Slow -> Assert.True(true)
         | _ -> Assert.True(false)
           
           
@@ -127,7 +127,7 @@ module ``Check network node for compliant network Latency`` =
     let ``with zero latency is none failure`` () =
         let res = NodeChecks.CheckNetworkNode(baseNode, zeroNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Failure reason when reason = LatencyFailure.None -> Assert.True(true)
+        | LatencyCompliance.Failure reason when reason = LatencyFailure.None -> Assert.True(true)
         | _ -> Assert.True(false)
           
           
@@ -136,6 +136,6 @@ module ``Check network node for compliant network Latency`` =
 
         let res = NodeChecks.CheckNetworkNode(baseNode, nullNode, options)
         match res.Latency with 
-        | NodeLatencyCheck.Failure reason when reason = LatencyFailure.None -> Assert.True(true)
+        | LatencyCompliance.Failure reason when reason = LatencyFailure.None -> Assert.True(true)
         | _ -> Assert.True(false)
           

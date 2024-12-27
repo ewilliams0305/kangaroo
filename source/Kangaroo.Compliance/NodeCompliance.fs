@@ -3,15 +3,15 @@
 open System
 open Kangaroo
 
-type NodeMacAddressCheck =
+type MacAddressCompliance =
     | Compliant of MacAddress
     | Failure of string
     
-type NodeHostnameCheck =
+type HostnameCompliance =
     | Compliant of string
     | Failure of string
     
-type NodeWebServerCheck =
+type WebServerCompliance =
     | Compliant of string
     | Failure of string
     
@@ -20,27 +20,38 @@ type LatencyFailure =
     | None
     | Invalid
     
-type NodeLatencyCheck =
+type LatencyCompliance =
     | Compliant of TimeSpan
     | Failure  of LatencyFailure
     
-type NodeQueryTime =
+type QueryTimeCompliance =
     | Compliant of TimeSpan
     | Failure  of LatencyFailure
     
-type NodeAlive =
+type AliveCompliance =
     | Compliant
     | Failure
     
-type NodeComplianceRun = {
+type NodeComplianceData = {
     Node: NetworkNode
-    MacAddress: NodeMacAddressCheck
-    DnsName: NodeHostnameCheck
-    WebServer: NodeWebServerCheck
-    Latency: NodeLatencyCheck    
-    QueryTime: NodeQueryTime
-    IsAlive: NodeAlive
-}
+    MacAddress: MacAddressCompliance
+    DnsName: HostnameCompliance
+    WebServer: WebServerCompliance
+    Latency: LatencyCompliance    
+    QueryTime: QueryTimeCompliance
+    IsAlive: AliveCompliance
+} with
+    member this.IsCompliant =
+        match this with
+        | {
+            MacAddress = MacAddressCompliance.Compliant _;
+            DnsName = HostnameCompliance.Compliant _;
+            WebServer = WebServerCompliance.Compliant _;
+            Latency = LatencyCompliance.Compliant _;
+            QueryTime = QueryTimeCompliance.Compliant _;
+            IsAlive = AliveCompliance.Compliant;
+            } -> true
+        | _ -> false
 
 type NodeComplianceConfiguration = {
     LatencyThreshold: TimeSpan
@@ -52,44 +63,44 @@ module NodeChecks =
     let internal CheckMacAddress (compliance: NetworkNode, scanned: NetworkNode) =
         let itemsMatch = compliance.MacAddress = scanned.MacAddress
         match itemsMatch with 
-        | true -> NodeMacAddressCheck.Compliant scanned.MacAddress
-        | false -> NodeMacAddressCheck.Failure "Mac Addresses Do Not Match" 
+        | true -> MacAddressCompliance.Compliant scanned.MacAddress
+        | false -> MacAddressCompliance.Failure "Mac Addresses Do Not Match" 
        
     let internal CheckHostname (compliance: NetworkNode, scanned: NetworkNode) =
         let itemsMatch = compliance.HostName = scanned.HostName
         match itemsMatch with 
-        | true -> NodeHostnameCheck.Compliant scanned.HostName
-        | false -> NodeHostnameCheck.Failure "DNS Names Do Not Match"        
+        | true -> HostnameCompliance.Compliant scanned.HostName
+        | false -> HostnameCompliance.Failure "DNS Names Do Not Match"        
        
     let internal CheckWebServer (compliance: NetworkNode, scanned: NetworkNode) =
         let itemsMatch = compliance.WebServer = scanned.WebServer
         match itemsMatch with 
-        | true -> NodeWebServerCheck.Compliant scanned.WebServer
-        | false -> NodeWebServerCheck.Failure "Webserver Type Does Not Match"
+        | true -> WebServerCompliance.Compliant scanned.WebServer
+        | false -> WebServerCompliance.Failure "Webserver Type Does Not Match"
                
     let internal CheckLatency (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
         match (compliance.Latency, scanned.Latency) with
         | (c, s) when c.HasValue && s.HasValue -> 
             match (c.Value, s.Value) with
-            | (c, s) when s = TimeSpan.Zero -> NodeLatencyCheck.Failure LatencyFailure.None
-            | (c, s) when s - c <= options.LatencyThreshold -> NodeLatencyCheck.Compliant (s - c)
-            | (c, s) when s - c > options.LatencyThreshold -> NodeLatencyCheck.Failure LatencyFailure.Slow
-            | _ -> NodeLatencyCheck.Failure LatencyFailure.Invalid
-        | (c, s) when not c.HasValue && s.HasValue -> NodeLatencyCheck.Compliant scanned.Latency.Value
-        | _ -> NodeLatencyCheck.Failure LatencyFailure.None
+            | (c, s) when s = TimeSpan.Zero -> LatencyCompliance.Failure LatencyFailure.None
+            | (c, s) when s - c <= options.LatencyThreshold -> LatencyCompliance.Compliant (s - c)
+            | (c, s) when s - c > options.LatencyThreshold -> LatencyCompliance.Failure LatencyFailure.Slow
+            | _ -> LatencyCompliance.Failure LatencyFailure.Invalid
+        | (c, s) when not c.HasValue && s.HasValue -> LatencyCompliance.Compliant scanned.Latency.Value
+        | _ -> LatencyCompliance.Failure LatencyFailure.None
                        
     let internal CheckQueryTime(compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
         match (compliance.QueryTime, scanned.QueryTime) with
-        | (c, s) when s = TimeSpan.Zero -> NodeQueryTime.Failure  LatencyFailure.None
-        | (c, s) when s - c <= options.LatencyThreshold -> NodeQueryTime.Compliant scanned.Latency.Value
-        | (c, s) when s - c > options.LatencyThreshold -> NodeQueryTime.Failure  LatencyFailure.Slow
-        | _ -> NodeQueryTime.Failure LatencyFailure.Invalid
+        | (c, s) when s = TimeSpan.Zero -> QueryTimeCompliance.Failure  LatencyFailure.None
+        | (c, s) when s - c <= options.LatencyThreshold -> QueryTimeCompliance.Compliant scanned.Latency.Value
+        | (c, s) when s - c > options.LatencyThreshold -> QueryTimeCompliance.Failure  LatencyFailure.Slow
+        | _ -> QueryTimeCompliance.Failure LatencyFailure.Invalid
         
     let internal CheckAlive(compliance: NetworkNode, scanned: NetworkNode) =
         match (compliance, scanned) with
-        | (x, y) when x.Alive && y.Alive -> NodeAlive.Compliant
-        | (x, y) when x.Alive && not y.Alive -> NodeAlive.Failure
-        | _ -> NodeAlive.Failure
+        | (x, y) when x.Alive && y.Alive -> AliveCompliance.Compliant
+        | (x, y) when x.Alive && not y.Alive -> AliveCompliance.Failure
+        | _ -> AliveCompliance.Failure
         
     let public CheckNetworkNode (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
         {

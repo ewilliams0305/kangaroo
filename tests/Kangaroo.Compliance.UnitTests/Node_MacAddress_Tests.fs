@@ -32,25 +32,25 @@ module ``Check network node for compliant Hostname`` =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
         match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName -> Assert.True(true)
-        | NodeHostnameCheck.Failure reason -> Assert.True(false)
+        | HostnameCompliance.Compliant dnsName -> Assert.True(true)
+        | HostnameCompliance.Failure reason -> Assert.True(false)
            
     [<Fact>]
     let ``with different Hostname Node is not Compliant`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node2, options)
         match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName -> Assert.True(false)
-        | NodeHostnameCheck.Failure reason -> Assert.True(true)
+        | HostnameCompliance.Compliant dnsName -> Assert.True(false)
+        | HostnameCompliance.Failure reason -> Assert.True(true)
        
     [<Fact>]
     let ``with equal Hostname results contain Hostname`` () =
 
         let res = NodeChecks.CheckNetworkNode(node1, node1, options)
         match res.DnsName with 
-        | NodeHostnameCheck.Compliant dnsName ->
+        | HostnameCompliance.Compliant dnsName ->
             match dnsName with
             | (m) when m = "kangaroo_rules" -> Assert.True(true)
             | _ -> Assert.True(false)
-        | NodeHostnameCheck.Failure reason -> Assert.True(false)
+        | HostnameCompliance.Failure reason -> Assert.True(false)
         

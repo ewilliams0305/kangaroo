@@ -1,6 +1,7 @@
 ﻿namespace Kangaroo.Compliance
 
 open System
+open System.Net
 open Kangaroo
 
 type ComplianceCheck =
@@ -19,7 +20,7 @@ type ComplianceSuccess = {
     TimeBetweenScans: TimeSpan
     Checks: list<ComplianceCheck> 
     Errors: list<ComplianceError>
-    Nodes: list<Result<NodeComplianceRun, ComplianceError>>
+    Nodes: list<Result<NodeComplianceData, ComplianceError>>
 }
 
 type ComplianceFailure = {
@@ -27,7 +28,7 @@ type ComplianceFailure = {
     TimeBetweenScans: TimeSpan
     Checks: list<ComplianceCheck> 
     Errors: list<ComplianceError>
-    Nodes: list<NodeComplianceRun>
+    Nodes: list<NodeComplianceData>
 }
 
 type AliveDevices = int 
@@ -79,16 +80,20 @@ module ScanChecks =
             | IpAddressesMatch -> checkIpAddressesAgainstCompliance(compliance, scanned)
             | _ -> Error IpAddressesDontMatch
         | Error mismatch -> Error mismatch
-            
+    
+    let internal findMatchingNode(ipAddress: IPAddress, nodes: list<NetworkNode>) =
+        match nodes |> List.tryFind(fun n -> n.IpAddress = IPAddress.Any ) with
+        | Option.Some node -> Ok node
+        | Option.None -> Error IpAddressNotFound
+       
     let internal checkNetworkNodes(compliance: list<NetworkNode>, scanned: list<NetworkNode>, options: NodeComplianceConfiguration) = 
         compliance
         |> List.map (fun node ->
-            match scanned |> List.tryFind(fun n -> n.IpAddress = node.IpAddress) with 
-            | Some scannedNode -> Ok (NodeChecks.CheckNetworkNode(node, scannedNode, options))
-            | None -> Error IpAddressNotFound )
-        
+            match findMatchingNode(node.IpAddress, scanned) with 
+            | Ok scannedNode -> Ok (NodeChecks.CheckNetworkNode(node, scannedNode, options))
+            | Error error -> Error error) 
                
-    let CheckForCompliance (compliance: ScanResults, scanned: ScanResults) =
+    let CheckForCompliance (compliance: ScanResults, scanned: ScanResults, options: NodeComplianceConfiguration) =
         let checks = [
             checkAliveDevices(compliance.NumberOfAliveNodes, scanned.NumberOfAliveNodes); 
             checkElapsedTime(compliance.ElapsedTime, scanned.ElapsedTime, TimeSpan.FromMilliseconds(5000));
@@ -101,6 +106,7 @@ module ScanChecks =
             TimeBetweenScans = compliance.ElapsedTime - scanned.ElapsedTime
             Checks = success |> List.map (function | Ok check -> check | _ -> failwith "Unexpected pattern")
             Errors = failure |> List.map (function | Error err -> err | _ -> failwith "Unexpected pattern")
-            Nodes = checkNetworkNodes(compliance.Nodes, scanned.Nodes)}
+            Nodes = checkNetworkNodes(Seq.toList compliance.Nodes, Seq.toList scanned.Nodes, options)
+            }
         
         result

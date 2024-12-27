@@ -17,6 +17,7 @@
     <Compile Include="Node_WebServer_Tests.fs" />
     <Compile Include="Node_Latency_Tests.fs" />
     <Compile Include="Node_QueryTime_Tests.fs" />
+    <Compile Include="Node_IsCompliant_Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
