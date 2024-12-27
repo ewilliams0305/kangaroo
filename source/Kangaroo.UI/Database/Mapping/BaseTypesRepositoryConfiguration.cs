@@ -1,7 +1,7 @@
 ﻿using System;
 using Dapper;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 public sealed class BaseTypesRepositoryConfiguration : IConfigureRepository
 {
