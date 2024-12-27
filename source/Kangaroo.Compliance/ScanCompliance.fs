@@ -86,14 +86,14 @@ module ScanChecks =
         | Option.Some node -> Ok node
         | Option.None -> Error IpAddressNotFound
        
-    let internal checkNetworkNodes(compliance: list<NetworkNode>, scanned: list<NetworkNode>, options: NodeComplianceConfiguration) = 
+    let internal checkNetworkNodes(compliance: list<NetworkNode>, scanned: list<NetworkNode>, options: NodeComplianceOptions) = 
         compliance
         |> List.map (fun node ->
             match findMatchingNode(node.IpAddress, scanned) with 
             | Ok scannedNode -> Ok (NodeChecks.CheckNetworkNode(node, scannedNode, options))
             | Error error -> Error error) 
                
-    let CheckForCompliance (compliance: ScanResults, scanned: ScanResults, options: NodeComplianceConfiguration) =
+    let CheckForCompliance (compliance: ScanResults, scanned: ScanResults, options: ComplianceOptions) =
         let checks = [
             checkAliveDevices(compliance.NumberOfAliveNodes, scanned.NumberOfAliveNodes); 
             checkElapsedTime(compliance.ElapsedTime, scanned.ElapsedTime, TimeSpan.FromMilliseconds(5000));
@@ -101,12 +101,10 @@ module ScanChecks =
         
         let success, failure = checks |> List.partition(function | Ok _ -> true | Error _ -> false)
 
-        let result = Compliant { 
+        Compliant { 
             CheckDataTime = DateTime.Now
             TimeBetweenScans = compliance.ElapsedTime - scanned.ElapsedTime
             Checks = success |> List.map (function | Ok check -> check | _ -> failwith "Unexpected pattern")
             Errors = failure |> List.map (function | Error err -> err | _ -> failwith "Unexpected pattern")
-            Nodes = checkNetworkNodes(Seq.toList compliance.Nodes, Seq.toList scanned.Nodes, options)
+            Nodes = checkNetworkNodes(Seq.toList compliance.Nodes, Seq.toList scanned.Nodes, options.NodeOptions)
             }
-        
-        result

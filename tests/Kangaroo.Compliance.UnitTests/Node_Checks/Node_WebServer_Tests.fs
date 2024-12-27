@@ -25,12 +25,12 @@ module ``Check network node for compliant WebServer Name`` =
         TimeSpan.FromMilliseconds(200),
         true)
     
-    let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
+    let options = Options.CreateOptionsWithLatency(TimeSpan.FromMilliseconds(12), TimeSpan.FromMilliseconds(12))
     
     [<Fact>]
     let ``with equal WebServer Node is Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node1, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node1, options.NodeOptions)
         match res.WebServer with 
         | WebServerCompliance.Compliant server -> Assert.True(true)
         | WebServerCompliance.Failure reason -> Assert.True(false)
@@ -38,7 +38,7 @@ module ``Check network node for compliant WebServer Name`` =
     [<Fact>]
     let ``with different WebServer Node is not Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node2, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node2, options.NodeOptions)
         match res.WebServer with 
         | WebServerCompliance.Compliant server -> Assert.True(false)
         | WebServerCompliance.Failure reason -> Assert.True(true)
@@ -46,7 +46,7 @@ module ``Check network node for compliant WebServer Name`` =
     [<Fact>]
     let ``with equal WebServer results contain MAC`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node1, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node1, options.NodeOptions)
         match res.WebServer with 
         | WebServerCompliance.Compliant server ->
             match server with

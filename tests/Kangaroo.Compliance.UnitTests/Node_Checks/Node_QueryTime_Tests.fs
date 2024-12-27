@@ -34,12 +34,12 @@ module ``Check network node for compliant network Query Time`` =
         TimeSpan.FromMilliseconds(0),
         true)
     
-    let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
+    let options = Options.CreateOptionsWithLatency(TimeSpan.FromMilliseconds(12), TimeSpan.FromMilliseconds(12))
     
     [<Fact>]
     let ``with equal QueryTime Node is Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options)
+        let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options.NodeOptions)
         match res.QueryTime with 
         | QueryTimeCompliance.Compliant latency -> Assert.True(true)
         | QueryTimeCompliance.Failure reason -> Assert.True(false)
@@ -48,7 +48,7 @@ module ``Check network node for compliant network Query Time`` =
     [<Fact>]
     let ``with latency slower than threshold is not Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(baseNode, slowNode, options)
+        let res = NodeChecks.CheckNetworkNode(baseNode, slowNode, options.NodeOptions)
         match res.QueryTime with 
         | QueryTimeCompliance.Compliant latency -> Assert.True(false)
         | QueryTimeCompliance.Failure reason -> Assert.True(true)
@@ -57,7 +57,7 @@ module ``Check network node for compliant network Query Time`` =
     [<Fact>]
     let ``with latency zero is not Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(baseNode, zeroNode, options)
+        let res = NodeChecks.CheckNetworkNode(baseNode, zeroNode, options.NodeOptions)
         match res.QueryTime with 
         | QueryTimeCompliance.Compliant latency -> Assert.True(false)
         | QueryTimeCompliance.Failure reason -> Assert.True(true)

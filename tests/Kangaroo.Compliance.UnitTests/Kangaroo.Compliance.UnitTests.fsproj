@@ -9,15 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ComplianceChecks_Tests.fs" />
-    <Compile Include="IpAddressesMatch_Tests.fs" />
-    <Compile Include="ElapsedTime_Tests.fs" />
-    <Compile Include="NumberOfDevices_Tests.fs" />
-    <Compile Include="Node_MacAddress_Tests.fs" />
-    <Compile Include="Node_WebServer_Tests.fs" />
-    <Compile Include="Node_Latency_Tests.fs" />
-    <Compile Include="Node_QueryTime_Tests.fs" />
-    <Compile Include="Node_IsCompliant_Tests.fs" />
+    <Compile Include="Node_Checks\Node_MacAddress_Tests.fs" />
+    <Compile Include="Node_Checks\Node_WebServer_Tests.fs" />
+    <Compile Include="Node_Checks\Node_Latency_Tests.fs" />
+    <Compile Include="Node_Checks\Node_QueryTime_Tests.fs" />
+    <Compile Include="Node_Checks\Node_IsCompliant_Tests.fs" />
+    <Compile Include="Scan_Checks\ComplianceChecks_Tests.fs" />
+    <Compile Include="Scan_Checks\IpAddressesMatch_Tests.fs" />
+    <Compile Include="Scan_Checks\ElapsedTime_Tests.fs" />
+    <Compile Include="Scan_Checks\NumberOfDevices_Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -19,8 +19,7 @@ module ``Check compliance on full scan results`` =
     [<Fact>]
     let ``with the identical data is ok`` () =
 
-        let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
-        let res = ScanChecks.CheckForCompliance (result1, result1, options)
+        let res = ScanChecks.CheckForCompliance (result1, result1, Options.CreateDefaultOptions())
         match res with 
         | Compliance.Compliant data -> Assert.True(true)
         | Compliance.Failure data -> Assert.True(false)

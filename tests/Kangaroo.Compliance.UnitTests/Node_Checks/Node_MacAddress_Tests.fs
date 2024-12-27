@@ -25,12 +25,12 @@ module ``Check network node for compliant Hostname`` =
         TimeSpan.FromMilliseconds(200),
         true)
     
-    let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
+    let options = Options.CreateOptionsWithLatency(TimeSpan.FromMilliseconds(12), TimeSpan.FromMilliseconds(12))
     
     [<Fact>]
     let ``with equal Hostname Address Node is Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node1, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node1, options.NodeOptions)
         match res.DnsName with 
         | HostnameCompliance.Compliant dnsName -> Assert.True(true)
         | HostnameCompliance.Failure reason -> Assert.True(false)
@@ -38,7 +38,7 @@ module ``Check network node for compliant Hostname`` =
     [<Fact>]
     let ``with different Hostname Node is not Compliant`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node2, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node2, options.NodeOptions)
         match res.DnsName with 
         | HostnameCompliance.Compliant dnsName -> Assert.True(false)
         | HostnameCompliance.Failure reason -> Assert.True(true)
@@ -46,7 +46,7 @@ module ``Check network node for compliant Hostname`` =
     [<Fact>]
     let ``with equal Hostname results contain Hostname`` () =
 
-        let res = NodeChecks.CheckNetworkNode(node1, node1, options)
+        let res = NodeChecks.CheckNetworkNode(node1, node1, options.NodeOptions)
         match res.DnsName with 
         | HostnameCompliance.Compliant dnsName ->
             match dnsName with

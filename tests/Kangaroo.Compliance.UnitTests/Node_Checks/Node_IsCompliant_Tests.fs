@@ -16,15 +16,15 @@ module ``Check network node for compliant properties`` =
         TimeSpan.FromMilliseconds(200),
         true)
     
-    let options = { LatencyThreshold = TimeSpan.FromMilliseconds(12); QueryThreshold = TimeSpan.FromMilliseconds(12); }
+    let options = Options.CreateOptionsWithLatency(TimeSpan.FromMilliseconds(12), TimeSpan.FromMilliseconds(12))
     
     [<Fact>]
     let ``with Compliant test is Compliant should be true`` () =
 
-        let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options)
+        let res = NodeChecks.CheckNetworkNode(baseNode, baseNode, options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(true)
-        | false -> Assert.True(false)
+        | IsCompliant.Compliant -> Assert.True(true)
+        | IsCompliant.Failure  -> Assert.True(false)
         
     [<Fact>]
     let ``with dead node is Compliant should be false`` () =
@@ -39,10 +39,10 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(200),
                 TimeSpan.FromMilliseconds(200),
                 false),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
          
                  
     [<Fact>]
@@ -58,10 +58,10 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(200),
                 TimeSpan.FromMilliseconds(200),
                 true),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
         
     [<Fact>]
     let ``with different hostname node is Compliant should be false`` () =
@@ -76,10 +76,10 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(200),
                 TimeSpan.FromMilliseconds(200),
                 true),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
          
 
     [<Fact>]
@@ -95,10 +95,10 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(200),
                 TimeSpan.FromMilliseconds(200),
                 true),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
          
     [<Fact>]
     let ``with faulty latency node is Compliant should be false`` () =
@@ -113,10 +113,10 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(500),
                 TimeSpan.FromMilliseconds(200),
                 true),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
         
     [<Fact>]
     let ``with faulty query Time node is Compliant should be false`` () =
@@ -131,8 +131,8 @@ module ``Check network node for compliant properties`` =
                 TimeSpan.FromMilliseconds(200),
                 TimeSpan.FromMilliseconds(500),
                 true),
-            options)
+            options.NodeOptions)
         match res.IsCompliant with 
-        | true -> Assert.True(false)
-        | false -> Assert.True(true)
+        | IsCompliant.Compliant -> Assert.True(false)
+        | IsCompliant.Failure -> Assert.True(true)
          

@@ -3,6 +3,10 @@
 open System
 open Kangaroo
 
+type IsCompliant = 
+    | Compliant
+    | Failure
+
 type MacAddressCompliance =
     | Compliant of MacAddress
     | Failure of string
@@ -50,21 +54,17 @@ type NodeComplianceData = {
             Latency = LatencyCompliance.Compliant _;
             QueryTime = QueryTimeCompliance.Compliant _;
             IsAlive = AliveCompliance.Compliant;
-            } -> true
-        | _ -> false
-
-type NodeComplianceConfiguration = {
-    LatencyThreshold: TimeSpan
-    QueryThreshold: TimeSpan
-}
+            } -> IsCompliant.Compliant
+        | _ -> IsCompliant.Failure
 
 module NodeChecks =
-    
-    let internal CheckMacAddress (compliance: NetworkNode, scanned: NetworkNode) =
+   
+    let internal CheckMacAddress (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         let itemsMatch = compliance.MacAddress = scanned.MacAddress
-        match itemsMatch with 
-        | true -> MacAddressCompliance.Compliant scanned.MacAddress
-        | false -> MacAddressCompliance.Failure "Mac Addresses Do Not Match" 
+        match (compliance.MacAddress, scanned.MacAddress, options.UseStrictMacAddress) with 
+        | (c, s, x) when x = false -> MacAddressCompliance.Compliant s
+        | (c, s, x) when x = true && c = s -> MacAddressCompliance.Compliant s
+        | _ -> MacAddressCompliance.Failure "Mac Addresses Do Not Match" 
        
     let internal CheckHostname (compliance: NetworkNode, scanned: NetworkNode) =
         let itemsMatch = compliance.HostName = scanned.HostName
@@ -78,7 +78,7 @@ module NodeChecks =
         | true -> WebServerCompliance.Compliant scanned.WebServer
         | false -> WebServerCompliance.Failure "Webserver Type Does Not Match"
                
-    let internal CheckLatency (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
+    let internal CheckLatency (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         match (compliance.Latency, scanned.Latency) with
         | (c, s) when c.HasValue && s.HasValue -> 
             match (c.Value, s.Value) with
@@ -89,7 +89,7 @@ module NodeChecks =
         | (c, s) when not c.HasValue && s.HasValue -> LatencyCompliance.Compliant scanned.Latency.Value
         | _ -> LatencyCompliance.Failure LatencyFailure.None
                        
-    let internal CheckQueryTime(compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
+    let internal CheckQueryTime(compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         match (compliance.QueryTime, scanned.QueryTime) with
         | (c, s) when s = TimeSpan.Zero -> QueryTimeCompliance.Failure  LatencyFailure.None
         | (c, s) when s - c <= options.LatencyThreshold -> QueryTimeCompliance.Compliant scanned.Latency.Value
@@ -102,10 +102,10 @@ module NodeChecks =
         | (x, y) when x.Alive && not y.Alive -> AliveCompliance.Failure
         | _ -> AliveCompliance.Failure
         
-    let public CheckNetworkNode (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceConfiguration) =
+    let public CheckNetworkNode (compliance: NetworkNode, scanned: NetworkNode, options: NodeComplianceOptions) =
         {
             Node = scanned;
-            MacAddress = CheckMacAddress(compliance, scanned) 
+            MacAddress = CheckMacAddress(compliance, scanned, options) 
             DnsName = CheckHostname(compliance, scanned)
             WebServer = CheckWebServer(compliance, scanned)
             Latency = CheckLatency(compliance, scanned, options)    
