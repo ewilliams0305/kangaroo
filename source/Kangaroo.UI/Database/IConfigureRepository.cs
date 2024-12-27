@@ -1,4 +1,4 @@
-﻿namespace Kangaroo.UI.Services.Database;
+﻿namespace Kangaroo.UI.Database;
 
 /// <summary>
 /// Used to configure repositories.

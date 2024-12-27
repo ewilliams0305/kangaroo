@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Controls;
 using Kangaroo.UI.Models;
 using Kangaroo.UI.Services;
-using Kangaroo.UI.Services.Database;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -16,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Kangaroo.UI.Database;
 
 namespace Kangaroo.UI.ViewModels;
 

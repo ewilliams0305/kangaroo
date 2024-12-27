@@ -3,20 +3,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 public sealed class SqliteDbConnectionFactory : IDbConnectionFactory
 {
-    private readonly string _connection;
+    public string ConnectionString { get; }
 
     public SqliteDbConnectionFactory(string connection)
     {
-        _connection = connection;
+        ConnectionString = connection;
     }
 
     public async Task<IDbConnection> CreateConnectionAsync(CancellationToken token)
     {
-        var connection = new SqliteConnection(_connection);
+        var connection = new SqliteConnection(ConnectionString);
         await connection.OpenAsync(token);
         return connection;
     }

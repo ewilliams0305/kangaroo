@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
 /// <summary>
 /// Initialized the DB scheme and ensures all tables are created when the system starts.
