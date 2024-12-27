@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Text.Json;
 
-namespace Kangaroo.UI.Services.Database;
+namespace Kangaroo.UI.Database;
 
+// ReSharper disable once ClassNeverInstantiated.Global
+/// <summary>
+/// Executed by the static constructor in the <see cref="SqliteDbInitializer"/>
+/// </summary>
 internal class RecentScansConfiguration : IConfigureRepository
 {
     public bool Configure()

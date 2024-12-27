@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Kangaroo.UI.Services.Database;
 using Kangaroo.UI.ViewModels;
 using System.Collections.Generic;
+using Kangaroo.UI.Database;
 
 namespace Kangaroo.UI.Views;
 public partial class HomePageView : UserControl
