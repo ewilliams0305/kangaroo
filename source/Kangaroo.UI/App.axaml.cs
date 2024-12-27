@@ -5,8 +5,8 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Kangaroo.UI.Database;
 using Kangaroo.UI.Services;
-using Kangaroo.UI.Services.Database;
 using Kangaroo.UI.ViewModels;
 using Kangaroo.UI.Views;
 using LiveChartsCore;
@@ -36,8 +36,8 @@ public partial class App : Application
         var dbInitializer = app.Services.GetRequiredService<IDbInitializer>();
         dbInitializer.InitializeAsync().SafeFireAndForget(ex =>
         {
-            Console.WriteLine(ex);
-           // app.Services.GetRequiredService<ILogger>().LogError(ex, "Failed to initialize the database");
+            var logger = app.Services.GetRequiredService<ILogger<App>>();
+            logger.LogError(ex, "Failed to initialize the DB");
         });
 
         Services = app.Services;
