@@ -72,53 +72,52 @@ public partial class IpScannerViewModel : ViewModelBase
     private Vector _scrollPosition;
 
     [ObservableProperty]
-    private ObservableCollection<ISeries> _scannedDeviceChart = new()
-    {
+    private ObservableCollection<ISeries> _scannedDeviceChart =
+    [
         new PieSeries<int>
         {
             Values = [254],
             Name = "ADDRESSES SCANNED",
             DataLabelsFormatter = data => $"{data} NODES",
-            Fill = new SolidColorPaint(new SKColor(239,68, 56))
+            Fill = new SolidColorPaint(new SKColor(239, 68, 56))
         },
+
         new PieSeries<int>
         {
             Values = [0],
             Name = "ADDRESSES LOCATED",
             DataLabelsFormatter = data => $"{data} NODES",
-            Fill = new SolidColorPaint(new SKColor(33,150, 243))
-        },
-    };
+            Fill = new SolidColorPaint(new SKColor(33, 150, 243))
+        }
+    ];
 
     [ObservableProperty]
-    private ObservableCollection<ISeries> _latencyStatistics = new()
-        {
-            new LineSeries<double> { Values = new List<double> { 0 }}
-        };
+    private ObservableCollection<ISeries> _latencyStatistics =
+        [new LineSeries<double> { Values = new List<double> { 0 } }];
 
     [ObservableProperty]
-    private ObservableCollection<ISeries> _queryStatistics = new()
-        {
-            new ColumnSeries<double> { Values = new List<double> { 0 }},
-        };
+    private ObservableCollection<ISeries> _queryStatistics =
+    [
+        new ColumnSeries<double> { Values = new List<double> { 0 } }
+    ];
 
     [ObservableProperty]
-    private ObservableCollection<Axis> _ipAddressAxis = new()
-        {
-            new Axis { Name = "IP ADDRESS", LabelsRotation = 45, TextSize = 10, Labels = new string[] { }  }
-        };
+    private ObservableCollection<Axis> _ipAddressAxis =
+        [
+            new Axis { Name = "IP ADDRESS", LabelsRotation = 45, TextSize = 10, Labels = [] }
+        ];
 
     [ObservableProperty]
-    private ObservableCollection<Axis> _latencyAxis = new()
-        {
-            new Axis { Name = "MILLISECONDS", MinStep = 1, TextSize = 10, Labeler = d => $"{d} ms."}
-        };
+    private ObservableCollection<Axis> _latencyAxis =
+        [
+            new Axis { Name = "MILLISECONDS", MinStep = 1, TextSize = 10, Labeler = d => $"{d} ms." }
+        ];
 
     [ObservableProperty]
-    private ObservableCollection<Axis> _queryTimeAxis = new()
-        {
+    private ObservableCollection<Axis> _queryTimeAxis =
+        [
             new Axis { Name = "SECONDS", TextSize = 10, Labeler = d => $"{d / 1000:N2} sec." }
-        };
+        ];
 
     [RelayCommand]
     public void StopScan()
