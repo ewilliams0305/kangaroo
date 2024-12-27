@@ -12,20 +12,22 @@ type ComplianceError =
     | NumberOfAliveDevicesDontMatch
     | ElapsedTimeExceededThreshold
     | IpAddressesDontMatch
-
+    | IpAddressNotFound
 
 type ComplianceSuccess = {
     CheckDataTime: DateTime
     TimeBetweenScans: TimeSpan
     Checks: list<ComplianceCheck> 
-    Errors: list<ComplianceError> 
+    Errors: list<ComplianceError>
+    Nodes: list<Result<NodeComplianceRun, ComplianceError>>
 }
 
 type ComplianceFailure = {
     CheckDataTime: DateTime
     TimeBetweenScans: TimeSpan
     Checks: list<ComplianceCheck> 
-    Errors: list<ComplianceError> 
+    Errors: list<ComplianceError>
+    Nodes: list<NodeComplianceRun>
 }
 
 type AliveDevices = int 
@@ -43,10 +45,10 @@ module ScanChecks =
         | true -> Ok NumberOfAliveDevicesMatch 
         | false -> Error NumberOfAliveDevicesDontMatch 
 
-    let internal checkElapsedTime (compliance: TimeSpan, scanned: TimeSpan, threashold: TimeSpan) =
+    let internal checkElapsedTime (compliance: TimeSpan, scanned: TimeSpan, threshold: TimeSpan) =
         let difference = scanned - compliance
         match difference with 
-        | d when d < threashold -> Ok ElapsedTimeWithinThreshold
+        | d when d < threshold -> Ok ElapsedTimeWithinThreshold
         | _ -> Error ElapsedTimeExceededThreshold
 
     let private checkIpAddressesAgainstScanned (compliance: list<NetworkNode>, scanned: list<NetworkNode>) = 
@@ -78,6 +80,14 @@ module ScanChecks =
             | _ -> Error IpAddressesDontMatch
         | Error mismatch -> Error mismatch
             
+    let internal checkNetworkNodes(compliance: list<NetworkNode>, scanned: list<NetworkNode>, options: NodeComplianceConfiguration) = 
+        compliance
+        |> List.map (fun node ->
+            match scanned |> List.tryFind(fun n -> n.IpAddress = node.IpAddress) with 
+            | Some scannedNode -> Ok (NodeChecks.CheckNetworkNode(node, scannedNode, options))
+            | None -> Error IpAddressNotFound )
+        
+               
     let CheckForCompliance (compliance: ScanResults, scanned: ScanResults) =
         let checks = [
             checkAliveDevices(compliance.NumberOfAliveNodes, scanned.NumberOfAliveNodes); 
@@ -90,6 +100,7 @@ module ScanChecks =
             CheckDataTime = DateTime.Now
             TimeBetweenScans = compliance.ElapsedTime - scanned.ElapsedTime
             Checks = success |> List.map (function | Ok check -> check | _ -> failwith "Unexpected pattern")
-            Errors = failure |> List.map (function | Error err -> err | _ -> failwith "Unexpected pattern")}
+            Errors = failure |> List.map (function | Error err -> err | _ -> failwith "Unexpected pattern")
+            Nodes = checkNetworkNodes(compliance.Nodes, scanned.Nodes)}
         
         result
