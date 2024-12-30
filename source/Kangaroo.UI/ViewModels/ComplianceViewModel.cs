@@ -12,8 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using AsyncAwaitBestPractices;
 using Kangaroo.Compliance;
 using Kangaroo.UI.Database;
 
@@ -24,8 +26,9 @@ public partial class ComplianceViewModel : ViewModelBase
     private CancellationTokenSource _cts;
     private IScanner? _scanner;
     private ScanConfiguration? _configuration;
-    private readonly RecentScansRepository _recentScans;
+    private readonly RecentScansRepository _recentScansRepository;
     private readonly ComplianceService _service;
+    private readonly IScannerFactory _factory;
 
     /// <summary>
     /// Design view constructor
@@ -38,9 +41,10 @@ public partial class ComplianceViewModel : ViewModelBase
     public ComplianceViewModel(RecentScansRepository recentScans, ComplianceService service, IScannerFactory factory)
     {
         _cts = new CancellationTokenSource();
-        _recentScans = recentScans;
+        _recentScansRepository = recentScans;
         _service = service;
-        factory.OnScannerCreated = scannerData =>
+        _factory = factory;
+        _factory.OnScannerCreated = scannerData =>
         {
             _scanner?.Dispose();
             ScanEnabled = scannerData is { valid: true, scanner: not null };
@@ -48,7 +52,35 @@ public partial class ComplianceViewModel : ViewModelBase
             _configuration = scannerData.configuration;
         };
         
-        //LoadRecent().SafeFireAndForget();
+        LoadRecent().SafeFireAndForget();
+    }
+    
+    [ObservableProperty] 
+    private RecentScan _selectedScan;
+
+    [ObservableProperty] 
+    private ObservableCollection<RecentScan> _recentScans = new ObservableCollection<RecentScan>();
+    
+    private async Task LoadRecent()
+    {
+        var scans = await _service.GetRecentScans();
+        var items = scans.Reverse();
+        var recentScans = items as RecentScan[] ?? items.ToArray();
+    
+        RecentScans = new ObservableCollection<RecentScan>(recentScans);
+    }
+    
+    partial void OnSelectedScanChanged(RecentScan value)
+    {
+        //_factory.OnScannerCreated?.Invoke((null, null, false));
+        
+        _factory.CreateScanner(new ScanConfiguration
+        {
+            StartAddress = IPAddress.Parse(value.StartAddress),
+            EndAddress = IPAddress.Parse(value.EndAddress),
+            ScanMode = value.ScanMode,
+        });
+        ScanEnabled = true;
     }
 
     [ObservableProperty]
@@ -241,7 +273,7 @@ public partial class ComplianceViewModel : ViewModelBase
             
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
 
-            await _recentScans.CreateAsync(
+            await _recentScansRepository.CreateAsync(
                 RecentScan.FromResults(results, _configuration, TimeProvider.System), _cts.Token);
 
             IsScanning = false;

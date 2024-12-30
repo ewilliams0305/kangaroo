@@ -20,7 +20,23 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
-            <views:ComplianceConfigurationView />
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT RECENT SCAN:</Label>
+                        <ComboBox ItemsSource="{Binding RecentScans}"
+                                  SelectedItem="{Binding SelectedScan}"
+                                  Width="200"
+                                  Margin="4">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource RecentScanTextConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
 
             <Button Command="{Binding StartScan}"
                     IsEnabled="{Binding ScanEnabled}"

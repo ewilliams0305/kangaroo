@@ -63,7 +63,7 @@ public static class ContainerExtensions
         builder.Services.AddSingleton<IpScannerViewModel>();
         
         builder.Services.AddTransient<ComplianceView>();
-        builder.Services.AddSingleton<ComplianceViewModel>();
+        builder.Services.AddTransient<ComplianceViewModel>();
         
         builder.Services.AddTransient<ComplianceConfigurationView>();
         builder.Services.AddTransient<ComplianceConfigurationViewModel>();

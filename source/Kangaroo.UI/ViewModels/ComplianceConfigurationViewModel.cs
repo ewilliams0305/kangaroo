@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using AsyncAwaitBestPractices;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Kangaroo.UI.Controls;
 using Kangaroo.UI.Database;
-using Kangaroo.UI.Models;
 using Kangaroo.UI.Services;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using Microsoft.Extensions.Logging;
-using SkiaSharp;
 
 namespace Kangaroo.UI.ViewModels;
 public partial class ComplianceConfigurationViewModel : ViewModelBase
