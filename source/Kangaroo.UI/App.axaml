@@ -3,6 +3,7 @@
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
              xmlns:local="using:Kangaroo.UI"
              xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
+             xmlns:converters="clr-namespace:Kangaroo.UI.Converters"
              x:Class="Kangaroo.UI.App"
              RequestedThemeVariant="Dark">
 
@@ -16,7 +17,8 @@
     </Application.Styles>
 
     <Application.Resources>
-      <controls:ScanModeTextConverter x:Key="ScanModeTextConverter"/>
-      <controls:NetworkAdapterTextConverter x:Key="NetworkAdapterTextConverter"/>
+      <converters:ScanModeTextConverter x:Key="ScanModeTextConverter"/>
+      <converters:NetworkAdapterTextConverter x:Key="NetworkAdapterTextConverter"/>
+      <converters:RecentScanTextConverter x:Key="RecentScanTextConverter"/>
     </Application.Resources>
 </Application>

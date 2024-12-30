@@ -64,13 +64,15 @@ public static class ContainerExtensions
         
         builder.Services.AddTransient<ComplianceView>();
         builder.Services.AddSingleton<ComplianceViewModel>();
+        
+        builder.Services.AddTransient<ComplianceConfigurationView>();
+        builder.Services.AddTransient<ComplianceConfigurationViewModel>();
 
         builder.Services.AddTransient<PortScannerView>();
         builder.Services.AddTransient<PortScannerViewModel>();
 
         builder.Services.AddTransient<ConfigurationView>();
         builder.Services.AddTransient<ConfigurationViewModel>();
-
 
         builder.Services.AddTransient<ScanConfiguratorView>();
         builder.Services.AddTransient<ScanConfiguratorViewModel>();

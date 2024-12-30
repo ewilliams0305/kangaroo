@@ -60,10 +60,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Converters\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Database\Scripts\*.sql" />
   </ItemGroup>
   

@@ -4,12 +4,10 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Kangaroo.UI.Models;
 
-namespace Kangaroo.UI.Controls;
+namespace Kangaroo.UI.Converters;
 
 public class ScanModeTextConverter : IValueConverter
 {
-    public static readonly ScanModeTextConverter Instance = new();
-
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is ScanMode mode && targetType.IsAssignableTo(typeof(string)))
@@ -23,27 +21,6 @@ public class ScanModeTextConverter : IValueConverter
                 ScanMode.SpecifiedAddresses => "IP Addresses",
                 _ => throw new ArgumentOutOfRangeException()
             };
-        }
-
-        return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
-    }
-
-    public object ConvertBack(object? value, Type targetType,
-        object? parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
-}
-
-public class NetworkAdapterTextConverter : IValueConverter
-{
-    public static readonly ScanModeTextConverter Instance = new();
-
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is NetworkAdapter apt && targetType.IsAssignableTo(typeof(string)))
-        {
-            return $"{apt.Name} | {apt.IpAddress} | {apt.MacAddress}";
         }
 
         return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);

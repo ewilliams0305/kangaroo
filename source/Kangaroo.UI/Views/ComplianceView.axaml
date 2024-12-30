@@ -20,7 +20,7 @@
                     Grid.Column="0"
                     Margin="20, 5,0,0" Orientation="Horizontal">
 
-            <views:ScanConfiguratorView x:Name="ScanConfiguration"></views:ScanConfiguratorView>
+            <views:ComplianceConfigurationView />
 
             <Button Command="{Binding StartScan}"
                     IsEnabled="{Binding ScanEnabled}"

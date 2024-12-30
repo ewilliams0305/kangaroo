@@ -1,5 +1,4 @@
-﻿using AsyncAwaitBestPractices;
-using Avalonia;
+﻿using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kangaroo.UI.Controls;
@@ -26,6 +25,7 @@ public partial class ComplianceViewModel : ViewModelBase
     private IScanner? _scanner;
     private ScanConfiguration? _configuration;
     private readonly RecentScansRepository _recentScans;
+    private readonly ComplianceService _service;
 
     /// <summary>
     /// Design view constructor
@@ -35,10 +35,11 @@ public partial class ComplianceViewModel : ViewModelBase
         _cts = new CancellationTokenSource();
     }
 
-    public ComplianceViewModel(RecentScansRepository recentScans, IScannerFactory factory)
+    public ComplianceViewModel(RecentScansRepository recentScans, ComplianceService service, IScannerFactory factory)
     {
         _cts = new CancellationTokenSource();
         _recentScans = recentScans;
+        _service = service;
         factory.OnScannerCreated = scannerData =>
         {
             _scanner?.Dispose();
@@ -47,7 +48,7 @@ public partial class ComplianceViewModel : ViewModelBase
             _configuration = scannerData.configuration;
         };
         
-        // LoadRecent().SafeFireAndForget();
+        //LoadRecent().SafeFireAndForget();
     }
 
     [ObservableProperty]
