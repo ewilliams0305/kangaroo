@@ -30,23 +30,27 @@ public static class ContainerExtensions
             .AddViewModels(ops);
     }
 
-    public static HostApplicationBuilder AddDatabaseServices(this HostApplicationBuilder builder, ServiceOptions options)
+    private static HostApplicationBuilder AddDatabaseServices(this HostApplicationBuilder builder, ServiceOptions options)
     {
         builder.Services.AddTransient<IDbConnectionFactory, SqliteDbConnectionFactory>(sp => new SqliteDbConnectionFactory(options.DatabaseConnection));
         builder.Services.AddTransient<IDbInitializer, SqliteDbInitializer>();
 
         builder.Services.AddTransient<RecentScansRepository>();
         builder.Services.AddTransient<ComplianceRepository>();
-        return builder;
-    }
-    public static HostApplicationBuilder AddScannerServices(this HostApplicationBuilder builder, ServiceOptions options)
-    {
-        builder.Services.AddTransient<IScannerBuilder, ScannerBuilder>();
-        builder.Services.AddSingleton<IScannerFactory, ScannerFactory>();
+        builder.Services.AddTransient<StoredResultsRepository>();
         return builder;
     }
 
-    public static HostApplicationBuilder AddViewModels(this HostApplicationBuilder builder, ServiceOptions options)
+    private static HostApplicationBuilder AddScannerServices(this HostApplicationBuilder builder, ServiceOptions options)
+    {
+        builder.Services.AddTransient<IScannerBuilder, ScannerBuilder>();
+        builder.Services.AddSingleton<IScannerFactory, ScannerFactory>();
+
+        builder.Services.AddTransient<ComplianceService>();
+        return builder;
+    }
+
+    private static HostApplicationBuilder AddViewModels(this HostApplicationBuilder builder, ServiceOptions options)
     {
         builder.Services.AddTransient<MainWindow>();
         builder.Services.AddTransient<MainView>();

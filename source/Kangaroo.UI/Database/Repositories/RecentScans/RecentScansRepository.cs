@@ -51,12 +51,12 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
     public async Task<RecentScan?> GetByIdAsync(Guid id, CancellationToken token = default)
     {
         using var connection = await _connectionFactory.CreateConnectionAsync(token);
-        var user = await connection.QuerySingleOrDefaultAsync<RecentScan>(new CommandDefinition(
+        var recent = await connection.QuerySingleOrDefaultAsync<RecentScan>(new CommandDefinition(
             commandText: RecentScanQuery,
             parameters: new { Id = id.ToString() },
             cancellationToken: token));
 
-        return user;
+        return recent;
     }
 
     /// <inheritdoc />
