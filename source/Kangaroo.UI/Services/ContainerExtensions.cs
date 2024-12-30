@@ -36,6 +36,7 @@ public static class ContainerExtensions
         builder.Services.AddTransient<IDbInitializer, SqliteDbInitializer>();
 
         builder.Services.AddTransient<RecentScansRepository>();
+        builder.Services.AddTransient<ComplianceRepository>();
         return builder;
     }
     public static HostApplicationBuilder AddScannerServices(this HostApplicationBuilder builder, ServiceOptions options)
