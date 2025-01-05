@@ -18,4 +18,13 @@ public sealed class ScanConfiguration
     public IPAddress? NetmaskAddress { get; set; }
     public IEnumerable<IPAddress>? SpecificAddresses { get; set; }
     public NetworkInterface? NetworkInterface { get; set; }
+
+    public static ScanConfiguration Nodes(IEnumerable<IPAddress> nodes) => new ScanConfiguration
+    {
+        ScanMode = ScanMode.SpecifiedAddresses,
+        SpecificAddresses = nodes,
+        WithHttp = true,
+        Ttl = 5,
+        Timeout = TimeSpan.FromSeconds(5)
+    };
 }
