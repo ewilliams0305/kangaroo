@@ -89,7 +89,7 @@ public partial class ComplianceViewModel : ViewModelBase
             new PieSeries<int>
             {
                 Values = [254],
-                Name = "ADDRESSES SCANNED",
+                Name = "FAILED NODES",
                 DataLabelsFormatter = data => $"{data} NODES",
                 Fill = new SolidColorPaint(new SKColor(239, 68, 56))
             },
@@ -97,7 +97,7 @@ public partial class ComplianceViewModel : ViewModelBase
             new PieSeries<int>
             {
                 Values = [0],
-                Name = "ADDRESSES LOCATED",
+                Name = "COMPLIANT NODES",
                 DataLabelsFormatter = data => $"{data} NODES",
                 Fill = new SolidColorPaint(new SKColor(33, 150, 243))
             }
@@ -207,47 +207,10 @@ public partial class ComplianceViewModel : ViewModelBase
 
         try
         {
-            var results = await _scanner.QueryNetwork(_cts.Token);
+            var results = await _scanner.QueryNetwork(_cts.Token).ConfigureAwait(false);
             var compliance = ScanChecks.CheckForCompliance(results, results, Options.CreateDefaultOptions());
             
-            // try
-            // {
-            //     
-            //
-            //     switch (compliance)
-            //     {
-            //         case Compliance.Compliance.Compliant compliant:
-            //             foreach (var check in compliant.Item.Checks)
-            //             {
-            //                 Console.WriteLine(check);
-            //             }
-            //
-            //             foreach (var check in compliant.Item.Nodes)
-            //             {
-            //                 Console.WriteLine(check);
-            //             }
-            //             break;
-            //
-            //         case Compliance.Compliance.Failure failures:
-            //             foreach (var check in failures.Item.Errors)
-            //             {
-            //                 Console.WriteLine(check);
-            //             }
-            //         
-            //             foreach (var check in failures.Item.Nodes)
-            //             {
-            //                 Console.WriteLine(check);
-            //             }
-            //             break;
-            //     }
-            //
-            // }
-            // catch (Exception e)
-            // {
-            //     Console.WriteLine(e);
-            // }
-            //
-            UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
+            UpdateAliveChartData(compliance, results, queryTimes, latencyTimes, axisLabels);
             IsScanning = false;
         }
         catch (OperationCanceledException)
@@ -275,7 +238,7 @@ public partial class ComplianceViewModel : ViewModelBase
 
     private async Task LoadScanData(RecentScan scan)
     {
-        var data = await _service.SelectRecentScanResult(scan);
+        var data = await _service.SelectRecentScanResult(scan).ConfigureAwait(false);
 
         if (data is null)
         {
@@ -347,8 +310,10 @@ public partial class ComplianceViewModel : ViewModelBase
         }
     }
 
-    private void UpdateAliveChartData(ScanResults results, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
+    private void UpdateAliveChartData(Compliance.Compliance? compliance, ScanResults results, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
     {
+        // TODO: Update charts with compliance
+
         var updatedChart = results.Nodes
             .Where(n => n.Alive)
             .Select(n => new NetworkNodeModel(n));
