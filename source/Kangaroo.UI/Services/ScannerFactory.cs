@@ -19,7 +19,7 @@ public sealed class ScannerFactory : IScannerFactory
             ScanMode.NetworkSubnet => CreateSubnetScanner(options),
             ScanMode.NetworkAdapter => CreateAdapterScanner(options),
             ScanMode.SingleAddress => CreateSingleScanner(options),
-            ScanMode.SpecifiedAddresses => throw new ArgumentOutOfRangeException(),
+            ScanMode.SpecifiedAddresses => CreateAddressScanner(options),
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -62,6 +62,25 @@ public sealed class ScannerFactory : IScannerFactory
 
         return (scanner, options, true);
     }
+    
+    private (IScanner scanner, ScanConfiguration config, bool isValid) CreateAddressScanner(ScanConfiguration options)
+    {
+        ArgumentNullException.ThrowIfNull(options.SpecificAddresses);
+
+        var scanner = new ScannerBuilder()
+            .WithAddresses(options.SpecificAddresses!)
+            .WithOptions(ops =>
+            {
+                ops.EnableHttpScan = options.WithHttp;
+                ops.Ttl = options.Ttl;
+                ops.Timeout = options.Timeout;
+            })
+            .WithParallelism()
+            .Build();
+
+        return (scanner, options, true);
+    }
+
     private (IScanner scanner, ScanConfiguration config, bool isValid) CreateSubnetScanner(ScanConfiguration options)
     {
         ArgumentNullException.ThrowIfNull(options.SpecificAddress);
