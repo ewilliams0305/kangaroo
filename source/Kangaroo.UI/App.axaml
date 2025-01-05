@@ -20,5 +20,6 @@
       <converters:ScanModeTextConverter x:Key="ScanModeTextConverter"/>
       <converters:NetworkAdapterTextConverter x:Key="NetworkAdapterTextConverter"/>
       <converters:RecentScanTextConverter x:Key="RecentScanTextConverter"/>
+      <converters:ComplianceNodeStatusConverter x:Key="ComplianceNodeStatusConverter"/>
     </Application.Resources>
 </Application>

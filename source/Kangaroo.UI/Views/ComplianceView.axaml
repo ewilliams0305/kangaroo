@@ -2,11 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:views="clr-namespace:Kangaroo.UI.Views" 
              xmlns:viewModels="clr-namespace:Kangaroo.UI.ViewModels"
-             xmlns:controls="clr-namespace:Kangaroo.UI.Controls"
              xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:models="clr-namespace:Kangaroo.UI.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Kangaroo.UI.Views.ComplianceView"
              x:DataType="viewModels:ComplianceViewModel">
@@ -26,7 +25,7 @@
                         <Label FontStyle="Italic" FontSize="10" Background="#2d2d2d">SELECT RECENT SCAN:</Label>
                         <ComboBox ItemsSource="{Binding RecentScans}"
                                   SelectedItem="{Binding SelectedScan}"
-                                  Width="200"
+                                  Width="500"
                                   Margin="4">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -73,13 +72,20 @@
                   BorderThickness="1"
                   BorderBrush="Gray">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="ONLINE" Binding="{Binding IsAlive}" />
-                <!-- <DataGridTextColumn Header="IP ADDRESS" Binding="{Binding IpAddress}" /> -->
+				<DataGridTemplateColumn Header="STATUS">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate DataType="models:CompliantViewNodeModel">
+                            <PathIcon Data="{Binding Converter={StaticResource ComplianceNodeStatusConverter}}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="COMPLIANT" Binding="{Binding IsCompliant}" />
+                <DataGridTextColumn Header="IP ADDRESS" Binding="{Binding IpAddress}" />
                 <DataGridTextColumn Header="MAC ADDRESS" Binding="{Binding MacAddress}" />
-                <DataGridTextColumn Header="DNS NAME" Binding="{Binding DnsName}" />
-                <DataGridTextColumn Header="QUERY TIME" Binding="{Binding QueryTime}" />
+                <DataGridTextColumn Header="HOSTNAME" Binding="{Binding Hostname}" />
+                <DataGridTextColumn Header="WEB SERVER" Binding="{Binding WebServer}" />
                 <DataGridTextColumn Header="LATENCY" Binding="{Binding Latency}" />
-                <DataGridTextColumn Header="SERVER INFO" Binding="{Binding WebServer}" />
+                <DataGridTextColumn Header="ELAPSED TIME" Binding="{Binding QueryTime}" />
             </DataGrid.Columns>
         </DataGrid>
 

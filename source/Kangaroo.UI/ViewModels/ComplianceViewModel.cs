@@ -9,6 +9,7 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,6 +19,7 @@ using System.Threading.Tasks;
 using AsyncAwaitBestPractices;
 using Kangaroo.Compliance;
 using Kangaroo.UI.Database;
+using Microsoft.Extensions.Logging;
 
 namespace Kangaroo.UI.ViewModels;
 
@@ -26,9 +28,12 @@ public partial class ComplianceViewModel : ViewModelBase
     private CancellationTokenSource _cts;
     private IScanner? _scanner;
     private ScanConfiguration? _configuration;
+    private readonly ILogger<ComplianceViewModel> _logger;
     private readonly RecentScansRepository _recentScansRepository;
     private readonly ComplianceService _service;
     private readonly IScannerFactory _factory;
+    
+    private ConcurrentDictionary<string, NetworkNode> _nodeToCheck = new ();
 
     /// <summary>
     /// Design view constructor
@@ -38,12 +43,14 @@ public partial class ComplianceViewModel : ViewModelBase
         _cts = new CancellationTokenSource();
     }
 
-    public ComplianceViewModel(RecentScansRepository recentScans, ComplianceService service, IScannerFactory factory)
+    public ComplianceViewModel(ILogger<ComplianceViewModel> logger, RecentScansRepository recentScans, ComplianceService service, IScannerFactory factory)
     {
         _cts = new CancellationTokenSource();
+        _logger = logger;
         _recentScansRepository = recentScans;
         _service = service;
         _factory = factory;
+
         _factory.OnScannerCreated = scannerData =>
         {
             _scanner?.Dispose();
@@ -60,43 +67,15 @@ public partial class ComplianceViewModel : ViewModelBase
 
     [ObservableProperty] 
     private ObservableCollection<RecentScan> _recentScans = new ObservableCollection<RecentScan>();
-    
-    private async Task LoadRecent()
-    {
-        var scans = await _service.GetRecentScans();
-        var items = scans.Reverse();
-        var recentScans = items as RecentScan[] ?? items.ToArray();
-    
-        RecentScans = new ObservableCollection<RecentScan>(recentScans);
-    }
-    
-    partial void OnSelectedScanChanged(RecentScan value)
-    {
-        //_factory.OnScannerCreated?.Invoke((null, null, false));
-        
-        _factory.CreateScanner(new ScanConfiguration
-        {
-            StartAddress = IPAddress.Parse(value.StartAddress),
-            EndAddress = IPAddress.Parse(value.EndAddress),
-            ScanMode = value.ScanMode,
-        });
-        ScanEnabled = true;
-    }
 
     [ObservableProperty]
-    private ObservableCollection<NodeComplianceData> _networkNodes = new();
+    private ObservableCollection<CompliantViewNodeModel> _networkNodes = new();
 
     [ObservableProperty]
     private bool _isScanning;
 
     [ObservableProperty]
     private bool _scanEnabled;
-
-    [ObservableProperty]
-    private string _beginIpAddress = string.Empty;
-
-    [ObservableProperty]
-    private string _endIpAddress = string.Empty;
 
     [ObservableProperty]
     private int _progress;
@@ -182,8 +161,7 @@ public partial class ComplianceViewModel : ViewModelBase
 
         _cts = new CancellationTokenSource();
         IsScanning = true;
-        NetworkNodes = new ObservableCollection<NodeComplianceData>();
-
+ 
         var queryTimes = new List<double>();
         var latencyTimes = new List<double>();
         var axisLabels = new List<string>();
@@ -198,15 +176,12 @@ public partial class ComplianceViewModel : ViewModelBase
                 ScannedDeviceChart[1].Values = new int[] { counter };
                 ScannedDeviceChart[0].Values = new int[] { items - counter };
 
-                // AddInitialNetworkNode( 
-                //     NodeChecks.CheckNetworkNode(node, node, Options.CreateDefaultNodeOptions()), 
-                //     queryTimes, 
-                //     latencyTimes, 
-                //     axisLabels);
+                UpdateStartingNetworkNode(node);
             }
 
             if (status == LiveUpdateStatus.Completed)
             {
+                
                 UpdateActiveNetworkNode(node, queryTimes, latencyTimes, axisLabels);
             }
         };
@@ -226,56 +201,53 @@ public partial class ComplianceViewModel : ViewModelBase
                 ScannedDeviceChart[1].Values = new int[] { results.NumberOfAliveNodes };
                 ScannedDeviceChart[0].Values = new int[] { results.NumberOfAddressesScanned };
                 var orderedNodes = NetworkNodes.OrderBy(c => c.IsCompliant.Equals(IsCompliant.Compliant));
-                NetworkNodes = new ObservableCollection<NodeComplianceData>(orderedNodes);
+                NetworkNodes = new ObservableCollection<CompliantViewNodeModel>(orderedNodes);
             }
         };
 
         try
         {
             var results = await _scanner.QueryNetwork(_cts.Token);
-
-            try
-            {
-                var compliance = ScanChecks.CheckForCompliance(results, results, Options.CreateDefaultOptions());
-
-                switch (compliance)
-                {
-                    case Compliance.Compliance.Compliant compliant:
-                        foreach (var check in compliant.Item.Checks)
-                        {
-                            Console.WriteLine(check);
-                        }
-
-                        foreach (var check in compliant.Item.Nodes)
-                        {
-                            Console.WriteLine(check);
-                        }
-                        break;
-
-                    case Compliance.Compliance.Failure failures:
-                        foreach (var check in failures.Item.Errors)
-                        {
-                            Console.WriteLine(check);
-                        }
-                    
-                        foreach (var check in failures.Item.Nodes)
-                        {
-                            Console.WriteLine(check);
-                        }
-                        break;
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            var compliance = ScanChecks.CheckForCompliance(results, results, Options.CreateDefaultOptions());
             
+            // try
+            // {
+            //     
+            //
+            //     switch (compliance)
+            //     {
+            //         case Compliance.Compliance.Compliant compliant:
+            //             foreach (var check in compliant.Item.Checks)
+            //             {
+            //                 Console.WriteLine(check);
+            //             }
+            //
+            //             foreach (var check in compliant.Item.Nodes)
+            //             {
+            //                 Console.WriteLine(check);
+            //             }
+            //             break;
+            //
+            //         case Compliance.Compliance.Failure failures:
+            //             foreach (var check in failures.Item.Errors)
+            //             {
+            //                 Console.WriteLine(check);
+            //             }
+            //         
+            //             foreach (var check in failures.Item.Nodes)
+            //             {
+            //                 Console.WriteLine(check);
+            //             }
+            //             break;
+            //     }
+            //
+            // }
+            // catch (Exception e)
+            // {
+            //     Console.WriteLine(e);
+            // }
+            //
             UpdateAliveChartData(results, queryTimes, latencyTimes, axisLabels);
-
-            await _recentScansRepository.CreateAsync(
-                RecentScan.FromResults(results, _configuration, TimeProvider.System), _cts.Token);
-
             IsScanning = false;
         }
         catch (OperationCanceledException)
@@ -283,23 +255,95 @@ public partial class ComplianceViewModel : ViewModelBase
             IsScanning = false;
         }
     }
+
+    private async Task LoadRecent()
+    {
+        var scans = await _service.GetRecentScans();
+        var items = scans.Reverse();
+        var recentScans = items as RecentScan[] ?? items.ToArray();
+
+        RecentScans = new ObservableCollection<RecentScan>(recentScans);
+    }
+
+    partial void OnSelectedScanChanged(RecentScan value)
+    {
+        LoadScanData(value).SafeFireAndForget(ex =>
+        {
+            _logger.LogError(ex, "Failed to convert recent scan to data");
+        });
+    }
+
+    private async Task LoadScanData(RecentScan scan)
+    {
+        var data = await _service.SelectRecentScanResult(scan);
+
+        if (data is null)
+        {
+            ScanEnabled = false;
+            return;
+            // TODO: show some sort of error here communicating the scan cant be used
+        }
+
+        _factory.CreateScanner(
+            ScanConfiguration.Nodes(
+                data.Nodes.Select(n =>
+                IPAddress.Parse(n.IpAddress))));
+
+        ScanEnabled = true;
+        
+        _nodeToCheck.Clear();
+        NetworkNodes.Clear();
+        
+        foreach (var node in data.Nodes.Where(n => n.Alive))
+        {
+            var complianceNode = node.ToNetworkNode();
+            
+            _nodeToCheck.TryAdd(node.IpAddress, complianceNode);
+            NetworkNodes.Add(new CompliantViewNodeModel(node: complianceNode));
+        }
+    }
+
+    private void UpdateStartingNetworkNode(NetworkNode node)
+    {
+        var index = NetworkNodes.ToList().FindIndex(n => Equals(n.Node!.IpAddress, node.IpAddress));
+
+        NetworkNodes.RemoveAt(index);
+        NetworkNodes.Insert(index, new CompliantViewNodeModel(node)
+        {
+            IsRunning = true,
+        });
+    }
+    
     private void UpdateActiveNetworkNode(NetworkNode node, List<double> queryTimes, List<double> latencyTimes, List<string> axisLabels)
     {
-        if (node.Alive)
+        try
         {
-            var nodeToRemove = NetworkNodes.First(n => Equals(n.Node.IpAddress, node.IpAddress));
-            NetworkNodes.Remove(nodeToRemove);
-            NetworkNodes.Insert(0, NodeChecks.CheckNetworkNode(node, node, Options.CreateDefaultNodeOptions()));
+            var index = NetworkNodes.ToList().FindIndex(n => Equals(n.Node!.IpAddress, node.IpAddress));
+            var originalNode = NetworkNodes.First(n => Equals(n.Node!.IpAddress, node.IpAddress));
+            
+            var compliance = NodeChecks.CheckNetworkNode(
+                _nodeToCheck[node.IpAddress.ToString()], 
+                node, 
+                Options.CreateDefaultNodeOptions());
+
+            NetworkNodes.RemoveAt(index);
+            NetworkNodes.Insert(index, new CompliantViewNodeModel(compliance));
 
             queryTimes.Add(node.QueryTime.TotalMilliseconds);
+
             latencyTimes.Add(node.Latency != null
-                ? node.Latency!.Value.TotalMilliseconds
+                ? node.Latency.Value.TotalMilliseconds
                 : 0);
+
             axisLabels.Add(node.IpAddress.ToString());
 
             LatencyStatistics[0].Values = latencyTimes;
             QueryStatistics[0].Values = queryTimes;
             IpAddressAxis[0].Labels = axisLabels;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 

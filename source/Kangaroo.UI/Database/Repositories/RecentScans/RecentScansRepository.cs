@@ -83,7 +83,7 @@ public sealed class RecentScansRepository : IEntityRepository<RecentScan, Guid>
                         {
                             Id = scanResultId,
                             ScanResult = JsonSerializer.SerializeToUtf8Bytes(entity.Result.ToResults()),
-                            ScanResultDiscriminator = typeof(RecentScanResult).FullName,
+                            ScanResultDiscriminator = typeof(ScanResults).FullName,
                         },
                         cancellationToken: token,
                         transaction: transaction

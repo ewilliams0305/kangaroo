@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +25,11 @@ public class ComplianceService
         return await _recentScansRepository.GetAsync(cancellationToken);
     }
 
-    public async Task<ScanResults?> SelectRecentScanResult(RecentScan recentScan,CancellationToken cancellationToken =  default)
+    public async Task<RecentScanResult?> SelectRecentScanResult(RecentScan recentScan, CancellationToken cancellationToken =  default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
 
-        var map = await connection.QueryFirstOrDefaultAsync(
+        var map = await connection.QueryFirstOrDefaultAsync<StoredResults>(
             """
             SELECT sr.* FROM ScanResults sr 
             INNER JOIN ScanResultMappings sm ON sr.Id = sm.ScanResultId
@@ -41,8 +42,7 @@ public class ComplianceService
             return null;
         }
         
-        var results = JsonSerializer.Deserialize<ScanResults>(map.ScanResults as byte[]);
-        
+        var results = JsonSerializer.Deserialize<RecentScanResult>(map.ScanResult);
         return results;
     }
 }

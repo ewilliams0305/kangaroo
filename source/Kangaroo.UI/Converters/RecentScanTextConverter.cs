@@ -18,8 +18,8 @@ public class RecentScanTextConverter : IValueConverter
             return scan.ScanMode switch
             {
                 ScanMode.NetworkSubnet => $"{scan.CreatedDateTime} {scan.StartAddress}\\{scan.SubnetMask}",
-                ScanMode.AddressRange => $"{scan.CreatedDateTime} {scan.StartAddress}\\{scan.EndAddress}",
-                ScanMode.NetworkAdapter => $"{scan.CreatedDateTime} {scan.Adapter}",
+                ScanMode.AddressRange => $"{scan.CreatedDateTime} {scan.StartAddress} - {scan.EndAddress}",
+                ScanMode.NetworkAdapter => $"{scan.CreatedDateTime} {scan.StartAddress} - {scan.EndAddress}",
                 ScanMode.SingleAddress => $"{scan.CreatedDateTime} {scan.StartAddress}",
                 ScanMode.SpecifiedAddresses => $"{scan.CreatedDateTime} {scan.SpecifiedAddresses}",
                 _ => throw new ArgumentOutOfRangeException()

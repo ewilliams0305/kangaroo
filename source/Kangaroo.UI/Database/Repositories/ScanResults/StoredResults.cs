@@ -4,5 +4,5 @@ namespace Kangaroo.UI.Database;
 
 public record StoredResults(
     Guid Id,
-    byte[] ScanResults,
-    string ScanResultDescription);
+    byte[] ScanResult,
+    string ScanResultDiscriminator);
